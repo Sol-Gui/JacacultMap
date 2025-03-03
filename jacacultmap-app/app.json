@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "jacacultmap",
+    "owner": "jacacultmap",
     "slug": "jacacultmap",
     "version": "1.0.0",
     "orientation": "portrait",
