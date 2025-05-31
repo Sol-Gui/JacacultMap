@@ -18,4 +18,15 @@ app.get("/status", (req, res) => {
   res.json({ status: "ok" });
 });
 
+app.get("/imgs/", (req, res) => {
+  // Getter from mongoDB the image reference, the image data
+  res.send("Upload endpoint");
+});
+
+app.post("/upload", (req, res) => {
+
+  // Here you would handle the file upload
+  res.send("Arquivo enviado com sucesso!");
+});
+
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));
