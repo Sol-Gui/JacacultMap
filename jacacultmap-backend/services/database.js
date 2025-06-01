@@ -1,22 +1,15 @@
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
+const usermodel = require("../models/user_model");
+const User = usermodel.User;
 
-dotenv.config({path: "../.env"});
-
-const User = mongoose.model("Users", new mongoose.Schema({
-    name: String,
-    email: String,
-    password: String
-}));
-
-async function connectToDatabase() {
-    await mongoose.connect(process.env.DATABASE_URL_CLUSTER_0, {dbName: process.env.DB_NAME});
+async function connectToDatabase(cluster, dbName) {
+    await mongoose.connect(cluster, {dbName});
     console.log("Conectado ao MongoDB!");
 }
 
-async function createUser(name, email, password) {
+async function createUser(email, password) {
 
-    const user = new User({ name, email, password });
+    const user = new User({email, password });
     await user.save();
     console.log("Usuário criado:", user);
 }
@@ -31,6 +24,4 @@ async function updateUserByEmail(email, updates) {
     return updated;
   }  
 
-connectToDatabase().catch(err => console.log(err));
-createUser("lepinho", "lepo22@gmail.com", "123456").catch(err => console.log(err));
-updateUserByEmail("lepo22@gmail.com", { name: "João Eduardo"}).catch(err => console.log(err));
+module.exports = { connectToDatabase, createUser };
