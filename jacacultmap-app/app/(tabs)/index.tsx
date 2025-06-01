@@ -4,7 +4,8 @@ import { SocialLoginButton, SocialLoginContainer, styles } from "../../styles/lo
 import { Input, InputContainer } from "../../styles/login";
 import { GoogleIcon, FacebookIcon } from "../../styles/icons";
 import { FlatList, TouchableOpacity} from 'react-native';
-
+import { removeData, saveData, getData } from "../../services/localStorage";
+import { loginAuth } from "../../services/auth";
 
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
@@ -36,14 +37,14 @@ export default function login() {
       <SocialLoginContainer>
         <SocialLoginButton
           onPress={() => {
-            console.log("Iniciando login Google...");
+            console.log("Lógica de login com Google aqui...");	
           }}
           icon={GoogleIcon}
         />
 
         <SocialLoginButton
           onPress={() => {
-            console.log("Iniciando login Facebook...");
+            console.log('Lógica de login com Facebook aqui...');
           }}
           icon={FacebookIcon}
         />
@@ -79,7 +80,7 @@ export default function login() {
         <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => console.log("Login pressionado!")} style={styles.loginButton}>
+      <TouchableOpacity onPress={() => loginAuth(email, senha)} style={styles.loginButton}>
         <Text style={styles.loginText}>Acessar</Text>
       </TouchableOpacity>
 

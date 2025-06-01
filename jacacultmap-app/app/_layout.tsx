@@ -24,7 +24,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (checking && shouldRedirect) {
-      router.push("/(tabs)/status");
+      router.replace("/(tabs)/status");
     }
   }, [checking, shouldRedirect]);
 
