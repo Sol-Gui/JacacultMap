@@ -1,42 +1,27 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-dotenv.config({ path: ".env" });
-const { connectToDatabase, createUser } = require("./services/database.js");
+const { connectToDatabase } = require("./services/database.js");
+const authRoutes = require("./routes/authRoute.js");
+const defaultRoutes = require("./routes/defaultRoute.js");
+const statusRoutes = require("./routes/statusRoute.js");
+const imageRoutes = require("./routes/imageRoute.js");
 
-connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME).catch(err => console.log("Erro ao conectar ao banco de dados:", err));
+
+dotenv.config({ path: ".env" });
+
+// Connect to the database
+connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME)
+  .catch(err => console.log("Erro ao conectar ao banco de dados:", err));
+
+
 const app = express();
+
 app.use(cors());
 app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Lepo 1!");
-});
-
-app.get("/test", (req, res) => {
-  res.send("Lepo 2!");
-  console.log("teste");
-});
-
-app.get("/status", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-app.get("/imgs/", (req, res) => {
-  // Getter from mongoDB the image reference, the image data
-  res.send("Upload endpoint");
-});
-
-app.post("/login", (req, res) => {
-  createUser(req.body["email"], req.body["password"])
-    .then(() => res.send("Usuário criado com sucesso!"))
-    .catch(err => res.status(500).send("Erro ao criar usuário: " + err.message));
-});
-
-app.post("/upload", (req, res) => {
-
-  // Here you would handle the file upload
-  res.send("Arquivo enviado com sucesso!");
-});
+app.use(authRoutes);
+app.use(defaultRoutes);
+app.use(statusRoutes);
+app.use(imageRoutes);
 
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));

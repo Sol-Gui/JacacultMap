@@ -24,4 +24,4 @@ async function updateUserByEmail(email, updates) {
     return updated;
   }  
 
-module.exports = { connectToDatabase, createUser };
+module.exports = { connectToDatabase };
