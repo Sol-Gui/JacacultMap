@@ -4,8 +4,8 @@ import { SocialLoginButton, SocialLoginContainer, styles } from "../../styles/lo
 import { Input, InputContainer } from "../../styles/login";
 import { GoogleIcon, FacebookIcon } from "../../styles/icons";
 import { FlatList, TouchableOpacity} from 'react-native';
-import { removeData, saveData, getData } from "../../services/localStorage";
-import { loginAuth } from "../../services/auth";
+//import { removeData, saveData, getData } from "../../services/localStorage";
+import { signInAuth, signUpAuth } from "../../services/auth";
 
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
@@ -80,11 +80,11 @@ export default function login() {
         <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => loginAuth(email, senha)} style={styles.loginButton}>
+      <TouchableOpacity onPress={() => signInAuth(email, senha)} style={styles.loginButton}>
         <Text style={styles.loginText}>Acessar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => console.log("Cadastre-se pressionado!")} style={styles.registerButton}>
+      <TouchableOpacity onPress={() => signUpAuth(email, senha)} style={styles.registerButton}>
         <Text style={styles.registerText}>Cadastre-se</Text>
       </TouchableOpacity>
 
