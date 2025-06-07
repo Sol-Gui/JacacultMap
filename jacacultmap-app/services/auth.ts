@@ -10,7 +10,7 @@ export async function signInAuth(email: string, password: string) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao fazer cadastro');
+      throw new Error(error.message || 'Erro ao fazer login');
     }
 
     const data = await response.json();
@@ -32,7 +32,7 @@ export async function signUpAuth(email: string, password: string) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao fazer login');
+      throw new Error(error.error || error.message || 'Erro ao fazer cadastro');
     }
 
     const data = await response.json();

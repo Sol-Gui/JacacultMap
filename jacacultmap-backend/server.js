@@ -10,11 +10,6 @@ const imageRoutes = require("./routes/imageRoute.js");
 
 dotenv.config({ path: ".env" });
 
-// Connect to the database
-connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME)
-  .catch(err => console.log("Erro ao conectar ao banco de dados:", err));
-
-
 const app = express();
 
 app.use(cors());
@@ -24,4 +19,13 @@ app.use(defaultRoutes);
 app.use(statusRoutes);
 app.use(imageRoutes);
 
-app.listen(3000, () => console.log("Servidor rodando na porta 3000"));
+
+connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME)
+  .then(() => 
+    app.listen(3000, () => {
+      console.log("Servidor aberto na porta 3000");
+    })
+  ).catch(err => {
+    console.error("Erro ao conectar ao banco de dados:", err.message);
+    process.exit(1);
+  });

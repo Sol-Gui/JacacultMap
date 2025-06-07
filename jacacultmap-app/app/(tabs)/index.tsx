@@ -1,5 +1,5 @@
-import { Text, View } from "react-native";
-import React, { useState } from "react";
+import { Text, View, Animated } from "react-native";
+import React, { useState, useRef } from "react";
 import { SocialLoginButton, SocialLoginContainer, styles } from "../../styles/login";
 import { Input, InputContainer } from "../../styles/login";
 import { GoogleIcon, FacebookIcon } from "../../styles/icons";
@@ -16,7 +16,25 @@ export default function login() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  
+  const [error, setError] = useState<string | null>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const showError = (msg: string) => {
+    setError(msg);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => setError(null));
+      }, 2500);
+    });
+  };
 
   const handleChange = (text: string) => {
     setEmail(text);
@@ -27,6 +45,15 @@ export default function login() {
     setEmail(email + domain);
     setShowSuggestions(false);
   };
+
+  function ErrorPopup({ error, fadeAnim }: { error: string | null, fadeAnim: Animated.Value }) {
+    if (!error) return null;
+    return (
+      <Animated.View style={[styles.errorPopup, { opacity: fadeAnim }]}> 
+        <Text style={[styles.errorText, { fontFamily: 'monospace' }]}>{error}</Text>
+      </Animated.View>
+    );
+  }
 
 
   return (
@@ -84,9 +111,18 @@ export default function login() {
         <Text style={styles.loginText}>Acessar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => signUpAuth(email, senha)} style={styles.registerButton}>
+      <TouchableOpacity onPress={async () => {
+        try {
+          await signUpAuth(email, senha);
+          setError(null);
+        } catch (err: any) {
+          showError(err.message);
+        }
+      }} style={styles.registerButton}>
         <Text style={styles.registerText}>Cadastre-se</Text>
       </TouchableOpacity>
+
+      <ErrorPopup error={error} fadeAnim={fadeAnim} />
 
     </View>
   );

@@ -58,10 +58,7 @@ export const styles = StyleSheet.create({
     marginBottom: verticalScale(10),
     backgroundColor: '#ffffff',
     fontWeight: '100',
-    shadowColor: '#000000', // iOS shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    elevation: 5, // Android shadow
+    boxShadow: '0px 2px 5px rgba(0,0,0,0.2)',
     fontSize: scale(14),
     marginTop: verticalScale(16),
   },
@@ -73,10 +70,7 @@ export const styles = StyleSheet.create({
     width: scale(50),
     height: scale(50),
     borderRadius: scale(100),
-    elevation: 7, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
+    boxShadow: '0px 2px 7px rgba(0,0,0,0.5)',
   },
   icon: {
     display: 'flex',
@@ -153,5 +147,37 @@ export const styles = StyleSheet.create({
     color: '#000000',
     fontWeight: 'bold',
     fontSize: moderateScale(14),
+  },
+  errorText: {
+    color: '#ff3333',
+    backgroundColor: '#fff0f0',
+    borderColor: '#ff3333',
+    borderWidth: 1,
+    borderRadius: scale(8),
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(16),
+    marginTop: verticalScale(12),
+    marginBottom: verticalScale(8),
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: moderateScale(13),
+    shadowColor: '#ff3333',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    elevation: 2,
+  },
+  errorPopup: {
+    position: 'relative',
+    marginHorizontal: scale(20),
+    zIndex: 100,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#ff3333',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    elevation: 4,
+    marginTop: verticalScale(12),
+    marginBottom: verticalScale(8),
   }
 });
