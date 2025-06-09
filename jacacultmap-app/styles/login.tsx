@@ -161,10 +161,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: moderateScale(13),
-    shadowColor: '#ff3333',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    elevation: 2,
+    boxShadow: '0px 2px 8px rgba(255,51,51,0.15)',
   },
   errorPopup: {
     position: 'relative',
@@ -173,10 +170,7 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#ff3333',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    elevation: 4,
+    boxShadow: '0px 2px 12px rgba(255,51,51,0.15)',
     marginTop: verticalScale(12),
     marginBottom: verticalScale(8),
   }
