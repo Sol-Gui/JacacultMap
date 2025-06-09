@@ -12,20 +12,24 @@ dotenv.config({ path: ".env" });
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
 app.use(authRoutes);
 app.use(defaultRoutes);
 app.use(statusRoutes);
 app.use(imageRoutes);
 
-
 connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME)
-  .then(() => 
-    app.listen(3000, () => {
-      console.log("Servidor aberto na porta 3000");
-    })
-  ).catch(err => {
+  .then(() => {
+    console.log("Conectado ao banco de dados");
+  })
+  .catch(err => {
     console.error("Erro ao conectar ao banco de dados:", err.message);
-    process.exit(1);
   });
+
+module.exports = app;
