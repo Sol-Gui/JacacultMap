@@ -167,17 +167,43 @@ export const styles = StyleSheet.create({
     elevation: 2,
   },
   errorPopup: {
-    position: 'relative',
-    marginHorizontal: scale(20),
-    zIndex: 100,
+    position: 'absolute',
     alignSelf: 'center',
+    top: '40%',
+    width: scale(240), // Reduzido de 280
+    backgroundColor: '#fff',
+    borderRadius: scale(6),
+    padding: scale(8), // Reduzido de 20
+    zIndex: 1000,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#ff3333',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    elevation: 4,
-    marginTop: verticalScale(12),
-    marginBottom: verticalScale(8),
-  }
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#ff3333',
+  },
+  errorTitle: {
+    fontSize: moderateScale(14), // Reduzido de 16
+    fontWeight: 'bold',
+    color: '#ff3333',
+    marginBottom: verticalScale(6),
+  },
+  errorMessage: {
+    fontSize: moderateScale(12), // Reduzido de 14
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: verticalScale(12),
+  },
+  errorButton: {
+    backgroundColor: '#ff3333',
+    paddingHorizontal: scale(20), // Reduzido de 24
+    paddingVertical: verticalScale(6), // Reduzido de 8
+    borderRadius: scale(16),
+  },
 });
