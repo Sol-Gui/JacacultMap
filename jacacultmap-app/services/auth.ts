@@ -1,4 +1,6 @@
-const API_URL = process.env.VERCEL_PUBLIC_API_URL
+import Constants from 'expo-constants';
+
+const API_URL = Constants.expoConfig?.extra?.apiUrl;
 
 export async function signInAuth(email: string, password: string) {
   try {

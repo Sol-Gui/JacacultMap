@@ -34,6 +34,8 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#006032',
+    justifyContent: 'flex-start',
+    paddingTop: verticalScale(20),
   },
   InputContainer: {
     flexDirection: 'column',
@@ -148,7 +150,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: moderateScale(14),
   },
-  errorText: {
+ errorText: {
     color: '#ff3333',
     backgroundColor: '#fff0f0',
     borderColor: '#ff3333',
@@ -164,14 +166,10 @@ export const styles = StyleSheet.create({
     boxShadow: '0px 2px 8px rgba(255,51,51,0.15)',
   },
   errorPopup: {
-    position: 'absolute',
+    position: 'relative',
+    marginHorizontal: scale(20),
+    zIndex: 100,
     alignSelf: 'center',
-    top: '40%',
-    width: scale(240), // Reduzido de 280
-    backgroundColor: '#fff',
-    borderRadius: scale(6),
-    padding: scale(8), // Reduzido de 20
-    zIndex: 1000,
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0px 2px 12px rgba(255,51,51,0.15)',

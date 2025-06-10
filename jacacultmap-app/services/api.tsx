@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Constants from 'expo-constants';
 
-const API_URL = process.env.VERCEL_PUBLIC_API_URL
+
+const API_URL = Constants.expoConfig?.extra?.apiUrl
 
 export const serverStatus = async() => {
   try {

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { serverStatus } from "../services/api";
+import { StatusBar } from 'expo-status-bar';
+
 
 export default function RootLayout() {
   const router = useRouter();
@@ -11,7 +13,6 @@ export default function RootLayout() {
   useEffect(() => {
     const checkServer = async () => {
       const status = await serverStatus();
-      console.log("status:", status);
       if (status !== 200) {
         setShouldRedirect(true);
       } else {
@@ -25,6 +26,8 @@ export default function RootLayout() {
   useEffect(() => {
     if (checking && shouldRedirect) {
       router.replace("/(tabs)/status");
+    } else if (!checking && !shouldRedirect) {
+      router.replace("/");
     }
   }, [checking, shouldRedirect]);
 
@@ -37,10 +40,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <>
+      <StatusBar hidden />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+    </>
   );
 }
