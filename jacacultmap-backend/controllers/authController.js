@@ -3,7 +3,7 @@ const { hash } = require('bcrypt');
 
 const signUp = async (req, res) => {
 
-    const email = req.body["email"];
+    const email = req.body["email"].toLowerCase();
     const password = req.body["password"];
     const hashedPassword = await hash(password, 12);
     const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;

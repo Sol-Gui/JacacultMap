@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API_URL = "http://192.168.56.1:3000";
+const API_URL = "https://jacacultmap-backend-sol-gui-sol-guis-projects.vercel.app";
 
 export const serverStatus = async() => {
   try {
@@ -9,9 +9,9 @@ export const serverStatus = async() => {
       timeout: 1000,
     });
     console.log("Status do servidor:", response.status);
-    return 200; // response.status;
+    return response.status; // response.status;
   } catch (err) {
-    return 200; // 500;
+    return 500; // 500;
   }
 }
 

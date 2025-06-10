@@ -17,7 +17,9 @@ export default function login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeSuccess = useRef(new Animated.Value(0)).current;
 
   const showError = (msg: string) => {
     setError(msg);
@@ -32,6 +34,23 @@ export default function login() {
           duration: 300,
           useNativeDriver: true,
         }).start(() => setError(null));
+      }, 2500);
+    });
+  };
+
+  const showSuccess = (msg: string) => {
+    setSuccess(msg);
+    Animated.timing(fadeSuccess, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(fadeSuccess, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => setSuccess(null));
       }, 2500);
     });
   };
@@ -51,6 +70,15 @@ export default function login() {
     return (
       <Animated.View style={[styles.errorPopup, { opacity: fadeAnim }]}> 
         <Text style={[styles.errorText, { fontFamily: 'monospace' }]}>{error}</Text>
+      </Animated.View>
+    );
+  }
+
+  function SuccessPopup({ success, fadeAnim }: { success: string | null, fadeAnim: Animated.Value }) {
+    if (!success) return null;
+    return (
+      <Animated.View style={[styles.successPopup, { opacity: fadeAnim }]}> 
+        <Text style={[styles.successText, { fontFamily: 'monospace' }]}>{success}</Text>
       </Animated.View>
     );
   }
@@ -113,8 +141,9 @@ export default function login() {
 
       <TouchableOpacity onPress={async () => {
         try {
-          await signUpAuth(email, senha);
+          const result = await signUpAuth(email, senha);
           setError(null);
+          showSuccess(result.message || 'Usuário criado com sucesso!');
         } catch (err: any) {
           showError(err.message);
         }
@@ -123,6 +152,7 @@ export default function login() {
       </TouchableOpacity>
 
       <ErrorPopup error={error} fadeAnim={fadeAnim} />
+      <SuccessPopup success={success} fadeAnim={fadeSuccess} />
 
     </View>
   );

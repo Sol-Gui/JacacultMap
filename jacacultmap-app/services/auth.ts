@@ -1,6 +1,8 @@
+const API_URL = "https://jacacultmap-backend-sol-gui-sol-guis-projects.vercel.app";
+
 export async function signInAuth(email: string, password: string) {
   try {
-    const response = await fetch('http://localhost:3000/signin', {
+    const response = await fetch(`${API_URL}/signin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,7 +24,7 @@ export async function signInAuth(email: string, password: string) {
 
 export async function signUpAuth(email: string, password: string) {
   try {
-    const response = await fetch('http://localhost:3000/signup', {
+    const response = await fetch(`${API_URL}/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

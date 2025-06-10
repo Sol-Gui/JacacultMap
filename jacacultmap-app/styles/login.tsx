@@ -161,10 +161,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: moderateScale(13),
-    shadowColor: '#ff3333',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    elevation: 2,
+    boxShadow: '0px 2px 8px rgba(255,51,51,0.15)',
   },
   errorPopup: {
     position: 'absolute',
@@ -177,6 +174,7 @@ export const styles = StyleSheet.create({
     zIndex: 1000,
     alignItems: 'center',
     justifyContent: 'center',
+<<<<<<< HEAD
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -206,4 +204,36 @@ export const styles = StyleSheet.create({
     paddingVertical: verticalScale(6), // Reduzido de 8
     borderRadius: scale(16),
   },
+=======
+    boxShadow: '0px 2px 12px rgba(255,51,51,0.15)',
+    marginTop: verticalScale(12),
+    marginBottom: verticalScale(8),
+  },
+  successText: {
+    color: '#2e7d32',
+    backgroundColor: '#e8f5e9',
+    borderColor: '#2e7d32',
+    borderWidth: 1,
+    borderRadius: scale(8),
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(16),
+    marginTop: verticalScale(12),
+    marginBottom: verticalScale(8),
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: moderateScale(13),
+    boxShadow: '0px 2px 8px rgba(46,125,50,0.15)',
+  },
+  successPopup: {
+    position: 'relative',
+    marginHorizontal: scale(20),
+    zIndex: 100,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0px 2px 12px rgba(46,125,50,0.15)',
+    marginTop: verticalScale(12),
+    marginBottom: verticalScale(8),
+  }
+>>>>>>> main
 });
