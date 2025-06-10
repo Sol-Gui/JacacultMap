@@ -34,7 +34,7 @@ const signUp = async (req, res) => {
 }
 
 const signIn = async (req, res) => {
-    console.log("Usuário logado:", email);
+    console.log("Usuário logado:", req.body["email"]);
     res.json({ message: "Usuário logado com sucesso!" });
 }
 
