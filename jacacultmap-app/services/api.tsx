@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API_URL = "https://jacacultmap-backend-sol-gui-sol-guis-projects.vercel.app";
+const API_URL = process.env.VERCEL_PUBLIC_API_URL
 
 export const serverStatus = async() => {
   try {
