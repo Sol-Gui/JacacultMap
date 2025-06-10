@@ -174,37 +174,6 @@ export const styles = StyleSheet.create({
     zIndex: 1000,
     alignItems: 'center',
     justifyContent: 'center',
-<<<<<<< HEAD
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: '#ff3333',
-  },
-  errorTitle: {
-    fontSize: moderateScale(14), // Reduzido de 16
-    fontWeight: 'bold',
-    color: '#ff3333',
-    marginBottom: verticalScale(6),
-  },
-  errorMessage: {
-    fontSize: moderateScale(12), // Reduzido de 14
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: verticalScale(12),
-  },
-  errorButton: {
-    backgroundColor: '#ff3333',
-    paddingHorizontal: scale(20), // Reduzido de 24
-    paddingVertical: verticalScale(6), // Reduzido de 8
-    borderRadius: scale(16),
-  },
-=======
     boxShadow: '0px 2px 12px rgba(255,51,51,0.15)',
     marginTop: verticalScale(12),
     marginBottom: verticalScale(8),
@@ -235,5 +204,4 @@ export const styles = StyleSheet.create({
     marginTop: verticalScale(12),
     marginBottom: verticalScale(8),
   }
->>>>>>> main
 });
