@@ -22,7 +22,7 @@ async function updateUserByEmail(email, updates) {
 async function userExists(email) {
     try {
         const exists = await User.findOne({ email });
-        if (exists) return true;
+        if (exists) return exists;
         else return false;
     } catch (err) {
         return false;
