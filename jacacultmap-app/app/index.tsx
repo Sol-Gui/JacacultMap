@@ -135,7 +135,15 @@ export default function login() {
         <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => signInAuth(email, senha)} style={styles.loginButton}>
+      <TouchableOpacity onPress={async () => {
+        try {
+          const result = await signInAuth(email, senha);
+          setError(null);
+          showSuccess(result.message || 'Usuário logado com sucesso!');
+        } catch (err: any) {
+          showError(err.message);
+        }
+      }} style={styles.loginButton}>
         <Text style={styles.loginText}>Acessar</Text>
       </TouchableOpacity>
 
