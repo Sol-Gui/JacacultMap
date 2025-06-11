@@ -25,7 +25,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (checking && shouldRedirect) {
-      router.replace("/");
+      router.replace("/(tabs)/status");
     } else if (!checking && !shouldRedirect) {
       router.replace("/");
     }

@@ -1,11 +1,11 @@
 import { Text, View, Animated } from "react-native";
 import React, { useState, useRef } from "react";
-import { SocialLoginButton, SocialLoginContainer, styles } from "../../styles/login";
-import { Input, InputContainer } from "../../styles/login";
-import { GoogleIcon, FacebookIcon } from "../../styles/icons";
+import { SocialLoginButton, SocialLoginContainer, styles } from "../styles/login";
+import { Input, InputContainer } from "../styles/login";
+import { GoogleIcon, FacebookIcon } from "../styles/icons";
 import { FlatList, TouchableOpacity} from 'react-native';
 //import { removeData, saveData, getData } from "../../services/localStorage";
-import { signInAuth, signUpAuth } from "../../services/auth";
+import { signInAuth, signUpAuth } from "../services/auth";
 
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
