@@ -4,7 +4,6 @@ const User = usermodel.User;
 
 async function connectToDatabase(cluster, dbName) {
     await mongoose.connect(cluster, {dbName});
-    console.log("Conectado ao MongoDB!");
 }
 
 module.exports = { connectToDatabase };

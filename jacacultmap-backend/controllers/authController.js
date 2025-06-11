@@ -9,13 +9,20 @@ async function signUp (req, res) {
         await registerUser(email, password);
         res.json({ message: "Usuário cadastrado com sucesso!" });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: "Erro ao cadastrar" });
     }
 }
 
 async function signIn (req, res) {
-    console.log("Usuário logado:", req.body["email"]);
-    res.json({ message: "Usuário logado com sucesso!" });
+    try {
+        const email = req.body['email']?.toLowerCase();
+        const password = req.body['password'];
+
+        await authenticateUser(email, password);
+        res.json({ message: "Usuário logado com sucesso!"});
+    } catch (error) {
+        res.status(401).json({ message: "Erro ao logar"})
+    }
 }
 
 async function authenticateWithToken (req, res) {
