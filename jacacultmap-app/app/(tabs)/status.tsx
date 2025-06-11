@@ -2,11 +2,11 @@ import { StyleSheet } from 'react-native';
 import { Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 
-export default function test() {
+export default function status() {
 
   return (
     <View>
-      <Text>Pagina de status</Text>
+      <Text>Pagina de testes</Text>
       <Text style={styles.lepo}>{"Carregando..."}</Text>
     </View>
   );

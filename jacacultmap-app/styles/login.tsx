@@ -34,6 +34,8 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#006032',
+    justifyContent: 'flex-start',
+    paddingTop: verticalScale(20),
   },
   InputContainer: {
     flexDirection: 'column',
@@ -148,7 +150,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: moderateScale(14),
   },
-  errorText: {
+ errorText: {
     color: '#ff3333',
     backgroundColor: '#fff0f0',
     borderColor: '#ff3333',

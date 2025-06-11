@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Constants from 'expo-constants';
 
-const API_URL = "https://jacacultmap-backend-sol-gui-sol-guis-projects.vercel.app";
+
+const API_URL = Constants.expoConfig?.extra?.apiUrl
 
 export const serverStatus = async() => {
   try {

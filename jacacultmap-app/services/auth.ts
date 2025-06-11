@@ -1,4 +1,6 @@
-const API_URL = "https://jacacultmap-backend-sol-gui-sol-guis-projects.vercel.app";
+import Constants from 'expo-constants';
+
+const API_URL = Constants.expoConfig?.extra?.apiUrl;
 
 export async function signInAuth(email: string, password: string) {
   try {

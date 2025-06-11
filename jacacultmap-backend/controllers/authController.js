@@ -1,44 +1,53 @@
-const { createUser, userExists } = require('../services/userService');
-const { hash } = require('bcrypt');
+const { registerUser, authenticateUser } = require('../services/authService');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
-const signUp = async (req, res) => {
-
-    const email = req.body["email"].toLowerCase();
-    const password = req.body["password"];
-    const hashedPassword = await hash(password, 12);
-    const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
-
-    if (!email || !password) {
-        return res.status(400).json({ error: "Email e senha são obrigatórios!" });
-    }
-
-    else if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: "Por favor, insira um email válido"});
-    }
-
-    else if (password.length < 6) {
-        return res.status(400).json({ error: "A senha deve ter pelo menos 6 caracteres!" });
-    }
-
+async function signUp (req, res) {
     try {
-        const exists = await userExists(email);
-        if (exists) {
-            console.log("Usuário já existe")
-            return res.status(400).json({ error: "Email já cadastrado!" });
-        }
-        await createUser(email, hashedPassword);
-        res.status(200).json({ message: "Usuário criado com sucesso!" });
-    } catch (err) {
-        res.status(500).json({ error: "Erro ao criar usuário: " + err.message });
+        const email = req.body['email']?.toLowerCase();
+        const password = req.body['password'];
+
+        await registerUser(email, password);
+        res.json({ message: "Usuário cadastrado com sucesso!" });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
 }
 
-const signIn = async (req, res) => {
-    console.log("Usuário logado:", email);
+async function signIn (req, res) {
+    console.log("Usuário logado:", req.body["email"]);
     res.json({ message: "Usuário logado com sucesso!" });
 }
 
+async function authenticateWithToken (req, res) {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        const response = await authenticateToken(token);
+        res.setHeader('Set-Cookie', response.cookie);
+    } catch (error) {
+       // Lógica do erro aqui 
+    }
+}
+
+async function validateToken(req, res) {
+    const token = req.cookies.jwtToken;
+    if (!token) {
+        return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    try {
+        const decoded = await verifyToken(token);
+        res.json({ email: decoded.email });
+    } catch (error) {
+        console.error('Erro ao validar token:', error);
+        res.status(401).json({ message: 'Não autorizado' });
+    }
+    
+}
+
+
 module.exports = {
   signUp,
-  signIn
+  signIn,
+  authenticateWithToken,
+  validateToken
 };
