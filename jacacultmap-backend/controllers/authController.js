@@ -1,5 +1,5 @@
 const { registerUser, authenticateUser } = require('../services/authService');
-const { authenticateToken } = require('../middleware/authMiddleware.mjs');
+import { authenticateToken } from '../middleware/authMiddleware.mjs';
 
 async function signUp (req, res) {
     try {
