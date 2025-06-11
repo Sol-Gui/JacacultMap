@@ -1,7 +1,7 @@
-const { registerUser, authenticateUser } = require('../services/authService');
+import { registerUser, authenticateUser } from '../services/authService.js';
 import { authenticateToken } from '../middleware/authMiddleware.mjs';
 
-async function signUp (req, res) {
+export async function signUp (req, res) {
     try {
         const email = req.body['email']?.toLowerCase();
         const password = req.body['password'];
@@ -13,7 +13,7 @@ async function signUp (req, res) {
     }
 }
 
-async function signIn (req, res) {
+export async function signIn (req, res) {
     try {
         const email = req.body['email']?.toLowerCase();
         const password = req.body['password'];
@@ -25,7 +25,7 @@ async function signIn (req, res) {
     }
 }
 
-async function authenticateWithToken (req, res) {
+export async function authenticateWithToken (req, res) {
     try {
         const token = req.headers.authorization?.split(' ')[1];
         const response = await authenticateToken(token);
@@ -35,7 +35,7 @@ async function authenticateWithToken (req, res) {
     }
 }
 
-async function validateToken(req, res) {
+export async function validateToken(req, res) {
     const token = req.cookies.jwtToken;
     if (!token) {
         return res.status(401).json({ message: 'Não autorizado' });
@@ -50,11 +50,3 @@ async function validateToken(req, res) {
     }
     
 }
-
-
-module.exports = {
-  signUp,
-  signIn,
-  authenticateWithToken,
-  validateToken
-};
