@@ -9,7 +9,7 @@ async function signUp (req, res) {
         await registerUser(email, password);
         res.json({ message: "Usuário cadastrado com sucesso!" });
     } catch (error) {
-        res.status(400).json({ message: "Erro ao cadastrar" });
+        res.status(400).json({ message: error.message})
     }
 }
 
@@ -21,7 +21,7 @@ async function signIn (req, res) {
         await authenticateUser(email, password);
         res.json({ message: "Usuário logado com sucesso!"});
     } catch (error) {
-        res.status(401).json({ message: "Erro ao logar"})
+        res.status(401).json({ message: error.message })
     }
 }
 

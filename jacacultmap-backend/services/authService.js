@@ -31,20 +31,16 @@ async function validatePasswordLength(password) {
 
 async function registerUser(email, password) {
     try {
-        if (!validateEmail(email)) {
-            throw new Error("Por favor, insira um email válido");
-        }
-
         if (!email || !password) {
             throw new Error("Email e senha são obrigatórios!");
         }
 
-        if (!validateEmail(email)) {
+        if (!await validateEmail(email)) {
             throw new Error("Por favor, insira um email válido");
         }
 
-        if (!validatePasswordLength(password)) {
-            throw new Error("A senha deve ter pelo menos 6 caracteres! tese");
+        if (!await validatePasswordLength(password)) {
+            throw new Error("A senha deve ter pelo menos 6 caracteres!");
         }
 
         const exists = await userExists(email);
@@ -64,7 +60,7 @@ async function registerUser(email, password) {
 
     } catch (error) {
         console.error("Erro ao registrar usuário:", error.message);
-        throw new Error("Erro ao registrar usuário, tente novamente mais tarde.");
+        throw new Error(error.message || "Erro ao registrar usuário, tente novamente mais tarde.");
     }
 };
 
@@ -94,7 +90,7 @@ async function authenticateUser (email, password) {
     
     } catch (error) {
         console.error("Erro ao autenticar usuário:", error.message);
-        throw new Error("Erro ao autenticar usuário, tente novamente mais tarde.");
+        throw new Error(error.message || "Erro ao autenticar usuário, tente novamente mais tarde.");
     }
 };
 
