@@ -1,12 +1,11 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const { connectToDatabase } = require("./services/database.js");
-const authRoutes = require("./routes/authRoute.js").default;
-const defaultRoutes = require("./routes/defaultRoute.js").default;
-const statusRoutes = require("./routes/statusRoute.js").default;
-const imageRoutes = require("./routes/imageRoute.js").default;
-
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { connectToDatabase } from "./services/database.js";
+import authRoutes from "./routes/authRoute.js";
+import defaultRoutes from "./routes/defaultRoute.js";
+import statusRoutes from "./routes/statusRoute.js";
+import imageRoutes from "./routes/imageRoute.js";
 
 dotenv.config({ path: ".env" });
 
@@ -32,4 +31,4 @@ connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME)
     console.error("Erro ao conectar ao banco de dados:", err.message);
   });
 
-module.exports = app;
+export default app;

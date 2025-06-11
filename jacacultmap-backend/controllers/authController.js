@@ -1,5 +1,5 @@
 import { registerUser, authenticateUser } from '../services/authService.js';
-import { authenticateToken } from '../middleware/authMiddleware.mjs';
+import { authenticateToken } from '../middleware/authMiddleware.js';
 
 export async function signUp (req, res) {
     try {
