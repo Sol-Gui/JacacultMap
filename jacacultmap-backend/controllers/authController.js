@@ -1,4 +1,5 @@
 const { registerUser, authenticateUser } = require('../services/authService');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 async function signUp (req, res) {
     try {
@@ -12,12 +13,41 @@ async function signUp (req, res) {
     }
 }
 
-const signIn = async (req, res) => {
+async function signIn (req, res) {
     console.log("Usuário logado:", req.body["email"]);
     res.json({ message: "Usuário logado com sucesso!" });
 }
 
+async function authenticateWithToken (req, res) {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        const response = await authenticateToken(token);
+        res.setHeader('Set-Cookie', response.cookie);
+    } catch (error) {
+       // Lógica do erro aqui 
+    }
+}
+
+async function validateToken(req, res) {
+    const token = req.cookies.jwtToken;
+    if (!token) {
+        return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    try {
+        const decoded = await verifyToken(token);
+        res.json({ email: decoded.email });
+    } catch (error) {
+        console.error('Erro ao validar token:', error);
+        res.status(401).json({ message: 'Não autorizado' });
+    }
+    
+}
+
+
 module.exports = {
   signUp,
-  signIn
+  signIn,
+  authenticateWithToken,
+  validateToken
 };

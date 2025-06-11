@@ -44,7 +44,7 @@ async function registerUser(email, password) {
         }
 
         if (!validatePasswordLength(password)) {
-            throw new Error("A senha deve ter pelo menos 6 caracteres!");
+            throw new Error("A senha deve ter pelo menos 6 caracteres! tese");
         }
 
         const exists = await userExists(email);
