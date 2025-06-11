@@ -2,10 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { connectToDatabase } = require("./services/database.js");
-const authRoutes = require("./routes/authRoute.js");
-const defaultRoutes = require("./routes/defaultRoute.js");
-const statusRoutes = require("./routes/statusRoute.js");
-const imageRoutes = require("./routes/imageRoute.js");
+const authRoutes = require("./routes/authRoute.js").default;
+const defaultRoutes = require("./routes/defaultRoute.js").default;
+const statusRoutes = require("./routes/statusRoute.js").default;
+const imageRoutes = require("./routes/imageRoute.js").default;
 
 
 dotenv.config({ path: ".env" });

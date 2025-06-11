@@ -1,9 +1,5 @@
-const mongoose = require("mongoose");
-const usermodel = require("../models/user_model");
-const User = usermodel.User;
+import mongoose from "mongoose";
 
-async function connectToDatabase(cluster, dbName) {
+export async function connectToDatabase(cluster, dbName) {
     await mongoose.connect(cluster, {dbName});
 }
-
-module.exports = { connectToDatabase };

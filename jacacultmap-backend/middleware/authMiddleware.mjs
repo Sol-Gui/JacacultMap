@@ -1,4 +1,5 @@
-import verifyToken from '../services/authService.js';
+import auth from '../services/authService.js';
+const { verifyToken } = auth;
 import cookie from 'cookie';
 
 export async function authenticateToken(token) {

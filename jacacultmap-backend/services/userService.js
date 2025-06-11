@@ -1,15 +1,13 @@
-const usermodel = require("../models/user_model");
-const { hash } = require("bcrypt")
-const User = usermodel.User;
+import User from '../models/user_model.js';
 
-async function createUser(email, password) {
+export async function createUser(email, password) {
 
     const user = new User({ email, password });
     await user.save();
     console.log("Usuário criado:", user);
 }
 
-async function updateUserByEmail(email, updates) {
+export async function updateUserByEmail(email, updates) {
     const updated = await User.findOneAndUpdate(
       { email },
       { $set: updates },
@@ -19,7 +17,7 @@ async function updateUserByEmail(email, updates) {
     return updated;
 }
 
-async function userExists(email) {
+export async function userExists(email) {
     try {
         const exists = await User.findOne({ email });
         if (exists) return exists;
@@ -27,10 +25,4 @@ async function userExists(email) {
     } catch (err) {
         return false;
     }
-}
-
-module.exports = {
-    createUser,
-    updateUserByEmail,
-    userExists
 }

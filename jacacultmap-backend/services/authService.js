@@ -1,18 +1,18 @@
-const { compare, hash } = require('bcrypt');
-const { createUser, userExists } = require('./userService');
-const { sign, verify } = require('jsonwebtoken');
-const dotenv = require("dotenv");
+import { compare, hash } from 'bcrypt';
+import { createUser, userExists } from './userService.js';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 dotenv.config({ path: "../.env" });
 
-async function createToken(email) {
-    const token = sign({ email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+export async function createToken(email) {
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '7d' });
     return token;
 }
 
-async function verifyToken(token) {
+export async function verifyToken(token) {
     try {
-        const decoded = verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         return decoded.email;
     } catch (err) {
         console.log("Token inválido ou expirado!");
@@ -29,7 +29,7 @@ async function validatePasswordLength(password) {
     return typeof password === "string" && password.length >= 6;
 };
 
-async function registerUser(email, password) {
+export async function registerUser(email, password) {
     try {
         if (!email || !password) {
             throw new Error("Email e senha são obrigatórios!");
@@ -64,7 +64,7 @@ async function registerUser(email, password) {
     }
 };
 
-async function authenticateUser (email, password) {
+export async function authenticateUser (email, password) {
     try {
         if (!email || !password) {
             throw new Error("Email e senha são obrigatórios!");
@@ -94,7 +94,7 @@ async function authenticateUser (email, password) {
     }
 };
 
-async function autoAuthenticateUser(token) {
+export async function autoAuthenticateUser(token) {
     try {
         const email = await verifyToken(token);
         if (!email) {
@@ -117,9 +117,10 @@ async function autoAuthenticateUser(token) {
     }
 }
 
-module.exports = {
-    registerUser,
-    authenticateUser,
-    createToken,
-    verifyToken
+export default {
+  createToken,
+  verifyToken,
+  registerUser,
+  authenticateUser,
+  autoAuthenticateUser
 };

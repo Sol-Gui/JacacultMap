@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
 router.get("/status", (req, res) => {
   res.json({ status: "ok" });
 });
 
-module.exports = router
+export default router;
