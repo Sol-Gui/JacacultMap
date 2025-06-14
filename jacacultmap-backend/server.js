@@ -25,12 +25,6 @@ app.use(statusRoutes);
 app.use(imageRoutes);
 app.use(validateTokenRoute);
 
-connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME)
-  .then(() => {
-    console.log("Conectado ao banco de dados");
-  })
-  .catch(err => {
-    console.error("Erro ao conectar ao banco de dados:", err.message);
-  });
+connectToDatabase();
 
 export default app;

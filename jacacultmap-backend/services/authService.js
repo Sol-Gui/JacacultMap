@@ -2,6 +2,7 @@ import { compare, hash } from 'bcrypt';
 import { createUser, userExists } from './userService.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { connectToDatabase } from "./database.js";
 
 dotenv.config({ path: "../.env" });
 
@@ -30,6 +31,7 @@ async function validatePasswordLength(password) {
 };
 
 export async function registerUser(email, password) {
+    await connectToDatabase();
     try {
         if (!email || !password) {
             throw new Error("Email e senha são obrigatórios!");
@@ -65,6 +67,7 @@ export async function registerUser(email, password) {
 };
 
 export async function authenticateUser (email, password) {
+    await connectToDatabase();
     try {
         if (!email || !password) {
             throw new Error("Email e senha são obrigatórios!");
@@ -74,7 +77,7 @@ export async function authenticateUser (email, password) {
         if (!user) {
             throw new Error("Email ou senha inválidos!");
         }
-        
+
         const isValidPassword = await compare(password, user.password);
         if (!isValidPassword) {
             throw new Error("Email ou senha inválidos!");
