@@ -33,4 +33,4 @@ connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME)
     console.error("Erro ao conectar ao banco de dados:", err.message);
   });
 
-export default app;
+app.listen(3000)
