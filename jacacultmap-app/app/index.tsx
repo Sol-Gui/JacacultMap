@@ -38,23 +38,6 @@ export default function login() {
     });
   };
 
-  const showSuccess = (msg: string) => {
-    setSuccess(msg);
-    Animated.timing(fadeSuccess, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeSuccess, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => setSuccess(null));
-      }, 2500);
-    });
-  };
-
   const handleChange = (text: string) => {
     setEmail(text);
     setShowSuggestions(text.endsWith('@'));

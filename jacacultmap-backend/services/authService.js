@@ -94,33 +94,9 @@ export async function authenticateUser (email, password) {
     }
 };
 
-export async function autoAuthenticateUser(token) {
-    try {
-        const email = await verifyToken(token);
-        if (!email) {
-            throw new Error("Token inválido ou expirado!");
-        }
-
-        const user = await userExists(email);
-        if (!user) {
-            throw new Error("Usuário não encontrado!");
-        }
-
-        return {
-            success: true,
-            message: "Usuário autenticado com sucesso!",
-            email
-        };
-
-    } catch (error) {
-        console.error("Erro ao autenticar usuário automaticamente:", error.message);
-    }
-}
-
 export default {
   createToken,
   verifyToken,
   registerUser,
   authenticateUser,
-  autoAuthenticateUser
 };

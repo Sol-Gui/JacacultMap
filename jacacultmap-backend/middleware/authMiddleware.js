@@ -1,6 +1,5 @@
 import auth from '../services/authService.js';
 const { verifyToken } = auth;
-import cookie from 'cookie';
 
 export async function authenticateToken(token) {
     try {
@@ -13,24 +12,10 @@ export async function authenticateToken(token) {
         if (!email) {
             throw new Error('Não autorizado');
         }
-        
-        const secureCookie = true;
-        const httpOnlyCookie = true;
-        const sameSiteCookie = 'Strict';
-        const cookieOptions = {
-            sameSite: sameSiteCookie,
-            secure: secureCookie,
-            maxAge: 86400 * 7, // 86400 * 7 = 7 days
-            path: '/',
-            httpOnly: httpOnlyCookie,
-        };
-
-        const cookieString = cookie.serialize('jwtToken', token, cookieOptions)
 
         return {
             sucess: true,
             email: email,
-            cookie: cookieString,
             token: token
         };
     
@@ -38,4 +23,18 @@ export async function authenticateToken(token) {
         console.error('Authentication error:', error);
         throw new Error('Internal server error');
   }
+}
+
+export async function authenticateWithToken (req, res) {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        const response = await authenticateToken(token);
+        if (!response) {
+            return res.status(401).json({ message: 'Não autorizado' });
+        }
+        return response;
+    } catch (error) {
+        console.error('Erro ao autenticar com token:', error);
+        res.status(401).json({ message: 'Não autorizado' });
+    }
 }
