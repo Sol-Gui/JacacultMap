@@ -6,7 +6,7 @@ import authRoutes from "./routes/authRoute.js";
 import defaultRoutes from "./routes/defaultRoute.js";
 import statusRoutes from "./routes/statusRoute.js";
 import imageRoutes from "./routes/imageRoute.js";
-import mainPageRoutes from "./routes/validateTokenRoute.js";
+import validateTokenRoute from "./routes/validateTokenRoute.js";
 
 dotenv.config({ path: ".env" });
 
@@ -23,7 +23,7 @@ app.use(authRoutes);
 app.use(defaultRoutes);
 app.use(statusRoutes);
 app.use(imageRoutes);
-app.use(mainPageRoutes);
+app.use(validateTokenRoute);
 
 connectToDatabase(process.env.DATABASE_URL_CLUSTER_0, process.env.DB_NAME)
   .then(() => {
