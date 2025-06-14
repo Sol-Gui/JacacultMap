@@ -52,11 +52,11 @@ export async function registerUser(email, password) {
         await createUser(email, hashedPassword);
         const token = await createToken(email);
 
-        return {
+        res.json({
             success: true,
             message: "Usuário criado com sucesso!",
             token
-        };
+        });
 
     } catch (error) {
         console.error("Erro ao registrar usuário:", error.message);
@@ -82,11 +82,11 @@ export async function authenticateUser (email, password) {
 
         const token = await createToken(email);
 
-        return {
+        res.json({
             success: true,
             message: "Usuário autenticado com sucesso!",
             token
-        };
+        });
     
     } catch (error) {
         console.error("Erro ao autenticar usuário:", error.message);
