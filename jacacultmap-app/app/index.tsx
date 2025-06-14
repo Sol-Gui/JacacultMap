@@ -5,7 +5,7 @@ import { Input, InputContainer } from "../styles/login";
 import { GoogleIcon, FacebookIcon } from "../styles/icons";
 import { FlatList, TouchableOpacity} from "react-native";
 import { saveData } from "../services/localStorage";
-import { signInAuth, signUpAuth, validateToken } from "../services/auth";
+import { signInAuth, signUpAuth } from "../services/auth";
 import { router } from "expo-router";
 
 
@@ -14,13 +14,6 @@ const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
 
 export default function login() {
-
-  validateToken()
-  .then((response) => {
-    if (response.success && response.token) {
-      router.replace('/(tabs)/protected');
-    }
-  });
 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [email, setEmail] = useState('');
@@ -119,9 +112,11 @@ export default function login() {
       <TouchableOpacity onPress={async () => {
         try {
           const response = await signInAuth(email, senha)
-           if (response.success && response.token) {
-            saveData('userToken', response.token);
+          
+           if (response.message.success && response.message.token) {
+            saveData('userToken', response.message.token);
             setError(null);
+            router.replace('/(tabs)/protected');
           }
         } catch (err: any) {
           showError(err.message);
@@ -133,9 +128,10 @@ export default function login() {
       <TouchableOpacity onPress={async () => {
         try {
           const response = await signUpAuth(email, senha)
-          if (response.success && response.token) {
-            saveData('userToken', response.token);
+          if (response.message.success && response.message.token) {
+            saveData('userToken', response.message.token);
             setError(null);
+            router.replace('/(tabs)/protected');
           }
         } catch (err: any) {
           showError(err.message);

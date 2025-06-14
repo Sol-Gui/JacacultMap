@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
-const { getData } = require('localStorage');
+import { getData } from './localStorage';
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl;
 

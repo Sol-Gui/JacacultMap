@@ -10,6 +10,7 @@ export default function Test() {
     validateToken()
       .then((response) => {
         if (!response.success || !response.token) {
+          console.log("Token inválido ou não encontrado");
           router.replace('/');
         } else {
           setLoading(false);
@@ -31,8 +32,10 @@ export default function Test() {
 
   return (
     <View style={styles.container}>
-      <Text>Página de testes</Text>
-      <Text style={styles.lepo}>Página segura!</Text>
+      <Text>
+        Página segura!
+      </Text>
+      <Text style={styles.lepo}>Acesso garantido</Text>
     </View>
   );
 }
