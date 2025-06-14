@@ -7,7 +7,7 @@ export default function test() {
   return (
     <View>
       <Text>Pagina de testes</Text>
-      <Text style={styles.lepo}>{"Carregando..."}</Text>
+      <Text style={styles.lepo}>{"teste..."}</Text>
     </View>
   );
 }

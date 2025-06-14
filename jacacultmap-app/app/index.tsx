@@ -3,9 +3,11 @@ import React, { useState, useRef } from "react";
 import { SocialLoginButton, SocialLoginContainer, styles } from "../styles/login";
 import { Input, InputContainer } from "../styles/login";
 import { GoogleIcon, FacebookIcon } from "../styles/icons";
-import { FlatList, TouchableOpacity} from 'react-native';
-//import { removeData, saveData, getData } from "../../services/localStorage";
-import { signInAuth, signUpAuth } from "../services/auth";
+import { FlatList, TouchableOpacity} from "react-native";
+import { saveData } from "../services/localStorage";
+import { signInAuth, signUpAuth, validateToken } from "../services/auth";
+import { router } from "expo-router";
+
 
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
@@ -13,13 +15,18 @@ const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
 export default function login() {
 
+  validateToken()
+  .then((response) => {
+    if (response.success && response.token) {
+      router.replace('/(tabs)/protected');
+    }
+  });
+
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const fadeSuccess = useRef(new Animated.Value(0)).current;
 
   const showError = (msg: string) => {
     setError(msg);
@@ -53,15 +60,6 @@ export default function login() {
     return (
       <Animated.View style={[styles.errorPopup, { opacity: fadeAnim }]}> 
         <Text style={[styles.errorText, { fontFamily: 'monospace' }]}>{error}</Text>
-      </Animated.View>
-    );
-  }
-
-  function SuccessPopup({ success, fadeAnim }: { success: string | null, fadeAnim: Animated.Value }) {
-    if (!success) return null;
-    return (
-      <Animated.View style={[styles.successPopup, { opacity: fadeAnim }]}> 
-        <Text style={[styles.successText, { fontFamily: 'monospace' }]}>{success}</Text>
       </Animated.View>
     );
   }
@@ -120,9 +118,11 @@ export default function login() {
 
       <TouchableOpacity onPress={async () => {
         try {
-          const result = await signInAuth(email, senha);
-          setError(null);
-          showSuccess(result.message || 'Usuário logado com sucesso!');
+          const response = await signInAuth(email, senha)
+           if (response.success && response.token) {
+            saveData('userToken', response.token);
+            setError(null);
+          }
         } catch (err: any) {
           showError(err.message);
         }
@@ -132,9 +132,11 @@ export default function login() {
 
       <TouchableOpacity onPress={async () => {
         try {
-          const result = await signUpAuth(email, senha);
-          setError(null);
-          showSuccess(result.message || 'Usuário criado com sucesso!');
+          const response = await signUpAuth(email, senha)
+          if (response.success && response.token) {
+            saveData('userToken', response.token);
+            setError(null);
+          }
         } catch (err: any) {
           showError(err.message);
         }
@@ -143,7 +145,6 @@ export default function login() {
       </TouchableOpacity>
 
       <ErrorPopup error={error} fadeAnim={fadeAnim} />
-      <SuccessPopup success={success} fadeAnim={fadeSuccess} />
 
     </View>
   );
