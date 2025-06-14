@@ -18,11 +18,13 @@ export async function updateUserByEmail(email, updates) {
 }
 
 export async function userExists(email) {
-    try {
-        const exists = await User.findOne({ email });
-        if (exists) return exists;
-        else return false;
-    } catch (err) {
-        return false;
-    }
+  try {
+    return await User.findOne(
+      { email },
+      { email: 1, password: 1, _id: 0 }
+    ) || false;
+  } catch (error) {
+    console.error("Erro ao buscar usuário:", error.message);
+    return false;
+  }
 }

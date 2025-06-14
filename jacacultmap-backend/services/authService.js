@@ -74,7 +74,7 @@ export async function authenticateUser (email, password) {
         if (!user) {
             throw new Error("Email ou senha inválidos!");
         }
-
+        
         const isValidPassword = await compare(password, user.password);
         if (!isValidPassword) {
             throw new Error("Email ou senha inválidos!");
