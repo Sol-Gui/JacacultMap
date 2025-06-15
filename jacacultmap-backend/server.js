@@ -8,6 +8,11 @@ import statusRoutes from "./routes/statusRoute.js";
 import imageRoutes from "./routes/imageRoute.js";
 import validateTokenRoute from "./routes/validateTokenRoute.js";
 
+
+// TO DO: Improve connection db <-> vercel (https://www.mongodb.com/pt-br/docs/atlas/reference/partner-integrations/vercel/)
+
+
+
 dotenv.config({ path: ".env" });
 
 const app = express();

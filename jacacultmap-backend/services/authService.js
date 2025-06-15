@@ -37,11 +37,11 @@ export async function registerUser(email, password) {
             throw new Error("Email e senha são obrigatórios!");
         }
 
-        if (!await validateEmail(email)) {
+        if (!validateEmail(email)) {
             throw new Error("Por favor, insira um email válido");
         }
 
-        if (!await validatePasswordLength(password)) {
+        if (!validatePasswordLength(password)) {
             throw new Error("A senha deve ter pelo menos 6 caracteres!");
         }
 
@@ -50,7 +50,7 @@ export async function registerUser(email, password) {
             throw new Error("Email já cadastrado!");
         }
 
-        const hashedPassword = await hash(password, 12);
+        const hashedPassword = await hash(password, 8);
         await createUser(email, hashedPassword);
         const token = await createToken(email);
 
