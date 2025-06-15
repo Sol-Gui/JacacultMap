@@ -2,7 +2,8 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { getData } from './localStorage';
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl;
+export const API_URL = Constants.expoConfig?.extra?.apiUrl;
+console.log("API_URL:", API_URL);
 
 interface AuthResponse {
   token?: string;

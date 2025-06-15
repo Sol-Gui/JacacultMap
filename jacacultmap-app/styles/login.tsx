@@ -1,5 +1,7 @@
-import { TouchableOpacity, Image, StyleSheet, View, TextInput } from 'react-native';
+import { TouchableOpacity, Image, StyleSheet, View, TextInput, Dimensions } from 'react-native';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export const SocialLoginButton = ({ onPress, icon }: { onPress: () => void; icon: any }) => (
   <TouchableOpacity style={styles.button} onPress={onPress}>
@@ -13,13 +15,16 @@ export const SocialLoginContainer = ({ children }: { children: React.ReactNode }
   </View>
 );
 
-export const Input = ({ placeholder, value, onChangeText }: { placeholder: string; value: string; onChangeText: (text: string) => void }) => (
+export const Input = (
+  { placeholder, value, onChangeText, secureTextEntry = false }: 
+  { placeholder: string; value: string; onChangeText: (text: string) => void; secureTextEntry: boolean}) => (
   <TextInput
     style={styles.input}
     placeholder={placeholder}
     value={value}
     onChangeText={onChangeText}
     placeholderTextColor={'#000000'}
+    secureTextEntry={secureTextEntry}
   />
 );
 
@@ -35,7 +40,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#006032',
     justifyContent: 'flex-start',
-    paddingTop: verticalScale(20),
   },
   InputContainer: {
     flexDirection: 'column',
@@ -176,4 +180,11 @@ export const styles = StyleSheet.create({
     marginTop: verticalScale(12),
     marginBottom: verticalScale(8),
   },
+  passwordInput: {
+    flex: 1,
+  },
+  eyeIcon: {
+    right: -scale(120),
+    bottom: verticalScale(35),
+  }
 });

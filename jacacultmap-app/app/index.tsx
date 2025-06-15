@@ -4,9 +4,11 @@ import { SocialLoginButton, SocialLoginContainer, styles } from "../styles/login
 import { Input, InputContainer } from "../styles/login";
 import { GoogleIcon, FacebookIcon } from "../styles/icons";
 import { FlatList, TouchableOpacity} from "react-native";
-import { saveData } from "../services/localStorage";
+import { saveData, getData } from "../services/localStorage";
 import { signInAuth, signUpAuth } from "../services/auth";
 import { router } from "expo-router";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { verticalScale } from "react-native-size-matters";
 
 
 
@@ -19,6 +21,7 @@ export default function login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const showError = (msg: string) => {
@@ -97,13 +100,26 @@ export default function login() {
           placeholder="Email"
           value={email}
           onChangeText={handleChange}
+          secureTextEntry={false}
           />
           <Input
           placeholder="Senha"
           value={senha}
           onChangeText={setSenha}
+          secureTextEntry={!showPassword}
           />
+          <TouchableOpacity 
+            onPress={() => setShowPassword(!showPassword)}
+            style={styles.eyeIcon}
+            >
+          <MaterialCommunityIcons 
+            name={showPassword ? "eye-off" : "eye"} 
+            size={verticalScale(15)} 
+            color="grey"
+        />
+        </TouchableOpacity>
       </InputContainer>
+
 
       <TouchableOpacity onPress={() => console.log("Pressionou o botão!")}>
         <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
@@ -113,8 +129,8 @@ export default function login() {
         try {
           const response = await signInAuth(email, senha)
           
-           if (response.message.success && response.message.token) {
-            saveData('userToken', response.message.token);
+           if (response.success && response.token) {
+            saveData('userToken', response.token);
             setError(null);
             router.replace('/(tabs)/protected');
           }
@@ -127,9 +143,9 @@ export default function login() {
 
       <TouchableOpacity onPress={async () => {
         try {
-          const response = await signUpAuth(email, senha)
-          if (response.message.success && response.message.token) {
-            saveData('userToken', response.message.token);
+          const response = await signUpAuth(email, senha);
+          if (response.success && response.token) {
+            saveData('userToken', response.token);
             setError(null);
             router.replace('/(tabs)/protected');
           }

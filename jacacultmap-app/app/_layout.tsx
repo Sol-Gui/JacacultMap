@@ -15,6 +15,7 @@ export default function RootLayout() {
   useEffect(() => {
     const checkServer = async () => {
       const status = await serverStatus();
+      console.log("Server status:", status);
       if (status !== 200) {
         setShouldRedirect(true);
       } else {
@@ -30,14 +31,14 @@ export default function RootLayout() {
       router.replace("/(tabs)/status");
     } else if (!checking && !shouldRedirect) {
       validateToken()
-        .then((response: any) => {
-          console.log(response);
-          if (response.success && response.token) {
-            router.replace('/(tabs)/protected');
-          } else {
-            console.log("Token inválido ou não encontrado");
-            router.replace('/')
-          }
+        .then((response) => {
+          console.log("Token validation response:", response);
+          // Ignore validation result and always redirect to protected route
+          router.replace('/(tabs)/protected');
+        })
+        .catch((error) => {
+          console.log("Token validation error ignored:", error);
+          router.replace('/');
         });
     }
   }, [checking, shouldRedirect]);

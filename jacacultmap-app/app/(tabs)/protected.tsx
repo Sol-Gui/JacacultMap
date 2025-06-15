@@ -2,9 +2,11 @@ import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { validateToken } from '../../services/auth';
 import { router } from 'expo-router';
+import { removeData } from "../../services/localStorage";
 
 export default function Test() {
   const [loading, setLoading] = useState(true);
+  // removeData('userToken'); // Limpa o token para testes
 
   useEffect(() => {
     validateToken()
