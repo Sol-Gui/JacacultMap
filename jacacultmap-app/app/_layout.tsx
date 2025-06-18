@@ -4,13 +4,20 @@ import { Stack, useRouter } from "expo-router";
 import { serverStatus } from "../services/api";
 import { StatusBar } from 'expo-status-bar';
 import { validateToken } from "../services/auth";
+import { usePathname } from "expo-router";
 
 
 export default function RootLayout() {
 
+  const pathname = usePathname();
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false);
+
+  const routeList = ['/login', '/register'];
+  const currentMatch = routeList.find(
+    (route) => route.toLowerCase() === pathname.toLowerCase()
+  );
 
   useEffect(() => {
     const checkServer = async () => {
@@ -32,13 +39,16 @@ export default function RootLayout() {
     } else if (!checking && !shouldRedirect) {
       validateToken()
         .then((response) => {
-          console.log("Token validation response:", response);
-          // Ignore validation result and always redirect to protected route
-          router.replace('/(tabs)/protected');
+          if (response.success && response.token) {
+            router.replace('/(tabs)/protected');
+          } else if (!currentMatch) {
+            router.replace('/');
+          }
         })
         .catch((error) => {
-          console.log("Token validation error ignored:", error);
-          router.replace('/');
+          if (!currentMatch) {
+            router.replace('/');
+          }
         });
     }
   }, [checking, shouldRedirect]);

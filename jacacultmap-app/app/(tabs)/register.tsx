@@ -1,26 +1,37 @@
 import { Text, View, Animated } from "react-native";
-import React, { useState, useRef } from "react";
-import { SocialLoginButton, SocialLoginContainer, styles } from "../styles/login";
-import { Input, InputContainer } from "../styles/login";
-import { GoogleIcon, FacebookIcon } from "../styles/icons";
+import React, { useState, useRef, useEffect } from "react";
+import { SocialLoginButton, SocialLoginContainer, styles } from "../../styles/login";
+import { Input, InputContainer } from "../../styles/login";
+import { GoogleIcon, FacebookIcon } from "../../styles/icons";
 import { FlatList, TouchableOpacity} from "react-native";
-import { saveData } from "../services/localStorage";
-import { signInAuth } from "../services/auth";
+import { saveData } from "../../services/localStorage";
+import { signInAuth, signUpAuth } from "../../services/auth";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { verticalScale } from "react-native-size-matters";
 import { useRouter } from "expo-router";
-import { setRegisterData } from "../utils/registerBuffer";
+import { getRegisterData } from "../../utils/registerBuffer";
+import { useSortedScreens } from "expo-router/build/useScreens";
+
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
 export default function login() {
+  const initialData = getRegisterData();
+
   const router = useRouter();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [nome, setNome] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (initialData.email) setEmail(initialData.email);
+    if (initialData.senha) setSenha(initialData.senha);
+  }, []);
+
 
   const showError = (msg: string) => {
     setError(msg);
@@ -61,8 +72,7 @@ export default function login() {
 
   return (
     <View style={styles.body}>
-      <Text style={styles.title}>SEJA BEM VINDO</Text>
-      <Text style={styles.text}>Efetue seu login</Text>
+      <Text style={styles.title}>Novo Usuário</Text>
 
       <SocialLoginContainer>
         <SocialLoginButton
@@ -95,6 +105,12 @@ export default function login() {
           />
         )}
           <Input
+          placeholder="Nome"
+          value={nome}
+          onChangeText={setNome}
+          secureTextEntry={false}
+          />
+          <Input
           placeholder="Email"
           value={email}
           onChangeText={handleChange}
@@ -118,44 +134,25 @@ export default function login() {
         </TouchableOpacity>
       </InputContainer>
 
-
-      <TouchableOpacity onPress={() => console.log("Pressionou o botão!")}>
-        <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={async () => {
-        try {
-          const response = await signInAuth(email, senha)
-          
-           if (response.success && response.token) {
-            saveData('userToken', response.token);
-            setError(null);
-            router.replace('/(tabs)/protected');
-          }
-        } catch (err: any) {
-          showError(err.message);
-        }
-      }} style={styles.loginButton}>
-        <Text style={styles.loginText}>Acessar</Text>
-      </TouchableOpacity>
-
       <TouchableOpacity
         onPress={async () => {
           try {
-            setRegisterData({email, senha});
-            router.replace({
-              pathname: '/register',
-            });
+            const response = await signUpAuth(nome, email, senha);
+            if (response.success && response.token) {
+                saveData('userToken', response.token);
+                setError(null);
+                router.replace('/(tabs)/protected');
+            }
           } catch (err: any) {
             showError(err.message);
           }
         }}
         style={styles.registerButton}
       >
-        <Text style={styles.registerText}>Cadastre-se</Text>
+        <Text style={styles.registerText}>Cadastrar</Text>
       </TouchableOpacity>
 
-      <ErrorPopup error={error} fadeAnim={fadeAnim}/>
+      <ErrorPopup error={error} fadeAnim={fadeAnim} />
 
     </View>
   );

@@ -9,6 +9,7 @@ interface AuthResponse {
   token?: string;
   email?: string;
   success?: boolean;
+  message?: string;
 }
 
 const axiosConfig = {
@@ -32,11 +33,11 @@ export async function signInAuth(email: string, password: string): Promise<AuthR
   }
 }
 
-export async function signUpAuth(email: string, password: string): Promise<AuthResponse> {
+export async function signUpAuth(name: string, email: string, password: string): Promise<AuthResponse> {
   try {
     const response = await axios.post<AuthResponse>(
       `${API_URL}/signup`,
-      { email, password },
+      { name, email, password },
       axiosConfig
     );
 
@@ -49,10 +50,15 @@ export async function signUpAuth(email: string, password: string): Promise<AuthR
 
 export async function validateToken(): Promise<AuthResponse> {
   try {
+    const token = await getData('userToken');
+    if (!token) {
+      return { success: false, message: 'Token não encontrado' };
+    }
+
     const response = await axios.get<AuthResponse>(`${API_URL}/tokenValidation`,
       {
         headers: {
-          'Authorization': `Bearer ${await getData('userToken')}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       }
@@ -60,7 +66,10 @@ export async function validateToken(): Promise<AuthResponse> {
 
     return response.data;
   } catch (error: any) {
-    const message = error?.response?.data?.message || 'Erro ao fazer auto login';
-    throw new Error(message);
+    console.log('Erro na validação do token:', error?.response?.data || error?.message);
+    return {
+      success: false,
+      message: error?.response?.data?.message || 'Erro ao validar token'
+    };
   }
 }

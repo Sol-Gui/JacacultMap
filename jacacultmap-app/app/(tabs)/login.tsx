@@ -1,15 +1,15 @@
 import { Text, View, Animated } from "react-native";
 import React, { useState, useRef } from "react";
-import { SocialLoginButton, SocialLoginContainer, styles } from "../styles/login";
-import { Input, InputContainer } from "../styles/login";
-import { GoogleIcon, FacebookIcon } from "../styles/icons";
+import { SocialLoginButton, SocialLoginContainer, styles } from "../../styles/login";
+import { Input, InputContainer } from "../../styles/login";
+import { GoogleIcon, FacebookIcon } from "../../styles/icons";
 import { FlatList, TouchableOpacity} from "react-native";
-import { saveData } from "../services/localStorage";
-import { signInAuth } from "../services/auth";
+import { saveData } from "../../services/localStorage";
+import { signInAuth } from "../../services/auth";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { verticalScale } from "react-native-size-matters";
 import { useRouter } from "expo-router";
-import { setRegisterData } from "../utils/registerBuffer";
+import { setRegisterData } from "../../utils/registerBuffer";
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
@@ -155,7 +155,7 @@ export default function login() {
         <Text style={styles.registerText}>Cadastre-se</Text>
       </TouchableOpacity>
 
-      <ErrorPopup error={error} fadeAnim={fadeAnim}/>
+      <ErrorPopup error={error} fadeAnim={fadeAnim} />
 
     </View>
   );
