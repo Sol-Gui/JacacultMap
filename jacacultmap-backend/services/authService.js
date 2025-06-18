@@ -30,11 +30,19 @@ async function validatePasswordLength(password) {
     return typeof password === "string" && password.length >= 6;
 };
 
-export async function registerUser(email, password) {
+export async function registerUser(name, email, password) {
     await connectToDatabase();
     try {
+        if (typeof name !== 'string') throw new Error('Nome inválido');
+        if (typeof email !== 'string') throw new Error('Email inválido');
+        if (typeof password !== 'string') throw new Error('Senha inválida');
+
         if (!email || !password) {
             throw new Error("Email e senha são obrigatórios!");
+        }
+
+        if (!name) {
+            throw new Error("Por favor, insira um nome")
         }
 
         if (!validateEmail(email)) {
@@ -51,7 +59,7 @@ export async function registerUser(email, password) {
         }
 
         const hashedPassword = await hash(password, 8);
-        await createUser(email, hashedPassword);
+        await createUser(name, email, hashedPassword);
         const token = await createToken(email);
 
         return {
