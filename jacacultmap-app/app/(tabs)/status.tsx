@@ -9,13 +9,13 @@ let reloads = 1;
 
 export default function Status() {
   const router = useRouter();
-  const [, forceUpdate] = useState({});
+  const [pollingCount, setPollingCount] = useState(0);
 
   useEffect(() => {
     const scheduleNext = () => {
       setTimeout(() => {
         reloads++;
-        forceUpdate({});
+        setPollingCount(c => c + 1);
         scheduleNext();
       }, 3000 * reloads);
     };
@@ -23,7 +23,7 @@ export default function Status() {
     scheduleNext();
   }, []);
 
-  const { shouldRedirect, checking } = useServerCheck();
+  const { shouldRedirect, checking } = useServerCheck(pollingCount);
   console.log(shouldRedirect, checking, reloads);
   
   useEffect(() => {

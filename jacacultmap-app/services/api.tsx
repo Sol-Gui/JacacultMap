@@ -16,7 +16,7 @@ export const serverStatus = async() => {
   }
 }
 
-export const useServerCheck = () => {
+export const useServerCheck = (pollingCount = 0) => {
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -31,7 +31,7 @@ export const useServerCheck = () => {
     };
 
     checkServer();
-  }, []);
+  }, [pollingCount]);
 
   return {
     shouldRedirect,
