@@ -143,7 +143,7 @@ export default function login() {
         onPress={async () => {
           try {
             setRegisterData({email, senha});
-            router.replace({
+            router.push({
               pathname: '/register',
             });
           } catch (err: any) {

@@ -1,6 +1,6 @@
 import axios from "axios";
 import Constants from 'expo-constants';
-
+import { useEffect, useState } from 'react';
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl
 
@@ -15,3 +15,26 @@ export const serverStatus = async() => {
     return 500; // 500;
   }
 }
+
+export const useServerCheck = () => {
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const checkServer = async () => {
+      const status = await serverStatus();
+      if (status !== 200) {
+        setShouldRedirect(true);
+      } else {
+        setChecking(false);
+      }
+    };
+
+    checkServer();
+  }, []);
+
+  return {
+    shouldRedirect,
+    checking
+  };
+};
