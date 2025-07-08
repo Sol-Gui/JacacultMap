@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useServerCheck } from "../services/api";
@@ -12,8 +12,8 @@ export default function RootLayout() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const routeList = ['/login', '/register'];
-  const currentMatch = routeList.find(
+  const publicRouteList = ['/', '/register'];
+  const currentMatch = publicRouteList.find(
     (route) => route.toLowerCase() === pathname.toLowerCase()
   );
 

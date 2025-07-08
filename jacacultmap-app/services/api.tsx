@@ -25,7 +25,9 @@ export const useServerCheck = (pollingCount = 0) => {
       const status = await serverStatus();
       if (status !== 200) {
         setShouldRedirect(true);
+        setChecking(false);
       } else {
+        setShouldRedirect(false);
         setChecking(false);
       }
     };

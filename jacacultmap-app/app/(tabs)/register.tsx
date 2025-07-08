@@ -5,12 +5,11 @@ import { Input, InputContainer } from "../../styles/login";
 import { GoogleIcon, FacebookIcon } from "../../styles/icons";
 import { FlatList, TouchableOpacity} from "react-native";
 import { saveData } from "../../services/localStorage";
-import { signInAuth, signUpAuth } from "../../services/auth";
+import { signUpAuth } from "../../services/auth";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { verticalScale } from "react-native-size-matters";
 import { useRouter } from "expo-router";
 import { getRegisterData } from "../../utils/registerBuffer";
-import { useSortedScreens } from "expo-router/build/useScreens";
 
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];

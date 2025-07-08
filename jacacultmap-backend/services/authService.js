@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { connectToDatabase } from "./database.js";
 
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: ".env" });
 
 export async function createToken(email) {
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '7d' });
