@@ -2,6 +2,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { getData } from './localStorage';
 
+
 export const API_URL = Constants.expoConfig?.extra?.apiUrl;
 console.log("API_URL:", API_URL);
 
@@ -71,5 +72,18 @@ export async function validateToken(): Promise<AuthResponse> {
       success: false,
       message: error?.response?.data?.message || 'Erro ao validar token'
     };
+  }
+}
+
+export async function startGoogleAuth(): Promise<string> {
+  try {
+    const response = await axios.get<{ url: string }>(
+      `${API_URL}/auth/google`,
+      { ...axiosConfig, withCredentials: true }
+    );
+    return response.data.url;
+  } catch (error: any) {
+    console.error('Erro ao iniciar autenticação do Google:', error?.response?.data || error?.message);
+    throw new Error(error?.response?.data?.message || 'Erro ao iniciar autenticação do Google');
   }
 }

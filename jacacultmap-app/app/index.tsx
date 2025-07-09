@@ -5,11 +5,12 @@ import { Input, InputContainer } from "../styles/login";
 import { GoogleIcon, FacebookIcon } from "../styles/icons";
 import { FlatList, TouchableOpacity} from "react-native";
 import { saveData } from "../services/localStorage";
-import { signInAuth } from "../services/auth";
+import { signInAuth, startGoogleAuth } from "../services/auth";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { verticalScale } from "react-native-size-matters";
 import { useRouter } from "expo-router";
 import { setRegisterData } from "../utils/registerBuffer";
+import * as Linking from 'expo-linking';
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
@@ -66,8 +67,9 @@ export default function login() {
 
       <SocialLoginContainer>
         <SocialLoginButton
-          onPress={() => {
-            console.log("Lógica de login com Google aqui...");	
+          onPress={async () => {
+            const response = await startGoogleAuth();
+            await Linking.openURL(response);
           }}
           icon={GoogleIcon}
         />

@@ -21,7 +21,7 @@ export async function verifyToken(token) {
     }
 }
 
-async function validateEmail(email) {
+export async function validateEmail(email) {
     const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
     return emailRegex.test(email);
 };
@@ -59,7 +59,7 @@ export async function registerUser(name, email, password) {
         }
 
         const hashedPassword = await hash(password, 8);
-        await createUser(name, email, hashedPassword);
+        await createUser(name, email, hashedPassword, 'local');
         const token = await createToken(email);
 
         return {
@@ -86,6 +86,10 @@ export async function authenticateUser (email, password) {
             throw new Error("Email ou senha inválidos!");
         }
 
+        if (user.provider !== 'local') {
+            throw new Error("Usuário não registrado com email e senha!");
+        }
+
         const isValidPassword = await compare(password, user.password);
         if (!isValidPassword) {
             throw new Error("Email ou senha inválidos!");
@@ -110,4 +114,5 @@ export default {
   verifyToken,
   registerUser,
   authenticateUser,
+  validateEmail,
 };

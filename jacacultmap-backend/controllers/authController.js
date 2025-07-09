@@ -6,7 +6,7 @@ export async function signUp (req, res) {
         const email = req.body['email']?.toLowerCase();
         const password = req.body['password'];
 
-        const response = await registerUser(name, email, password);
+        const response = await registerUser(name, email, password,  'local');
         res.json(response);
     } catch (error) {
         res.status(400).json({ message: error.message})

@@ -1,4 +1,5 @@
 import { generateGoogleLoginUrl, getGoogleTokens } from '../services/socialAuthService.js';
+import { registerOrLoginWithGoogle } from '../services/socialAuthService.js';
 import crypto from 'crypto';
 
 export async function loginWithGoogle(req, res) {
@@ -8,17 +9,20 @@ export async function loginWithGoogle(req, res) {
     req.session = req.session || {};
     req.session.oauthState = state;
 
+    console.log(req.session.oauthState);
+
     const url = await generateGoogleLoginUrl(state);
-    res.redirect(url);
+    res.json({url});
 }
 
 export async function loginWithGoogleCallback(req, res) {
     const { code, state } = req.query;
+    console.log("state:", state, "session", req.session.oauthState);
   
     try {
         // Verificar state para proteção CSRF
         if (!state || !req.session?.oauthState || state !== req.session.oauthState) {
-        return res.status(400).json({ error: 'Estado inválido - possível ataque CSRF' });
+            return res.status(400).json({ error: 'Estado inválido - possível ataque CSRF' });
         }
         
         // Limpar state da sessão
@@ -47,8 +51,10 @@ export async function loginWithGoogleCallback(req, res) {
             tokens: data.tokens
         });
 
+        await registerOrLoginWithGoogle(data.user.name, data.user.email);
+
     } catch (error) {
-    res.status(400).json({ error: 'Falha no login' });
+        res.status(400).json({ error: 'Falha no login' });
   }
 
 }

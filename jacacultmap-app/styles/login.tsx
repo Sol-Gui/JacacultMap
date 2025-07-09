@@ -1,4 +1,4 @@
-  import { TouchableOpacity, Image, StyleSheet, View, TextInput, Dimensions } from 'react-native';
+  import { TouchableOpacity, Image, StyleSheet, View, TextInput } from 'react-native';
   import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 
   export const SocialLoginButton = ({ onPress, icon }: { onPress: () => void; icon: any }) => (
