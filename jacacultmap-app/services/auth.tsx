@@ -87,3 +87,17 @@ export async function startGoogleAuth(): Promise<string> {
     throw new Error(error?.response?.data?.message || 'Erro ao iniciar autenticação do Google');
   }
 }
+
+export async function useGoogleCode(code: string): Promise<AuthResponse> {
+  try {
+    const response = await axios.post<AuthResponse>(
+      `${API_URL}/auth/google/useCode`,
+      { code },
+      axiosConfig
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error('Erro ao usar código do Google:', error?.response?.data || error?.message);
+    throw new Error(error?.response?.data?.message || 'Erro ao usar código do Google');
+  }
+}

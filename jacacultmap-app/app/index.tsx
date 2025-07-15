@@ -69,6 +69,7 @@ export default function login() {
         <SocialLoginButton
           onPress={async () => {
             const response = await startGoogleAuth();
+            console.log('Google Auth URL:', response);
             await Linking.openURL(response);
           }}
           icon={GoogleIcon}

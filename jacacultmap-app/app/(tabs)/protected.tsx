@@ -13,6 +13,7 @@ export default function Test() {
       .then((response) => {
         if (!response.success || !response.token) {
           console.log("Token inválido ou não encontrado");
+          removeData('userToken'); // Limpa o token se inválido
           router.replace('/');
         } else {
           setLoading(false);
@@ -20,6 +21,7 @@ export default function Test() {
       })
       .catch(() => {
         router.replace('/')
+        removeData('userToken'); // Limpa o token em caso de erro
       });
   }, []);
 

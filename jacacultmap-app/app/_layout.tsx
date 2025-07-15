@@ -18,9 +18,10 @@ export default function RootLayout() {
   );
 
   const { shouldRedirect, checking } = useServerCheck();
+  console.log(checking, shouldRedirect);
 
   useEffect(() => {
-    if (checking && shouldRedirect) {
+    if (!checking && shouldRedirect) {
       router.replace("/(tabs)/status");
     } else if (!checking && !shouldRedirect) {
       validateToken()

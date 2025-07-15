@@ -6,6 +6,7 @@ const API_URL = Constants.expoConfig?.extra?.apiUrl
 
 export const serverStatus = async() => {
   try {
+    console.log("Checking server status at:", API_URL);
     const response = await axios.get<string>(`${API_URL}/status`, {
       timeout: 1000,
     });
@@ -23,6 +24,7 @@ export const useServerCheck = (pollingCount = 0) => {
   useEffect(() => {
     const checkServer = async () => {
       const status = await serverStatus();
+      console.log(status);
       if (status !== 200) {
         setShouldRedirect(true);
         setChecking(false);
