@@ -29,8 +29,8 @@ export async function getGoogleTokens(code) {
         oauth2Client.setCredentials(tokens);
 
         const ticket = await oauth2Client.verifyIdToken({
-        idToken: tokens.id_token,
-        audience: process.env.GOOGLE_CLIENT_ID,
+            idToken: tokens.id_token,
+            audience: process.env.GOOGLE_CLIENT_ID,
         });
 
         const payload = ticket.getPayload();

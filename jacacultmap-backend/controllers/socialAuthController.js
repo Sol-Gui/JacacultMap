@@ -12,12 +12,14 @@ export async function loginWithGoogle(req, res) {
     console.log(req.session.oauthState);
 
     const url = await generateGoogleLoginUrl(state);
+    console.log("Google Login URL:", url);
     res.json({url});
 }
 
 export async function loginWithGoogleCallback(req, res) {
     const { code, state } = req.query;
-    console.log("state:", state, "session", req.session.oauthState);
+    console.log("\nstate:", state, "session", req.session.oauthState);
+    console.log("\ncode:", code);
   
     try {
         // Verificar state para proteção CSRF
@@ -27,8 +29,6 @@ export async function loginWithGoogleCallback(req, res) {
         
         // Limpar state da sessão
         delete req.session.oauthState;
-
-        const data = await getGoogleTokens(code);
         
         res.set({
             'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -41,20 +41,23 @@ export async function loginWithGoogleCallback(req, res) {
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         });
 
-        res.json({
-            message: 'Login OK',
-            user: {
-                email: data.user.email,
-                name: data.user.name,
-                picture: data.user.picture
-            },
-            tokens: data.tokens
-        });
-
-        await registerOrLoginWithGoogle(data.user.name, data.user.email);
-
+        const frontendUrl = 'http://localhost:8081';
+        return res.redirect(`${frontendUrl}/auth-callback?code=${code}`);
     } catch (error) {
         res.status(400).json({ error: 'Falha no login' });
-  }
+    }
+}
 
+export async function useCode(req, res) {
+    const { code } = req.body;
+    console.log("Código recebido:", code);
+    try {
+        const data = await getGoogleTokens(code);
+        const result = await registerOrLoginWithGoogle(data.user.name, data.user.email);
+        const token = result.token;
+        res.json({ token });
+    } catch (error) {
+        console.error("Erro ao usar o código:", error);
+        throw new Error("Falha ao usar o código do Google");
+    }
 }
