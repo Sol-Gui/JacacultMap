@@ -4,7 +4,7 @@ import { validateToken } from '../../services/auth';
 import { router } from 'expo-router';
 import { removeData } from "../../services/localStorage";
 
-export default function Test() {
+export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
   //removeData('userToken'); // Limpa o token para testes
 
@@ -14,13 +14,13 @@ export default function Test() {
         if (!response.success || !response.token) {
           console.log("Token inválido ou não encontrado");
           removeData('userToken'); // Limpa o token se inválido
-          router.replace('/');
+          router.replace('/(auth)/login');
         } else {
           setLoading(false);
         }
       })
       .catch(() => {
-        router.replace('/')
+        router.replace('/(auth)/login')
         removeData('userToken'); // Limpa o token em caso de erro
       });
   }, []);

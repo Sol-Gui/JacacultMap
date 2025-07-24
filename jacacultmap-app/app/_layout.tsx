@@ -12,7 +12,7 @@ export default function RootLayout() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const publicRouteList = ['/', '/register'];
+  const publicRouteList = ['/login', '/register', '/auth-callback', '/test'];
   const currentMatch = publicRouteList.find(
     (route) => route.toLowerCase() === pathname.toLowerCase()
   );
@@ -21,6 +21,7 @@ export default function RootLayout() {
   console.log(checking, shouldRedirect);
 
   useEffect(() => {
+    console.log("\n\nverificando...");
     if (!checking && shouldRedirect) {
       router.replace("/(tabs)/status");
     } else if (!checking && !shouldRedirect) {
@@ -29,12 +30,12 @@ export default function RootLayout() {
           if (response.success && response.token) {
             router.replace('/(tabs)/protected');
           } else if (!currentMatch) {
-            router.replace('/');
+            router.replace('/(auth)/login');
           }
         })
         .catch((error) => {
           if (!currentMatch) {
-            router.replace('/');
+            router.replace('/(auth)/login');
           }
         });
     }

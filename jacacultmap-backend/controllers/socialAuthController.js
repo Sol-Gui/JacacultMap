@@ -2,33 +2,38 @@ import { generateGoogleLoginUrl, getGoogleTokens } from '../services/socialAuthS
 import { registerOrLoginWithGoogle } from '../services/socialAuthService.js';
 import crypto from 'crypto';
 
+// STATE DESATIVADO POR MOTIVOS DE DESENVOLVIMENTO!!!
+
+
 export async function loginWithGoogle(req, res) {
 
-    const state = crypto.randomBytes(32).toString('hex');
+    /**const state = crypto.randomBytes(32).toString('hex');
     
     req.session = req.session || {};
     req.session.oauthState = state;
 
-    console.log(req.session.oauthState);
+    console.log(req.session.oauthState);**/
 
-    const url = await generateGoogleLoginUrl(state);
+    const url = await generateGoogleLoginUrl(/**state**/);
     console.log("Google Login URL:", url);
     res.json({url});
 }
 
 export async function loginWithGoogleCallback(req, res) {
-    const { code, state } = req.query;
+    const { code } = req.query;
+    console.log("Código recebido:", code);
+    /**const { code, state } = req.query;
     console.log("\nstate:", state, "session", req.session.oauthState);
-    console.log("\ncode:", code);
+    console.log("\ncode:", code);**/
   
     try {
         // Verificar state para proteção CSRF
-        if (!state || !req.session?.oauthState || state !== req.session.oauthState) {
+        /**if (!state || !req.session?.oauthState || state !== req.session.oauthState) {
             return res.status(400).json({ error: 'Estado inválido - possível ataque CSRF' });
         }
         
         // Limpar state da sessão
-        delete req.session.oauthState;
+        delete req.session.oauthState;**/
         
         res.set({
             'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -41,10 +46,12 @@ export async function loginWithGoogleCallback(req, res) {
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         });
 
-        const frontendUrl = 'http://localhost:8081';
+        const frontendUrl = process.env.DEVELOPMENT_URL_FRONTEND; // URL do frontend para redirecionamento
+        console.log("Redirecionando para:", `${frontendUrl}/auth-callback?code=${code}`);
         return res.redirect(`${frontendUrl}/auth-callback?code=${code}`);
     } catch (error) {
         res.status(400).json({ error: 'Falha no login' });
+        console.log(error)
     }
 }
 
@@ -54,8 +61,10 @@ export async function useCode(req, res) {
     try {
         const data = await getGoogleTokens(code);
         const result = await registerOrLoginWithGoogle(data.user.name, data.user.email);
-        const token = result.token;
-        res.json({ token });
+        res.json({
+            success: true,
+            token: result.token
+        });
     } catch (error) {
         console.error("Erro ao usar o código:", error);
         throw new Error("Falha ao usar o código do Google");

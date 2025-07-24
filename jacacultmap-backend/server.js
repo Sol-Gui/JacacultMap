@@ -17,8 +17,29 @@ dotenv.config({ path: ".env" });
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = [
+  process.env.DEVELOPMENT_URL, // URL de desenvolvimento com ngrok
+]
+
 app.use(cors({
-  origin: "http://localhost:8081", // TROCAR DEPOIS PARA O URL DE PRODUÇÃO
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+
+    // Verifica se a origem corresponde a algum padrão permitido
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return allowed === origin;
+    });
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+
+    console.log('Blocked origin:', origin); // Para debug
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -46,6 +67,4 @@ connectToDatabase();
 
 //export default app;
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Servidor rodando na porta ${process.env.PORT || 3000}`);
-});
+app.listen(3000, '0.0.0.0');

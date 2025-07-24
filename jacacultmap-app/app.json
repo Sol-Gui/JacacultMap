@@ -6,7 +6,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/jacacultmap_icon.png",
-    "scheme": "myapp",
+    "scheme": ["myapp", "exp+jacacultmap"],
+    "deepLinking": true,
+    "plugins": [
+      "expo-linking"
+    ],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -55,7 +59,8 @@
       },
       "eas": {
         "projectId": "468490ae-de61-4a7e-a782-310cb3dfafa5"
-      }
+      },
+      "apiUrl": "https://744653864c45.ngrok-free.app"
     }
   }
 }

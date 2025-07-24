@@ -15,7 +15,7 @@ import * as Linking from 'expo-linking';
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
-export default function login() {
+export default function Register() {
   const initialData = getRegisterData();
 
   const router = useRouter();

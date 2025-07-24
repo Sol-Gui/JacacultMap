@@ -10,7 +10,7 @@ const oauth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     //"https://jacacultmap-backend-server.vercel.app/auth/google/callback"
-    "http://localhost:3000/auth/google/callback" // URL de callback para desenvolvimento
+    `${process.env.DEVELOPMENT_URL_BACKEND}/auth/google/callback` // URL de callback para desenvolvimento
 );
 
 export async function generateGoogleLoginUrl(state) {
@@ -18,7 +18,7 @@ export async function generateGoogleLoginUrl(state) {
         access_type: 'offline',
         include_granted_scopes: true,
         scope: ['openid', 'email', 'profile'],
-        state: state, // Adicionar state para proteção CSRF
+        //state: state, // Adicionar state para proteção CSRF
     });
     return url
 }
