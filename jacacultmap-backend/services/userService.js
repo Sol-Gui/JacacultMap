@@ -1,10 +1,24 @@
 import User from '../models/user_model.js';
 
-export async function createUser(name, email, password, provider) {
+export async function createUser(name, email, password, provider, options = {}) {
+    const userData = {
+        name,
+        email, 
+        password,
+        provider,
+        profilePicture: options.profilePicture || {
+            imageBase64: process.env.DEFAULT_USER_ICON_B64,
+            imageFormat: 'webp'
+        },
+        favoritedEventsById: options.favoritedEventsById || [],
+        favoritedCategories: options.favoritedCategories || [],
+        friends: options.friends || []
+    };
 
-    const user = new User({ name, email, password, provider });
+    const user = new User(userData);
     await user.save();
     console.log("Usuário criado:", user);
+    return user;
 }
 
 export async function updateUserByEmail(email, updates) {

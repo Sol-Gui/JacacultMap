@@ -16,6 +16,28 @@ const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
 
 export default function login() {
   const router = useRouter();
+
+  
+  /* 
+
+  REMOVER APENAS PARA TESTES!!!!!
+  REMOVER APENAS PARA TESTES!!!!!
+  REMOVER APENAS PARA TESTES!!!!!
+  REMOVER APENAS PARA TESTES!!!!!
+  REMOVER APENAS PARA TESTES!!!!!
+
+  */
+  //router.replace('/test')
+  /*
+
+  REMOVER APENAS PARA TESTES!!!!!
+  REMOVER APENAS PARA TESTES!!!!!
+  REMOVER APENAS PARA TESTES!!!!!
+  REMOVER APENAS PARA TESTES!!!!!
+
+  */
+
+
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');

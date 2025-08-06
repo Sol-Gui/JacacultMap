@@ -12,12 +12,12 @@ export default function RootLayout() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const publicRouteList = ['/login', '/register', '/auth-callback', '/test'];
+  const publicRouteList = ['/login', '/register', '/auth-callback', '/test', '/interests'];
   const currentMatch = publicRouteList.find(
     (route) => route.toLowerCase() === pathname.toLowerCase()
   );
 
-  const { shouldRedirect, checking } = useServerCheck();
+  const { shouldRedirect, checking } = useServerCheck(pathname);
   console.log(checking, shouldRedirect);
 
   useEffect(() => {

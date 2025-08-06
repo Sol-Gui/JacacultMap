@@ -18,14 +18,13 @@ const app = express();
 app.use(express.json());
 
 const allowedOrigins = [
-  process.env.DEVELOPMENT_URL, // URL de desenvolvimento com ngrok
+  process.env.DEVELOPMENT_URL_FRONTEND, // URL de desenvolvimento com ngrok
 ]
 
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);
 
-    // Verifica se a origem corresponde a algum padrão permitido
     const isAllowed = allowedOrigins.some(allowed => {
       if (allowed instanceof RegExp) {
         return allowed.test(origin);

@@ -17,7 +17,7 @@ export const serverStatus = async() => {
   }
 }
 
-export const useServerCheck = (pollingCount = 0) => {
+export const useServerCheck = (pollingCount: any = 0) => {
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [checking, setChecking] = useState(true);
 
