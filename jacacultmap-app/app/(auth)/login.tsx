@@ -27,7 +27,7 @@ export default function login() {
   REMOVER APENAS PARA TESTES!!!!!
 
   */
-  //router.replace('/test')
+  router.replace('/test')
   /*
 
   REMOVER APENAS PARA TESTES!!!!!

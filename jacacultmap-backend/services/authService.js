@@ -45,11 +45,11 @@ export async function registerUser(name, email, password) {
             throw new Error("Por favor, insira um nome")
         }
 
-        if (!validateEmail(email)) {
+        if (!await validateEmail(email)) {
             throw new Error("Por favor, insira um email válido");
         }
 
-        if (!validatePasswordLength(password)) {
+        if (!await validatePasswordLength(password)) {
             throw new Error("A senha deve ter pelo menos 6 caracteres!");
         }
 

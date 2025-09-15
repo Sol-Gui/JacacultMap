@@ -18,7 +18,8 @@ const app = express();
 app.use(express.json());
 
 const allowedOrigins = [
-  process.env.DEVELOPMENT_URL_FRONTEND, // URL de desenvolvimento com ngrok
+  process.env.DEVELOPMENT_URL_FRONTEND,
+  "http://localhost:8081" // URL de desenvolvimento com ngrok
 ]
 
 app.use(cors({

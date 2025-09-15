@@ -7,7 +7,7 @@ export async function createUser(name, email, password, provider, options = {}) 
         password,
         provider,
         profilePicture: options.profilePicture || {
-            imageBase64: process.env.DEFAULT_USER_ICON_B64,
+            imageBase64: 'NO-IMAGE',
             imageFormat: 'webp'
         },
         favoritedEventsById: options.favoritedEventsById || [],

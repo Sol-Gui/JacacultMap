@@ -5,8 +5,6 @@ import { useRouter } from "expo-router";
 import { validateToken, useGoogleCode } from '../../services/auth'
 import { useNavigation, CommonActions } from '@react-navigation/native';
 
-
-
 async function processGoogleCode(code: string) {
   try {
     console.log("Processando código:", code);

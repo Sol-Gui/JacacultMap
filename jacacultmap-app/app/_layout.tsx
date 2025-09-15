@@ -23,7 +23,7 @@ export default function RootLayout() {
   useEffect(() => {
     console.log("\n\nverificando...");
     if (!checking && shouldRedirect) {
-      router.replace("/(tabs)/status");
+      //router.replace("/(tabs)/status");
     } else if (!checking && !shouldRedirect) {
       validateToken()
         .then((response) => {

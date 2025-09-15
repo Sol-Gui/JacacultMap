@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Footer from '../../styles/app/footer';
 import {
   View,
   Text,
@@ -7,26 +8,16 @@ import {
   TextInput,
   ActivityIndicator,
   Modal,
+  Image,
   StyleSheet,
 } from 'react-native';
 
-// Types
-interface Category {
-  id: string;
-  name: string;
-}
+import Novidades from './novidades';
+import Configuracoes from './configuracoes';
+import { ACCENTS, baseDark, baseLight, getCategoryStyles, type Category, type Event, type User } from '../../styles/app/mainPage';
 
-interface Event {
-  id: number;
-  title: string;
-  date: string;
-  category: string;
-}
-
-interface User {
-  name: string;
-  email: string;
-}
+// Types moved to styles/app/mainPage
+const basicImageB64 = "data:image/png;base64,UklGRloOAABXRUJQVlA4IE4OAABQTwCdASrdAOQAPpFCm0mlpCKkJ/O7oLASCWdu3sSONH0nlvav0LCV2rdlDuNmu8YNTO2AXPFncjl3BIfNf/uYS67VvjRtEtN1EmyQeQQnnBPun1zfqEb+uC2faqAn3UqwxRD9Nnz7AuIcLdtnDP/lkz0VmYFDt0+8ArmvIAKU5yxVsMFXSGgPC5NqpBWLuUOJShOgoxplMK3UDMgVN4Z3PPPIXS3hcd96Wbm/PoJZ/vgX+2ZcnGUL37Buebu4K6FjClZw8PD5WnKAMz2XyeTYhxDTvue65VcnZkKDB2qsKnx8raclMs/JBUZUMCp0xZ480K1Z15Vs7SLJrO9N10SMvtIHq/cbUNAmuX5zMPn6y78iHWQU83gOj1qdGCwQLn3Hau95b+JW/OBo18syraVg7Gzoa302IHvILi59YmQh+c+vhh2IwX3XnJjO7523GEi4IhM4rueWyhogDs/KQW68j2NQwbItNp04P7AvsdI1OxAEMy/N088wWIBf+7fre3Q0Z12ms9pIqCoHbFIkk06g/RZHymQb5ZaXEoqSFSmSttzKxgCCUKNuWJt3zmtOGNDrTLFV8UP6GFYE1AbVlp5kwqL5yLA+gQJyyOlBKtDuB4JQ2jJyLqrkc6EK1Ip15lLNXkl8kODeUUOiS+LijrZRHqv94iuI3ZrkJHi9uIPcjM67aML5mOgAtCMiljbd+J/UskJ/MMORqW54eiwdOcb0DC8btg5Anz0miuq2yg8JiSGDejGjsmlD6lVBricbGlQ8g7SDuUoloqumHzlNa02TDVR1uxC5ec6jovRLCTzieixSR3r4LyUEW2jpIXRatApMKejJ8oWFo8BmJEypz6kLGzMAAP76+VU4heLd3dlrLmt/o+uynftkDd9TCPgMTGin7Vge8vBBZ1AcMr24bECizifzlxl6cvXt80R2Wf2WA8I6QnTsyuxUA8XaDuqdhiewuz+j69EG5DW841ajVgfDj0dku2qkQLmPjurO+MabPZNJaP7IiYSpfMKdJgKlMFLk8p6NGDktybyD0EDchcTzFIkvPk4Bs7y24F64z7pnQDjjG8IBS5vZUSk1/QiCUd60cf0i0QWE2XJUdLqRtHytTJXuGeGjKF0hTXu1XGg4bgz/CLztHvnOe8F+7N8ehNW/U9MMNo2lcx9j5f+HmocQy9/tAx6wjOkMYkwOetg8ZCihZp43GmfdvztSJhbFM9T5RgakLMmKqxFgptb4eePUXT85/PZP+Rx5mW9bkdPZXfeowkS/Ax3/QgyTXK6JRJxwPN2fy043/TsDK5y7xRgKJ8Yx4H0ip5gUgEbdpM1Az9tXW07/v4jODRHUAQ9omXvSaSCchBfJ7JsX6MNkDr5IsvD0V3zhrm3CY2zZCKGUHmm183svt7kodo/rLRokyS/SwRDsS91qRQZPMFGOzOVxpWNe2yW5N6/42TyVug42VC4Q+i+WQ2xk2+xn6PxCsSTm5j6vwRpxXPxdTAVioAL5ugRGc0ZT4KY8igqETr3suItv8+1lFCReQ5Els6Lox9OhNnyN3Wbjtj7GgtCeecsllus1211Uzj7HsMHTgvJzy77YIBvW65UP439E8YJvXIBH9RIQ5+wlNfpjzZ7A3O8hKrF1gZPltMCY9yNUI4ltEsrcf93E3xGy2yDht3I/7TBtbDwa+JdhCCEQCTtvPkAYPv6+NsrmcPm81mbA0v/7lAMkAm/joTjtxDFgsMHYuu0CW0H5deM2tQSfXHUnr03J4aVzSi9XMYVDaYGZlUmxRnbnZts2ANAazuxQGLv7kPx9hV/laIc0sniSNh3UUB2WK+d+MUfZVL5SiCuOl06MihDAvua8uPnrFiCP9m7uuyJ7V45TkZfip3mahC/SFXuSVkC+l47EmCyXh/MLlcQKuN7O8GnXPabTJ4ZqG4UnlWCRQFGJqo0XJUION3x3HaHOy2HJ3HN5zeNXByaCzjV5dknsZakBZt/IRaGqL389RxNDlQfArV7tlS8+5nDAugY9O71ANugex5+G8e1HofgaSBi2HMp90NOgbatd5E08d2Za3FHFW1DePq9+r0DyTB2Iojice9xVtIFIvTxHaHp7umjr3fu8O7cDpxlzf1k5m71wRdjQLocSXp1/MDCTnjMx1pCsI68vaGsnmg3W5ea5v4Cokqamh3HJ2ixZ98xndudXqHg758313nWZWbHkfKZ7qQqiT9VFwg+RIxsOchf+iNh+VPcWo2eyem5RP8wvsc6MH8ygyUTZM8ol9NFXAxainN2el/fcJRj3l/c/kHThdE4W130hmG3tmFHrGiE4SRTTJXYN2RmzW5GdrBE+f0TJqc/9utYMTjW0JGGNWull6CjDTmq+Pz2L1V0ShdrN9l7QPRDVdceL7vv5eQdPZfuE2qNcjh7EZngHYiyBX/tukWB7lviF5zGg86OmyXCsTOmOA4QKNuySz3whiDxVMTL7KNQzDzAvJQe+s069FMWj0w+48tv8t2mfd1b6dte06IY00y1uvriw0DbvNer2GEVkjiB04XfZ6y9pMAFcaytewPQuyN9Zh8uZGpkDYjhQANYS8wqZ7cx2SQqkDk2kEf7eos7HMZvoLj/YmTONEabTI0oqBDOFiwU82XV50SpklZzJABOndhRrlHRSnc0ytQLS7MetT9cbIeKpcKBpuhpPyQGmhH/mFwSFZbqeO5guuQvHYVxgMWH1+Mk85ywoVwM2N5WFe6zK1+j/6/jVSemczOX25ApH1DibGPcskHWbTbDr8cOzKXAC1JXt3/Drd1z0UYp9w7AJe4p3Njo4xKXzbunsdADIiZwYQaVZmLDTShTZJfFxX1cEqZNLWHffXKsGcFmzoswklSzoUS6NKFpuU/x1fFA9psHlMtrmwB6Sbzd1ItMfiBt1mwk1rXcMwMtx0vl86Xz+b5A/fy3/GNfvmN74C5H9T/Y6M32AsexwrTqOh6G97rU9rGPWGJBGX0RCvRsUNlu3Nbc8q98RmcQoZT9SRwCwntrZKhQF+4H1WrjsF81A6sdA7tLC2q3hzTcYOFfiHi5CfT1gvc4UEYleRcdrDewZYBgtVO5/pFSVaM5mT5njaioz0gZasixX0O5cU8tZLeidudBJ6V5i0xSPngH5Z7b+pTQ5pNryAadKkbVrdPxaNhKlu8mAE91pLju5u+kGrd/guWYalxx2vPeLG5IvHBBpTL+8KXwbJJJyzbb7b9xoiboyYRlUnlBd87YCfMdcg+Bh9hBFfr85/5AVaF/H/vW75/Vitw3jQj9u6Ga8IbOtkOriKqeciwij1DRtCkMEeHsJWGB7eGsBiWUCBz5+UFSi5UGZjaktsTWsBcUxTaihI/u6jlvegyipKUxQBHBq16vK0mIzq8BtUF6lVsy7d0DZPS/Suab89qDxLW0p8djg3WWe4f2YGF7eP6PgcIagxy/idUAAD2G/3WchJUDul0jN29ZD1ZonNPL92KcFl3iVUYMe1Fl7gSOhim2PrARVVpFtLW2l1KkCwpDE+zHRtNQbiuNyyQGuZwHD6bCzIYci15RL0GeQe3vsuSY7O9bYkOilNloiVh2gJKRMdcUnysu5Nnzvo34tKb0pMAMIcFrQmNjuHs2SUAwsDSVVNkTSLozkz/dLeN9H/HsA3ohyfuXBJkMbdvixdEE3bLs9lFNqZunfeEabUbtSvw86Wnda7weAf3GT3ZbskKVqPS5uGOwwUUHVk+RNWtv3NxSNUMse4hqA/FSWL5c4bfhsenYwr9Yq/3QHUQ0aM5pce+tRQnzKYK9Aov3b567TVy2LotXT0wVQD/NbPKxAE0Z+XObKA3JHZGalU/IIwDuoovwFrxfp/oLRzlEd3AyBWXgPP7wSfba6May3eIyPs7rX23HaiXSrnrR1oRRqo8vR5A5yb2Il9bYtXAniwNsBuxv+ehe6ivMFPg1Kd25R+dIbJae1mKO8rHb2fPp2AQ8dyuY/G7j3fYOTBQTBsKKAdC0NFIzAu7tpORpT5tRE3qA8FC3sYyI3laQFz1T/sMc6RzKosecWm7kbRLYvdn76jsHAuVs0juz2ceb3kOiSVIwnhrJo7WOv64jL8C839cCzt5GefW8oAUnZsbXSPYJ1+dmU6pfTdgS7XY7yySVAbSlF3CAV/lyWsubPiJF7UKhrLBLZX72oeZpPqKwsjXPtMs8ALNl9fhKt03LNQf4u3mnxkek2eVpZHgewQDEdWPnoBwx+Pzv43o3EtSTrMQMaCH7zn2rGiQ+z0MYlPHNE7zAUuoliPEb/A1DqldMb/KGDgiMQ1BSmRrvU09fpEviu1sDrD0fBLRQVkRrEPBuLpVK+Ssv/7qto7kFy0VBzUEgTecPpml+N5vJGevsQ9ExDHhLLl5S3VyALSyujltUVsI/aMBgr/RT+h//Nw/KLi298TzAdtR6aw6E8k6GXYVU+n3hZfISxOoxe85u0yxmdDBCCbdhKVFZ1heI8Sdq29+lyEF+8VdSYZNJeV8X9AccX9sRmh4rWF6I/p9qIxp0qSv7BOfgceCUVdS7AsDfHfKfmb/nmovjhYDS3K7LoaJZa9FZvpxf7E9ZYoBZSgKoE6DcRMYirtoaUCIO5434RwdZP7l9P2zg3/AgmWAGE8PTRfKYHIa7n4MNwPOaBWIBzzuK5KbeDihxVhBfP5NwibP3b/nrfXU7pVSQxBxC8FH/7juQLfLnFe7FBpULHtPRsC3RSNCyWghFNRhRxFbQC0I+1zVE2kzTESpKW79mOYvZNsZStWx7LRjHC/JmojuiZYJsSpmLPgdknaqlViFemPJaeAO5LTYmN3useAyd+JtMJgb5NpadIAl1lMk0oZfAphZ4qP/pXM9AkBTnBie4WPIYDbg8FJguAHotfpNW4t6YkdhBlYs1QbLleoP3MbgAAAA==";
 
 interface AppState {
   showSidebar: boolean;
@@ -37,12 +28,18 @@ interface AppState {
   categories: Category[] | null;
   events: Event[] | null;
   loading: boolean;
-  currentRoute: string;
+  currentRoute: string; // '/home' | '/novidades' | '/configuracoes'
   screenSize: {
     width: number;
     height: number;
   };
+  isDarkMode: boolean;
+  accentColor: string;
 }
+
+// Themes moved to styles/app/mainPage
+
+// ACCENTS moved to styles/app/mainPage
 
 // Sample news data
 const newsData = [
@@ -59,7 +56,7 @@ const fetchUserData = async (): Promise<User> => {
     setTimeout(() => {
       resolve({
         name: 'Leonardo',
-        email: 'negociosleonardo240108@gmail.com'
+        email: 'negociosleonardo240108@gmail.com',
       });
     }, 500);
   });
@@ -71,7 +68,7 @@ const fetchCategories = async (): Promise<Category[]> => {
       resolve([
         { id: 'intelectual', name: 'Intelectual' },
         { id: 'turistico', name: 'Turístico' },
-        { id: 'social', name: 'Social' }
+        { id: 'social', name: 'Social' },
       ]);
     }, 300);
   });
@@ -86,7 +83,7 @@ const fetchEvents = async (): Promise<Event[]> => {
         { id: 3, title: 'Encontro Social', date: '2025-07-30', category: 'social' },
         { id: 4, title: 'Workshop de Arte', date: '2025-08-01', category: 'intelectual' },
         { id: 5, title: 'Caminhada Ecológica', date: '2025-08-02', category: 'turistico' },
-        { id: 6, title: 'Festa Comunitária', date: '2025-08-03', category: 'social' }
+        { id: 6, title: 'Festa Comunitária', date: '2025-08-03', category: 'social' },
       ]);
     }, 400);
   });
@@ -95,31 +92,31 @@ const fetchEvents = async (): Promise<Event[]> => {
 const searchEvents = async (query: string, events: Event[]): Promise<Event[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const filtered = events.filter(event =>
-        event.title.toLowerCase().includes(query.toLowerCase())
-      );
+      const filtered = events.filter((event) => event.title.toLowerCase().includes(query.toLowerCase()));
       resolve(filtered);
     }, 200);
   });
 };
 
+// getCategoryStyles moved to styles/app/mainPage
+
 // Reusable Components
-class Header extends Component<{ onMenuPress: () => void }> {
+class Header extends Component<{ onMenuPress: () => void; theme: any }> {
   render() {
+    const { onMenuPress, theme } = this.props;
     return (
-      <View style={styles.header}>
-        <TouchableOpacity onPress={this.props.onMenuPress} style={styles.menuButton}>
+      <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>        
+        <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
           <View style={styles.menuIcon}>
-            <View style={styles.menuLine}></View>
-            <View style={styles.menuLine}></View>
-            <View style={styles.menuLine}></View>
+            <View style={[styles.menuLine, { backgroundColor: theme.text }]} />
+            <View style={[styles.menuLine, { backgroundColor: theme.text }]} />
+            <View style={[styles.menuLine, { backgroundColor: theme.text }]} />
           </View>
         </TouchableOpacity>
-        <View style={styles.avatar}>
-          <View style={styles.avatarInner}>
-            <View style={styles.avatarDot}></View>
-          </View>
-        </View>
+        <Image
+          source={{ uri: basicImageB64 }}
+          style={styles.avatar}
+        />
       </View>
     );
   }
@@ -129,23 +126,24 @@ class SearchBar extends Component<{
   value: string;
   onChangeText: (text: string) => void;
   onSubmit: () => void;
+  theme: any;
 }> {
   render() {
-    const { value, onChangeText, onSubmit } = this.props;
+    const { value, onChangeText, onSubmit, theme } = this.props;
     return (
       <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
+        <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.border }]}>          
           <View style={styles.searchIcon}>
-            <View style={styles.searchIconCircle}></View>
-            <View style={styles.searchIconHandle}></View>
+            <View style={[styles.searchIconCircle, { borderColor: theme.textSecondary }]} />
+            <View style={[styles.searchIconHandle, { backgroundColor: theme.textSecondary }]} />
           </View>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: theme.text }]}
             placeholder="Pesquisar"
+            placeholderTextColor={theme.textSecondary}
             value={value}
             onChangeText={onChangeText}
             onSubmitEditing={onSubmit}
-            placeholderTextColor="#9CA3AF"
           />
         </View>
       </View>
@@ -157,91 +155,52 @@ class CategoryChip extends Component<{
   category: Category;
   isActive: boolean;
   onPress: () => void;
+  theme: any;
 }> {
   render() {
-    const { category, isActive, onPress } = this.props;
+    const { category, isActive, onPress, theme } = this.props;
+    const palette = getCategoryStyles(category.id);
     return (
       <TouchableOpacity
         style={[
           styles.categoryChip,
-          isActive && styles.categoryChipActive
+          {
+            backgroundColor: isActive ? palette.bg : theme.card,
+            borderColor: isActive ? palette.bg : theme.border,
+          },
         ]}
         onPress={onPress}
       >
-        <View style={[
-          styles.categoryDot,
-          isActive && styles.categoryDotActive
-        ]} />
-        <Text style={[
-          styles.categoryText,
-          isActive && styles.categoryTextActive
-        ]}>
-          {category.name}
+        <View style={[styles.categoryDot, { backgroundColor: isActive ? palette.fg : palette.fg, opacity: isActive ? 1 : 0.6 }]} />
+        <Text style={{ color: isActive ? palette.fg : theme.text }}>{category.name}</Text>
+      </TouchableOpacity>
+    );
+  }
+}
+
+class NewsCard extends Component<{ news: typeof newsData[0]; theme: any }> {
+  render() {
+    const { news, theme } = this.props;
+    return (
+      <View style={[styles.newsCard, { backgroundColor: theme.primary }]}>        
+        <Text numberOfLines={2} style={[styles.newsTitle, { color: '#fff' }]}>
+          {news.title}
         </Text>
-      </TouchableOpacity>
+      </View>
     );
   }
 }
 
-class NewsCard extends Component<{ 
-  news: typeof newsData[0],
-  onPress?: () => void 
-}> {
+class EventItem extends Component<{ event: Event; categoryName: string; theme: any }> {
   render() {
-    const { news, onPress } = this.props;
+    const { event, categoryName, theme } = this.props;
+    const cat = getCategoryStyles(event.category);
     return (
-      <TouchableOpacity style={styles.newsCard} onPress={onPress}>
-        <View style={styles.newsCardContent}>
-          <Text numberOfLines={2} style={styles.newsTitle}>
-            {news.title}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-}
-
-class EventItem extends Component<{ event: Event; categoryName: string }> {
-  getCategoryStyles = (category: string) => {
-    switch (category) {
-      case 'intelectual': 
-        return { 
-          backgroundColor: '#DBEAFE', 
-          color: '#1E40AF' 
-        };
-      case 'turistico': 
-        return { 
-          backgroundColor: '#FED7AA', 
-          color: '#EA580C' 
-        };
-      case 'social': 
-        return { 
-          backgroundColor: '#E9D5FF', 
-          color: '#7C3AED' 
-        };
-      default: 
-        return { 
-          backgroundColor: '#F3F4F6', 
-          color: '#374151' 
-        };
-    }
-  };
-
-  render() {
-    const { event, categoryName } = this.props;
-    const categoryStyles = this.getCategoryStyles(event.category);
-
-    return (
-      <View style={styles.eventItem}>
-        <Text style={styles.eventTitle}>{event.title}</Text>
-        <Text style={styles.eventDate}>{event.date}</Text>
-        <View style={[
-          styles.eventCategory,
-          { backgroundColor: categoryStyles.backgroundColor }
-        ]}>
-          <Text style={{ color: categoryStyles.color }}>
-            {categoryName}
-          </Text>
+      <View style={[styles.eventItem, { backgroundColor: theme.card, borderColor: theme.border }]}>        
+        <Text style={[styles.eventTitle, { color: theme.text }]}>{event.title}</Text>
+        <Text style={[styles.eventDate, { color: theme.textSecondary }]}>{event.date}</Text>
+        <View style={[styles.eventCategory, { backgroundColor: cat.bg }]}>          
+          <Text style={{ color: cat.fg, fontWeight: '600' }}>{categoryName}</Text>
         </View>
       </View>
     );
@@ -252,55 +211,45 @@ class SideMenu extends Component<{
   visible: boolean;
   user: User | null;
   onClose: () => void;
+  onToggleDarkMode: () => void;
+  isDarkMode: boolean;
+  onChangeAccent: (hex: string) => void;
+  theme: any;
 }> {
   render() {
-    const { visible, user, onClose } = this.props;
-    
+    const { visible, user, onClose, onToggleDarkMode, isDarkMode, onChangeAccent, theme } = this.props;
     return (
-      <Modal
-        visible={visible}
-        transparent
-        animationType="slide"
-        onRequestClose={onClose}
-      >
+      <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackdrop}
-            activeOpacity={1}
-            onPress={onClose}
-          />
-          
-          <View style={styles.sidebar}>
+          <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onClose} />
+          <View style={[styles.sidebar, { backgroundColor: theme.card, borderLeftColor: theme.border }]}>            
             {user && (
               <View style={{ flex: 1 }}>
                 <View style={styles.sidebarHeader}>
-                  <View style={styles.sidebarAvatar}>
-                    <View style={styles.sidebarAvatarIcon}>
-                      <View style={styles.personIcon}>
-                        <View style={styles.personHead} />
-                        <View style={styles.personBody} />
-                      </View>
+                  <Text style={[styles.sidebarName, { color: theme.text }]}>{user.name}</Text>
+                  <Text style={[styles.sidebarEmail, { color: theme.textSecondary }]}>{user.email}</Text>
+                </View>
+
+                <View style={styles.sidebarMenu}>
+                  <TouchableOpacity style={styles.sidebarMenuItem} onPress={onToggleDarkMode}>
+                    <Text style={[styles.sidebarMenuText, { color: theme.text }]}>
+                      {isDarkMode ? 'Modo Claro' : 'Modo Escuro'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <View style={{ marginTop: 8 }}>
+                    <Text style={[styles.sidebarMenuText, { color: theme.text, marginBottom: 8 }]}>Cor de destaque</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                      {Object.values(ACCENTS).map((hex) => (
+                        <TouchableOpacity key={hex} onPress={() => onChangeAccent(hex)} style={[styles.accentDot, { backgroundColor: hex }]} />
+                      ))}
                     </View>
                   </View>
-                  <Text style={styles.sidebarName}>{user.name}</Text>
-                  <Text style={styles.sidebarEmail}>{user.email}</Text>
-                </View>
-                
-                <View style={styles.sidebarMenu}>
-                  <TouchableOpacity style={styles.sidebarMenuItem}>
-                    <View style={styles.settingsIcon} />
-                    <Text style={styles.sidebarMenuText}>Configurações</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.sidebarMenuItem}>
-                    <View style={styles.notificationIcon} />
-                    <Text style={styles.sidebarMenuText}>Notificações</Text>
-                  </TouchableOpacity>
                 </View>
 
                 <View style={styles.sidebarFooter}>
-                  <TouchableOpacity style={styles.logoutButton}>
-                    <View style={styles.logoutIcon} />
-                    <Text style={styles.logoutText}>Sair</Text>
+                  <TouchableOpacity style={[styles.logoutButton, { backgroundColor: theme.background }]}>
+                    <Text style={[styles.logoutText, { color: theme.text }]}>Sair</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -312,48 +261,7 @@ class SideMenu extends Component<{
   }
 }
 
-class BottomNavigation extends Component<{ onNavigate: (route: string) => void; isMobile: boolean }> {
-  render() {
-    const { onNavigate, isMobile } = this.props;
-    
-    if (!isMobile) return null;
-
-    return (
-      <View style={styles.bottomNav}>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => onNavigate('/home')}
-        >
-          <View style={{...styles.navIcon, ...styles.navIconActive}}>
-            <View style={styles.mapPin}></View>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => onNavigate('/calendar')}
-        >
-          <View style={styles.navIcon}>
-            <View style={styles.calendarIcon}>
-              <View style={styles.calendarTop}></View>
-              <View style={styles.calendarBody}></View>
-            </View>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => onNavigate('/test')}
-        >
-          <View style={styles.navIcon}>
-            <View style={styles.heartIcon}>
-              <View style={styles.heartLeft}></View>
-              <View style={styles.heartRight}></View>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
+// Footer moved to styles/app/footer
 
 // Main App Component
 class MobileAppInterface extends Component<{}, AppState> {
@@ -369,8 +277,10 @@ class MobileAppInterface extends Component<{}, AppState> {
     currentRoute: '/home',
     screenSize: {
       width: typeof window !== 'undefined' ? window.innerWidth : 768,
-      height: typeof window !== 'undefined' ? window.innerHeight : 1024
-    }
+      height: typeof window !== 'undefined' ? window.innerHeight : 1024,
+    },
+    isDarkMode: false,
+    accentColor: ACCENTS.emerald,
   };
 
   componentDidMount() {
@@ -388,103 +298,64 @@ class MobileAppInterface extends Component<{}, AppState> {
   }
 
   loadData = async () => {
-    try {
-      const [userData, categories, events] = await Promise.all([
-        fetchUserData(),
-        fetchCategories(),
-        fetchEvents()
-      ]);
-      
-      this.setState({
-        userData,
-        categories,
-        events,
-        loading: false
-      });
-    } catch (error) {
-      console.error('Error loading data:', error);
-      this.setState({ loading: false });
-    }
+    const [userData, categories, events] = await Promise.all([
+      fetchUserData(),
+      fetchCategories(),
+      fetchEvents(),
+    ]);
+    this.setState({ userData, categories, events, filteredEvents: events, loading: false });
   };
 
   updateFilteredEvents = async () => {
     const { events, searchQuery, activeCategories } = this.state;
-    
     if (!events) return;
-    
     let filtered = events;
-    
-    if (searchQuery) {
-      filtered = await searchEvents(searchQuery, events);
-    }
-    
+    if (searchQuery) filtered = await searchEvents(searchQuery, events);
     if (activeCategories.length > 0) {
-      filtered = filtered.filter(event => 
-        activeCategories.includes(event.category)
-      );
+      filtered = filtered.filter((event) => activeCategories.includes(event.category));
     }
-    
     this.setState({ filteredEvents: filtered });
   };
 
-  handleResize = () => {
-    this.setState({
-      screenSize: {
-        width: window.innerWidth,
-        height: window.innerHeight
-      }
-    });
-  };
-
-  isMobile = () => this.state.screenSize.width < 768;
-  isTablet = () => this.state.screenSize.width >= 768 && this.state.screenSize.width < 1024;
-  isDesktop = () => this.state.screenSize.width >= 1024;
-
   toggleCategory = (categoryId: string) => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       activeCategories: prevState.activeCategories.includes(categoryId)
-        ? prevState.activeCategories.filter(id => id !== categoryId)
-        : [...prevState.activeCategories, categoryId]
+        ? prevState.activeCategories.filter((id) => id !== categoryId)
+        : [...prevState.activeCategories, categoryId],
     }));
   };
 
-  handleSearch = () => {
-    console.log('Pesquisando por:', this.state.searchQuery);
-  };
+  setDarkMode = (v: boolean) => this.setState({ isDarkMode: v });
+  toggleDarkMode = () => this.setState((prev) => ({ isDarkMode: !prev.isDarkMode }));
+  changeAccent = (hex: string) => this.setState({ accentColor: hex });
 
-  navigateToRoute = (route: string) => {
-    console.log('Navegando para:', route);
-    this.setState({ currentRoute: route });
-  };
+  navigateTo = (route: string) => this.setState({ currentRoute: route });
 
-  renderHomePage = () => {
+  // Pages
+  renderHomePage = (theme: any) => {
     const { categories, filteredEvents, searchQuery } = this.state;
-    
     return (
       <ScrollView style={styles.content}>
         <SearchBar
           value={searchQuery}
           onChangeText={(searchQuery) => this.setState({ searchQuery })}
-          onSubmit={this.handleSearch}
+          onSubmit={() => {}}
+          theme={theme}
         />
 
-        {/* Novidades */}
+        {/* Novidades (cards horizontais) */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Novidades</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            style={styles.newsContainer}
-          >
-            {newsData.map((news) => (
-              <NewsCard key={news.id} news={news} />
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Novidades</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 16 }}>
+            {newsData.map((n) => (
+              <NewsCard key={n.id} news={n} theme={theme} />
             ))}
           </ScrollView>
         </View>
 
         {/* Categorias */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Categorias</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Categorias</Text>
           <View style={styles.categoriesContainer}>
             {categories?.map((category) => (
               <CategoryChip
@@ -492,6 +363,7 @@ class MobileAppInterface extends Component<{}, AppState> {
                 category={category}
                 isActive={this.state.activeCategories.includes(category.id)}
                 onPress={() => this.toggleCategory(category.id)}
+                theme={theme}
               />
             ))}
           </View>
@@ -499,17 +371,11 @@ class MobileAppInterface extends Component<{}, AppState> {
 
         {/* Eventos */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Eventos</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Eventos</Text>
           <View style={styles.eventsContainer}>
             {filteredEvents.map((event) => {
-              const categoryName = categories?.find(c => c.id === event.category)?.name || event.category;
-              return (
-                <EventItem
-                  key={event.id}
-                  event={event}
-                  categoryName={categoryName}
-                />
-              );
+              const categoryName = categories?.find((c) => c.id === event.category)?.name || event.category;
+              return <EventItem key={event.id} event={event} categoryName={categoryName} theme={theme} />;
             })}
           </View>
         </View>
@@ -517,63 +383,45 @@ class MobileAppInterface extends Component<{}, AppState> {
     );
   };
 
-  renderCurrentPage = () => {
-    switch (this.state.currentRoute) {
-      case '/test':
-        return (
-          <View style={styles.pageContainer}>
-            <Text style={styles.pageTitle}>Em Desenvolvimento</Text>
-            <Text style={styles.pageText}>Esta funcionalidade está em desenvolvimento...</Text>
-          </View>
-        );
-      case '/calendar':
-        return (
-          <View style={styles.pageContainer}>
-            <Text style={styles.pageTitle}>Calendário</Text>
-            <Text style={styles.pageText}>Página do calendário em desenvolvimento...</Text>
-          </View>
-        );
-      case '/home':
-      default:
-        return this.renderHomePage();
-    }
-  };
+  // Pages moved to separate files: Novidades and Configurações
 
   render() {
-    const { loading, showSidebar, userData, currentRoute } = this.state;
+    const { showSidebar, userData, currentRoute, isDarkMode, accentColor } = this.state;
 
-    if (loading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#10B981" />
-          <Text style={styles.loadingText}>Carregando...</Text>
-        </View>
-      );
-    }
+    const theme = {
+      ...(isDarkMode ? baseDark : baseLight),
+      primary: accentColor,
+    };
 
     return (
-      <View style={styles.container}>
-        <View style={styles.appLayout}>
-          <SideMenu
-            visible={showSidebar}
-            user={userData}
-            onClose={() => this.setState({ showSidebar: false })}
-          />
+      <View style={[styles.container, { backgroundColor: theme.background }]}>        
+        <SideMenu
+          visible={showSidebar}
+          user={userData}
+          onClose={() => this.setState({ showSidebar: false })}
+          onToggleDarkMode={this.toggleDarkMode}
+          isDarkMode={isDarkMode}
+          onChangeAccent={this.changeAccent}
+          theme={theme}
+        />
 
-          <View style={styles.mainContent}>
-            {currentRoute !== '/test' && (
-              <Header
-                onMenuPress={() => this.setState({ showSidebar: true })}
-              />
-            )}
-            {this.renderCurrentPage()}
-          </View>
+        <View style={styles.mainContent}>
+          <Header onMenuPress={() => this.setState({ showSidebar: true })} theme={theme} />
+          {currentRoute === '/home' && this.renderHomePage(theme)}
+          {currentRoute === '/novidades' && <Novidades theme={theme} />}
+          {currentRoute === '/configuracoes' && (
+            <Configuracoes
+              theme={theme}
+              isDarkMode={isDarkMode}
+              accentColor={accentColor}
+              onSetDarkMode={this.setDarkMode}
+              onChangeAccent={this.changeAccent}
+            />
+          )}
         </View>
 
-        <BottomNavigation
-          onNavigate={this.navigateToRoute}
-          isMobile={true}
-        />
+        {/* Nav fixo no rodapé */}
+        <Footer theme={theme} />
       </View>
     );
   }
@@ -581,472 +429,109 @@ class MobileAppInterface extends Component<{}, AppState> {
 
 // Styles
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB'
-  },
-  appLayout: {
-    flex: 1,
-    flexDirection: 'column'
-  },
-  mainContent: {
-    flex: 1,
-    flexDirection: 'column',
-    padding: 0,
-    paddingBottom: 80
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB'
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#6B7280'
-  },
+  container: { flex: 1 },
+  appLayout: { flex: 1, flexDirection: 'column' },
+  mainContent: { flex: 1, paddingBottom: 72 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: 16, fontSize: 16 },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
     padding: 16,
-    borderRadius: 8, // Optional: adds rounded corners
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB'
   },
-  menuButton: {
-    padding: 4,
-    backgroundColor: 'transparent',
-    borderWidth: 0
-  },
-  menuIcon: {
-    width: 24,
-    height: 24,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    paddingVertical: 3
-  },
-  menuLine: {
-    height: 2,
-    backgroundColor: '#374151',
-    borderRadius: 1
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#10B981',
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  avatarInner: {
-    width: 24,
-    height: 24,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  avatarDot: {
-    width: 12,
-    height: 12,
-    backgroundColor: '#10B981',
-    borderRadius: 6
-  },
-  searchContainer: {
-    padding: 0,
-    paddingHorizontal: 16,
-    paddingBottom: 16
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB'
-  },
-  searchIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 8,
-    position: 'relative'
-  },
-  searchIconCircle: {
-    width: 14,
-    height: 14,
-    borderWidth: 2,
-    borderColor: '#9CA3AF',
-    borderRadius: 7,
-    position: 'absolute',
-    top: 0,
-    left: 0
-  },
-  searchIconHandle: {
-    width: 6,
-    height: 2,
-    backgroundColor: '#9CA3AF',
-    transform: 'rotate(45deg)',
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-    borderRadius: 1
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#111827',
-    borderWidth: 0,
-    backgroundColor: 'transparent'
-  },
-  content: {
-    flex: 1,
-    padding: 0,
-    paddingBottom: 80
-  },
-  section: {
-    marginBottom: 24
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 16,
-  },
-  newsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-  },
-  newsCard: {
-    flexShrink: 0,
-    width: 200,
-    marginRight: 16,
-  },
-  newsCardContent: {
-    backgroundColor: '#10B981',
-    borderRadius: 16,
-    height: 128,
-    justifyContent: 'flex-end',
-    padding: 16
-  },
-  newsTitle: {
-    color: 'white',
-    fontSize: 14, // Increased from 10
-    fontWeight: '600',
-    marginTop: 'auto', // Push text to bottom
-    width: '100%', // Full width
-    height: 'auto', // Auto height instead of 50%
-    lineHeight: 20,
-    textAlign: 'left'
-  },
-  categoriesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8
-  },
+  menuButton: { padding: 4 },
+  menuIcon: { width: 24, height: 24, flexDirection: 'column', justifyContent: 'space-between', paddingVertical: 3 },
+  menuLine: { height: 2, borderRadius: 1 },
+  avatar: { width: 40, height: 40, borderRadius: 20 },
+
+  searchContainer: { paddingHorizontal: 16, paddingBottom: 16 },
+  searchBar: { flexDirection: 'row', alignItems: 'center', borderRadius: 12, padding: 12, borderWidth: 1 },
+  searchIcon: { width: 20, height: 20, marginRight: 8, position: 'relative' },
+  searchIconCircle: { width: 14, height: 14, borderWidth: 2, borderRadius: 7, position: 'absolute' },
+  searchIconHandle: { width: 6, height: 2, transform: [{ rotate: '45deg' }], position: 'absolute', bottom: 2, right: 2, borderRadius: 1 },
+  searchInput: { flex: 1, fontSize: 16 },
+
+  content: { flex: 1, paddingBottom: 80 },
+  section: { marginBottom: 24 },
+  sectionTitle: { fontSize: 20, fontWeight: '700', marginBottom: 16, paddingHorizontal: 16 },
+
+  // Novidades
+  newsCard: { width: 220, marginRight: 16, height: 120, borderRadius: 16, padding: 16, justifyContent: 'flex-end' },
+  newsTitle: { fontSize: 14, fontWeight: '600', lineHeight: 20 },
+  newsRow: { padding: 16, borderRadius: 12, borderWidth: 1, marginBottom: 12 },
+
+  // Categorias
+  categoriesContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16 },
   categoryChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#DCFCE7',
-    borderRadius: 20,
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
     marginRight: 8,
-    marginBottom: 8
+    marginBottom: 8,
   },
-  categoryChipActive: {
-    backgroundColor: '#10B981'
-  },
-  categoryDot: {
-    width: 16,
-    height: 16,
-    backgroundColor: '#10B981',
-    borderRadius: 8,
-    marginRight: 8
-  },
-  categoryDotActive: {
-    backgroundColor: 'white'
-  },
-  categoryText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151'
-  },
-  categoryTextActive: {
-    color: 'white'
-  },
-  eventsContainer: {
-    flex: 1,
-    paddingBottom: 100
-  },
-  eventItem: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 0,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1
-  },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 4
-  },
-  eventDate: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 8
-  },
-  eventCategory: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    fontSize: 12,
-    fontWeight: '500'
-  },
+  categoryDot: { width: 12, height: 12, borderRadius: 6, marginRight: 8 },
+
+  // Eventos
+  eventsContainer: { flex: 1, paddingBottom: 100, paddingHorizontal: 16 },
+  eventItem: { borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1 },
+  eventTitle: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
+  eventDate: { fontSize: 14, marginBottom: 8 },
+  eventCategory: { alignSelf: 'flex-start', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 8 },
+
+  // Modal/Sidebar
+  modalOverlay: { flex: 1, flexDirection: 'row-reverse' },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
+  sidebar: { width: 300, height: '100%', padding: 16, borderLeftWidth: 1 },
+  sidebarHeader: { alignItems: 'center', marginBottom: 24 },
+  sidebarName: { fontSize: 16, fontWeight: '700' },
+  sidebarEmail: { fontSize: 12 },
+  sidebarMenu: { marginBottom: 24 },
+  sidebarMenuItem: { paddingVertical: 12, paddingHorizontal: 8 },
+  sidebarMenuText: { fontSize: 14 },
+  sidebarFooter: { borderTopWidth: 1, paddingTop: 16 },
+  logoutButton: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12 },
+  logoutText: { fontSize: 14 },
+  accentDot: { width: 26, height: 26, borderRadius: 13, marginRight: 10, borderColor: '#fff' },
+
+  // Bottom nav
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    alignItems: 'center',
     paddingVertical: 12,
+    borderTopWidth: 1,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    zIndex: 30
+    zIndex: 30,
   },
-  navButton: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    borderWidth: 0
-  },
-  navIcon: {
-    width: 48,
-    height: 48,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  navIconActive: {
-    backgroundColor: '#10B981'
-  },
-  mapPin: {
-    width: 8,
-    height: 8,
-    backgroundColor: 'white',
-    borderRadius: 4
-  },
-  calendarIcon: {
-    width: 20,
-    height: 20
-  },
-  calendarTop: {
-    width: 20,
-    height: 4,
-    backgroundColor: '#6B7280',
-    borderRadius: 2
-  },
-  calendarBody: {
-    width: 20,
-    height: 14,
-    backgroundColor: '#6B7280',
-    borderRadius: 2,
-    marginTop: 1
-  },
-  heartIcon: {
-    width: 20,
-    height: 18,
-    position: 'relative'
-  },
-  heartLeft: {
-    width: 10,
-    height: 16,
-    backgroundColor: '#6B7280',
-    borderRadius: 10,
-    position: 'absolute',
-    left: 0,
-    transform: [{ rotate: '-45deg' }] // Correct format for React Native
-  },
-  heartRight: {
-    width: 10,
-    height: 16,
-    backgroundColor: '#6B7280',
-    borderRadius: 10,
-    position: 'absolute',
-    right: 0,
-    transform: [{ rotate: '45deg' }] // Correct format for React Native
-  },
-  modalOverlay: {
-    flex: 1,
-    flexDirection: 'row-reverse', // Changed from 'row' to 'row-reverse'
-    backgroundColor: 'transparent'
-  },
+  navButton: { paddingHorizontal: 8, paddingVertical: 4 },
+  navText: { fontSize: 14, fontWeight: '700' },
 
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  },
-
-  sidebar: {
-    width: 320,
-    height: '100%',
-    backgroundColor: '#F9FAFB',
-    padding: 16,
-    borderLeftWidth: 1, // Changed from borderRightWidth
-    borderLeftColor: '#E5E7EB', // Changed from borderRightColor
-    elevation: 5
-  },
-  sidebarHeader: {
-    alignItems: 'center',
-    marginBottom: 24
-  },
-  sidebarAvatar: {
-    width: 48,
-    height: 48,
-    backgroundColor: '#10B981',
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8
-  },
-  sidebarAvatarIcon: {
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  personIcon: {
-    width: 16,
-    height: 16,
-    position: 'relative'
-  },
-  personHead: {
-    width: 6,
-    height: 6,
-    backgroundColor: 'white',
-    borderRadius: 3,
-    position: 'absolute',
-    top: 0,
-    left: 5
-  },
-  personBody: {
-    width: 10,
-    height: 8,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 5,
-    borderTopRightRadius: 5,
-    position: 'absolute',
-    bottom: 0,
-    left: 3
-  },
-  sidebarName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
-    marginTop: 0,
-    marginBottom: 0
-  },
-  sidebarEmail: {
-    fontSize: 10,
-    color: '#6B7280',
-    marginTop: 0,
-    marginBottom: 0
-  },
-  sidebarMenu: {
-    marginBottom: 24
-  },
-  sidebarMenuItem: {
+  // Settings styles
+  settingsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
+    justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    marginBottom: 12,
+    borderColor: '#E5E7EB', // fallback, will be overridden by theme
     borderRadius: 8,
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-    marginBottom: 4
+    backgroundColor: '#fff', // fallback, will be overridden by theme
   },
-  sidebarMenuText: {
-    fontSize: 14,
-    color: '#374151',
-    marginLeft: 12
-  },
-  settingsIcon: {
-    width: 16,
-    height: 16,
-    backgroundColor: '#6B7280',
-    borderRadius: 8
-  },
-  notificationIcon: {
-    width: 14,
-    height: 16,
-    backgroundColor: '#6B7280',
-    borderRadius: 7
-  },
-  sidebarFooter: {
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    paddingTop: 16
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderWidth: 0
-  },
-  logoutIcon: {
-    width: 16,
-    height: 16,
-    marginRight: 8
-  },
-  logoutText: {
-    fontSize: 14,
-    color: '#374151'
-  },
-  // Generic Page Styles
-  pageContainer: {
-    flex: 1,
-    padding: 32,
-    backgroundColor: '#F9FAFB',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-
-  pageTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 16
-  },
-
-  pageText: {
+  settingsLabel: {
     fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center'
-  }
+    fontWeight: '500',
+  },
 });
 
 export default MobileAppInterface;
