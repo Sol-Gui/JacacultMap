@@ -1,50 +1,66 @@
-import React from 'react';
-import { ScrollView, View, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, StyleSheet } from 'react-native';
+import Header from '../../styles/app/header';
 import Footer from '../../styles/app/footer';
+import { baseLight, baseDark } from '../../styles/app/mainPage';
+import { saveData, getData } from '../../services/localStorage';
 
-type NovidadesProps = {
-  theme?: any;
-};
+const Novidades: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [accentColor] = useState('#10B981');
+  
+  const theme = isDarkMode 
+    ? { ...baseDark, primary: accentColor } 
+    : { ...baseLight, primary: accentColor };
 
-const newsData = [
-  { id: 1, title: 'Festival de Arte Moderna' },
-  { id: 2, title: 'Nova Exposição no Museu' },
-  { id: 3, title: 'Workshop de Fotografia' },
-  { id: 4, title: 'Concerto de Música Clássica' },
-  { id: 5, title: 'Teatro ao Ar Livre' },
-];
+  // 🔹 Carregar estado salvo na inicializaçã
+  const loadTheme = async () => {
+    try {
+      const storedDarkMode = await getData('isDarkMode');
+      if (storedDarkMode !== null) {
+        setIsDarkMode(storedDarkMode === 'true'); 
+        }
+    } catch (err) {
+      console.error('Erro ao carregar tema:', err);
+    }
+  };
+  loadTheme();
 
-const Novidades: React.FC<NovidadesProps> = ({ theme }) => {
-  const safeTheme = theme || { text: '#111827', border: '#E5E7EB', card: '#FFFFFF' };
+  // 🔹 Alternar e salvar estado
+  const toggleDarkMode = async () => {
+    try {
+      const newMode = !isDarkMode;
+      setIsDarkMode(newMode);
+      await saveData('isDarkMode', String(newMode));
+    } catch (err) {
+      console.error('Erro ao salvar tema:', err);
+    }
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView style={{ flex: 1, paddingBottom: 80 }}>
-        <View style={{ marginBottom: 24, paddingHorizontal: 16 }}>
-          <Text style={{ fontSize: 20, fontWeight: '700', marginBottom: 16, color: safeTheme.text }}>
-            Todas as novidades
-          </Text>
-          {newsData.map((n) => (
-            <View
-              key={n.id}
-              style={{
-                padding: 16,
-                borderRadius: 12,
-                borderWidth: 1,
-                marginBottom: 12,
-                borderColor: safeTheme.border,
-                backgroundColor: safeTheme.card,
-              }}
-            >
-              <Text style={{ color: safeTheme.text }}>{n.title}</Text>
-            </View>
-          ))}
-        </View>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Header 
+        onMenuPress={() => {}} 
+        theme={theme}
+        isDarkMode={isDarkMode}
+        onThemeToggle={toggleDarkMode}
+      />
+      <ScrollView style={styles.mainContent}>
+        {/* Novidades content */}
       </ScrollView>
-      <Footer theme={safeTheme} />
+      <Footer theme={theme} />
     </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  mainContent: {
+    flex: 1,
+    padding: 16
+  }
+});
+
 export default Novidades;
-
-

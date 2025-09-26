@@ -1,24 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 
 type FooterProps = {
   theme: any;
+  onRouteChange?: (route: string) => void; // Callback para notificar mudança de rota
 };
 
-const Footer: React.FC<FooterProps> = ({ theme }) => {
+const Footer: React.FC<FooterProps> = ({ theme, onRouteChange }) => {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Monitora mudanças no pathname e chama o callback
+  useEffect(() => {
+    if (onRouteChange) {
+      // Normaliza o pathname para o formato usado internamente
+      const normalizedPath = pathname.replace('/(tabs)', '');
+      onRouteChange(normalizedPath);
+    }
+  }, [pathname, onRouteChange]);
+
   const isActive = (r: string) => pathname === r || pathname === `/(tabs)${r}`;
+  
   const go = (r: string) => {
-    router.replace(r.startsWith('/(tabs)') ? (r as any) : (`/(tabs)${r}` as any));
+    const route = r.startsWith('/(tabs)') ? r : `/(tabs)${r}`;
+    router.navigate(route as any);
+    
+    // Chama o callback imediatamente para garantir que o tema seja recarregado
+    if (onRouteChange) {
+      onRouteChange(r);
+    }
   };
 
   return (
     <View style={[styles.bottomNav, { backgroundColor: theme.card, borderTopColor: theme.border }]}>        
-      <TouchableOpacity style={styles.navButton} onPress={() => go('/test')}>
-        <Text style={[styles.navText, { color: isActive('/test') ? theme.primary : theme.textSecondary }]}>Home</Text>
+      <TouchableOpacity style={styles.navButton} onPress={() => go('/home')}>
+        <Text style={[styles.navText, { color: isActive('/home') ? theme.primary : theme.textSecondary }]}>Home</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.navButton} onPress={() => go('/novidades')}>
         <Text style={[styles.navText, { color: isActive('/novidades') ? theme.primary : theme.textSecondary }]}>Novidades</Text>
@@ -43,10 +60,14 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 30,
   },
-  navButton: { paddingHorizontal: 8, paddingVertical: 4 },
-  navText: { fontSize: 14, fontWeight: '700' },
+  navButton: { 
+    paddingHorizontal: 8, 
+    paddingVertical: 4 
+  },
+  navText: { 
+    fontSize: 14, 
+    fontWeight: '700' 
+  },
 });
 
 export default Footer;
-
-

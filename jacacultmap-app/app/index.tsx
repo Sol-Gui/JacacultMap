@@ -1,8 +1,19 @@
 // app/index.tsx
-import React from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import React, { useEffect } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function LoadingScreen() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.replace('/home'); // replace evita empilhar rotas
+    }, 0); // tempo mínimo para montar o layout raiz
+
+    return () => clearTimeout(timer);
+  }, [router]);
+
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color="#007AFF" />
@@ -12,9 +23,9 @@ export default function LoadingScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
-    justifyContent: "center",
-    alignItems: "center", 
-    backgroundColor: "#fff",
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
   },
 });
