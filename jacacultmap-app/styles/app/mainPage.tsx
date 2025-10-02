@@ -36,8 +36,12 @@ export interface Category {
 export interface Event {
   id: number;
   title: string;
+  description: string;
+  creator_email: string;
+  location_type: string;
+  location_coordinates: [number, number];
   date: string;
-  category: string;
+  event_type: string;
 }
 
 export interface User {

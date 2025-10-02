@@ -1,5 +1,4 @@
-import auth from '../services/authService.js';
-const { verifyToken } = auth;
+import { verifyToken } from '../services/authService.js';
 
 export async function authenticateWithToken(req, res) {
     try {

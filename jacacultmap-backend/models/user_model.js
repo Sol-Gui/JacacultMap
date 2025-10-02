@@ -11,10 +11,21 @@ const User = mongoose.model("Users", new mongoose.Schema({
         type: String,
         default: null
     },
-    provider: String,
+    provider: {
+        type: String,
+        required: true,
+        default: 'local',
+        enum: ['local', 'google']
+    },
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    role: {
+        type: String,
+        required: true,
+        default: 'user',
+        enum: ['user', 'event-manager', 'admin']
     },
     profilePicture: {
         imageBase64: { 

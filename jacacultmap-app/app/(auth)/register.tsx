@@ -144,7 +144,7 @@ export default function Register() {
                 saveData('userToken', response.token);
                 saveData('userImageB64', basicImageB64);
                 setError(null);
-                router.replace('/(tabs)/protected');
+                router.replace('/(tabs)/home');
             }
           } catch (err: any) {
             showError(err.message);

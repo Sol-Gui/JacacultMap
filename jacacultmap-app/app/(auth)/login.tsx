@@ -155,7 +155,7 @@ export default function login() {
            if (response.success && response.token) {
             saveData('userToken', response.token);
             setError(null);
-            router.replace('/(tabs)/protected');
+            router.replace('/(tabs)/home');
           }
         } catch (err: any) {
           showError(err.message);

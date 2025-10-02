@@ -6,7 +6,7 @@ import { removeData } from "../../services/localStorage";
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
-  //removeData('userToken'); // Limpa o token para testes
+  removeData('userToken'); // Limpa o token para testes
 
   useEffect(() => {
     validateToken()

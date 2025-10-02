@@ -18,10 +18,10 @@ export default function RootLayout() {
     (route) => route.toLowerCase() === pathname.toLowerCase()
   );
 
-  const { shouldRedirect, checking } = useServerCheck(pathname);
+  /*const { shouldRedirect, checking } = useServerCheck(pathname);
   console.log(checking, shouldRedirect);
 
-  /*useEffect(() => {
+  useEffect(() => {
     console.log("\n\nverificando...");
     if (!checking && shouldRedirect) {
       router.replace("/(tabs)/status");

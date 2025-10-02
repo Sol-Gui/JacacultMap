@@ -7,13 +7,15 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  StyleSheet,
+  Modal,
 } from 'react-native';
 
 import Novidades from './novidades';
 import Configuracoes from './configuracoes';
 import { ACCENTS, baseDark, baseLight, getCategoryStyles, type Category, type Event, type User } from '../../styles/app/mainPage';
 import { saveData, getData } from '../../services/localStorage';
+import { getLimitedEvents, getEvent } from '../../services/events';
+import { styles } from '../../styles/home';
 
 interface AppState {
   showSidebar: boolean;
@@ -30,6 +32,10 @@ interface AppState {
   };
   isDarkMode: boolean;
   accentColor: string;
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+  isLoading: boolean;
 }
 
 // Sample news data
@@ -65,29 +71,18 @@ const fetchCategories = async (): Promise<Category[]> => {
   });
 };
 
-const fetchEvents = async (): Promise<Event[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        { id: 1, title: 'Evento Cultural', date: '2025-07-28', category: 'intelectual' },
-        { id: 2, title: 'Tour pela Cidade', date: '2025-07-29', category: 'turistico' },
-        { id: 3, title: 'Encontro Social', date: '2025-07-30', category: 'social' },
-        { id: 4, title: 'Workshop de Arte', date: '2025-08-01', category: 'intelectual' },
-        { id: 5, title: 'Caminhada Ecológica', date: '2025-08-02', category: 'turistico' },
-        { id: 6, title: 'Festa Comunitária', date: '2025-08-03', category: 'social' },
-      ]);
-    }, 400);
-  });
-};
+const formatDateTime = (dateString: string): string => {
+  const date = new Date(dateString);
 
-const searchEvents = async (query: string, events: Event[]): Promise<Event[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const filtered = events.filter((event) => event.title.toLowerCase().includes(query.toLowerCase()));
-      resolve(filtered);
-    }, 200);
-  });
-};
+  const dia = String(date.getDate()).padStart(2, "0");
+  const mes = String(date.getMonth() + 1).padStart(2, "0"); // meses começam em 0
+  const ano = date.getFullYear();
+
+  const hora = String(date.getHours()).padStart(2, "0");
+
+  return `${dia}/${mes}/${ano} às ${hora}h`;
+}
+
 
 class SearchBar extends Component<{
   value: string;
@@ -139,7 +134,7 @@ class CategoryChip extends Component<{
         onPress={onPress}
       >
         <View style={[styles.categoryDot, { backgroundColor: isActive ? palette.fg : palette.fg, opacity: isActive ? 1 : 0.6 }]} />
-        <Text style={{ color: isActive ? palette.fg : theme.text }}>{category.name}</Text>
+        <Text style={[styles.categoryText, {color: isActive ? palette.fg : theme.text }]}>{category.name}</Text>
       </TouchableOpacity>
     );
   }
@@ -159,19 +154,84 @@ class NewsCard extends Component<{ news: typeof newsData[0]; theme: any }> {
 }
 
 class EventItem extends Component<{ event: Event; categoryName: string; theme: any }> {
+  state = {
+    modalVisible: false
+  };
+
+  toggleModal = () => {
+    this.setState(prev => ({ modalVisible: !prev.modalVisible }));
+  };
+
   render() {
     const { event, categoryName, theme } = this.props;
-    const cat = getCategoryStyles(event.category);
+    const { modalVisible } = this.state;
+    const categoryStyle = getCategoryStyles(event.event_type);
+
     return (
-      <View style={[styles.eventItem, { backgroundColor: theme.card, borderColor: theme.border }]}>        
-        <Text style={[styles.eventTitle, { color: theme.text }]}>{event.title}</Text>
-        <Text style={[styles.eventDate, { color: theme.textSecondary }]}>{event.date}</Text>
-        <View style={[styles.eventCategory, { backgroundColor: cat.bg }]}>          
-          <Text style={{ color: cat.fg, fontWeight: '600' }}>{categoryName}</Text>
-        </View>
-      </View>
+      <>
+        <TouchableOpacity 
+          style={[
+            styles.eventItem, 
+            { backgroundColor: '#0f7661ff' }
+          ]}
+          onPress={this.toggleModal}
+        >        
+          <Text 
+          style={[styles.eventTitle]}
+          numberOfLines={2}
+          ellipsizeMode='tail'>{event.title}</Text>
+          <Text 
+          style={[styles.eventDescription]}
+          numberOfLines={3}
+          ellipsizeMode='tail'>{event.description}</Text>
+          <Text style={[styles.eventDate]}>{formatDateTime(event.date)}</Text>
+          <View style={[styles.eventCategory, { backgroundColor: categoryStyle.bg }]}>          
+            <Text style={[styles.categoryText, { color: categoryStyle.fg }]}>{categoryName}</Text>
+          </View>
+        </TouchableOpacity>
+
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={this.toggleModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>{event.title}</Text>
+                <TouchableOpacity onPress={this.toggleModal}>
+                  <Text style={[styles.closeButton, { color: theme.text }]}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <ScrollView style={styles.modalBody}>
+                <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>Descrição:</Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>{event.description}</Text>
+                
+                <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>Categoria:</Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>{categoryName}</Text>
+                
+                <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>Data:</Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>{formatDateTime(event.date)}</Text>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      </>
     );
   }
+}
+
+// Add this interface near the top of the file with other interfaces
+interface EventsResponse {
+  events: Event[];
+  pagination: {
+    total: number;
+    limit: number;
+    page: number;
+    totalPages: number;
+  };
 }
 
 // Main App Component
@@ -193,6 +253,10 @@ class Home extends Component<{}, AppState> {
     },
     isDarkMode: false,
     accentColor: ACCENTS.emerald,
+    currentPage: 1,
+    totalPages: 1,
+    itemsPerPage: 10,
+    isLoading: false,
   };
 
   async componentDidMount() {
@@ -258,14 +322,47 @@ class Home extends Component<{}, AppState> {
 
   loadData = async () => {
     try {
-      const [userData, categories, events] = await Promise.all([
+      const { currentPage, itemsPerPage } = this.state;
+      const [userData, categories, eventsData] = await Promise.all([
         fetchUserData(),
         fetchCategories(),
-        fetchEvents(),
+        getLimitedEvents(itemsPerPage, currentPage) as Promise<EventsResponse>
       ]);
-      this.setState({ userData, categories, events, filteredEvents: events });
+
+      if (eventsData?.events) {
+        this.setState({
+          userData,
+          categories,
+          events: eventsData.events,
+          filteredEvents: eventsData.events,
+          totalPages: eventsData.pagination.totalPages,
+          currentPage: eventsData.pagination.page
+        });
+      }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+    }
+  };
+
+  handlePageChange = async (newPage: number) => {
+    try {
+      this.setState({ isLoading: true });
+      const { itemsPerPage } = this.state;
+      
+      const eventsData = await getLimitedEvents(itemsPerPage, newPage) as EventsResponse;
+      
+      if (eventsData?.events) {
+        this.setState({
+          currentPage: eventsData.pagination.page,
+          events: eventsData.events,
+          filteredEvents: eventsData.events,
+          totalPages: eventsData.pagination.totalPages,
+          isLoading: false
+        });
+      }
+    } catch (error) {
+      console.error('Error changing page:', error);
+      this.setState({ isLoading: false });
     }
   };
 
@@ -274,13 +371,20 @@ class Home extends Component<{}, AppState> {
     if (!events) return;
     
     try {
-      let filtered = events;
+      let filtered = [...events]; // Create a copy of the array
+      
       if (searchQuery) {
-        filtered = await searchEvents(searchQuery, events);
+        filtered = filtered.filter((event) => 
+          event.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       }
+      
       if (activeCategories.length > 0) {
-        filtered = filtered.filter((event) => activeCategories.includes(event.category));
+        filtered = filtered.filter((event) => 
+          activeCategories.includes(event.event_type)
+        );
       }
+      
       this.setState({ filteredEvents: filtered });
     } catch (error) {
       console.error('Erro ao filtrar eventos:', error);
@@ -292,7 +396,10 @@ class Home extends Component<{}, AppState> {
       activeCategories: prevState.activeCategories.includes(categoryId)
         ? prevState.activeCategories.filter((id) => id !== categoryId)
         : [...prevState.activeCategories, categoryId],
-    }));
+      currentPage: 1 // Reset to first page when filtering
+    }), () => {
+      this.updateFilteredEvents();
+    });
   };
 
   setDarkMode = (v: boolean) => this.setState({ isDarkMode: v });
@@ -319,14 +426,18 @@ class Home extends Component<{}, AppState> {
   };
 
   renderHomePage = (theme: any) => {
-    const { categories, filteredEvents, searchQuery } = this.state;
+    const { categories, filteredEvents, currentPage, totalPages } = this.state;
 
     return (
       <ScrollView style={styles.content}>
         <SearchBar
-          value={searchQuery}
-          onChangeText={(searchQuery) => this.setState({ searchQuery })}
-          onSubmit={() => {}}
+          value={this.state.searchQuery}
+          onChangeText={(searchQuery) => {
+            this.setState({ searchQuery, currentPage: 1 }, () => {
+              this.updateFilteredEvents();
+            });
+          }}
+          onSubmit={() => this.updateFilteredEvents()}
           theme={theme}
         />
 
@@ -361,9 +472,44 @@ class Home extends Component<{}, AppState> {
           <Text style={[styles.sectionTitle, { color: theme.text }]}>Eventos</Text>
           <View style={styles.eventsContainer}>
             {filteredEvents.map((event) => {
-              const categoryName = categories?.find((c) => c.id === event.category)?.name || event.category;
+              const categoryName = categories?.find((c) => c.id === event.event_type)?.name || event.event_type; // Mudando de category para event_type
               return <EventItem key={event.id} event={event} categoryName={categoryName} theme={theme} />;
             })}
+
+            {/* Pagination Controls */}
+            <View style={styles.paginationContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.pageButton,
+                  { 
+                    backgroundColor: theme.card,
+                    opacity: currentPage <= 1 ? 0.5 : 1 
+                  }
+                ]}
+                onPress={() => currentPage > 1 && this.handlePageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+              >
+                <Text style={[styles.pageButtonText, { color: theme.text }]}>Anterior</Text>
+              </TouchableOpacity>
+
+              <Text style={[styles.pageText, { color: theme.text }]}>
+                Página {currentPage} de {totalPages || 1}
+              </Text>
+
+              <TouchableOpacity
+                style={[
+                  styles.pageButton,
+                  { 
+                    backgroundColor: theme.card,
+                    opacity: currentPage >= totalPages ? 0.5 : 1 
+                  }
+                ]}
+                onPress={() => currentPage < totalPages && this.handlePageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+              >
+                <Text style={[styles.pageButtonText, { color: theme.text }]}>Próxima</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -423,110 +569,5 @@ class Home extends Component<{}, AppState> {
     );
   }
 }
-
-// Styles
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  appLayout: { flex: 1, flexDirection: 'column' },
-  mainContent: { flex: 1, paddingBottom: 72 },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  menuButton: { padding: 4 },
-  menuIcon: { width: 24, height: 24, flexDirection: 'column', justifyContent: 'space-between', paddingVertical: 3 },
-  menuLine: { height: 2, borderRadius: 1 },
-  avatar: { width: 40, height: 40, borderRadius: 20 },
-
-  searchContainer: { paddingHorizontal: 16, paddingBottom: 16 },
-  searchBar: { flexDirection: 'row', alignItems: 'center', borderRadius: 12, padding: 12, borderWidth: 1 },
-  searchIcon: { width: 20, height: 20, marginRight: 8, position: 'relative' },
-  searchIconCircle: { width: 14, height: 14, borderWidth: 2, borderRadius: 7, position: 'absolute' },
-  searchIconHandle: { width: 6, height: 2, transform: [{ rotate: '45deg' }], position: 'absolute', bottom: 2, right: 2, borderRadius: 1 },
-  searchInput: { flex: 1, fontSize: 16 },
-
-  content: { flex: 1, paddingBottom: 80 },
-  section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 20, fontWeight: '700', marginBottom: 16, paddingHorizontal: 16 },
-
-  // Novidades
-  newsCard: { width: 220, marginRight: 16, height: 120, borderRadius: 16, padding: 16, justifyContent: 'flex-end' },
-  newsTitle: { fontSize: 14, fontWeight: '600', lineHeight: 20 },
-  newsRow: { padding: 16, borderRadius: 12, borderWidth: 1, marginBottom: 12 },
-
-  // Categorias
-  categoriesContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16 },
-  categoryChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    borderWidth: 1,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  categoryDot: { width: 12, height: 12, borderRadius: 6, marginRight: 8 },
-
-  // Eventos
-  eventsContainer: { flex: 1, paddingBottom: 100, paddingHorizontal: 16 },
-  eventItem: { borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1 },
-  eventTitle: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
-  eventDate: { fontSize: 14, marginBottom: 8 },
-  eventCategory: { alignSelf: 'flex-start', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 8 },
-
-  // Modal/Sidebar
-  modalOverlay: { flex: 1, flexDirection: 'row-reverse' },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
-  sidebar: { width: 300, height: '100%', padding: 16, borderLeftWidth: 1 },
-  sidebarHeader: { alignItems: 'center', marginBottom: 24 },
-  sidebarName: { fontSize: 16, fontWeight: '700' },
-  sidebarEmail: { fontSize: 12 },
-  sidebarMenu: { marginBottom: 24 },
-  sidebarMenuItem: { paddingVertical: 12, paddingHorizontal: 8 },
-  sidebarMenuText: { fontSize: 14 },
-  sidebarFooter: { borderTopWidth: 1, paddingTop: 16 },
-  logoutButton: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12 },
-  logoutText: { fontSize: 14 },
-  accentDot: { width: 26, height: 26, borderRadius: 13, marginRight: 10, borderColor: '#fff' },
-
-  // Bottom nav
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 30,
-  },
-  navButton: { paddingHorizontal: 8, paddingVertical: 4 },
-  navText: { fontSize: 14, fontWeight: '700' },
-
-  // Settings styles
-  settingsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    marginBottom: 12,
-    borderColor: '#E5E7EB', // fallback, will be overridden by theme
-    borderRadius: 8,
-    backgroundColor: '#fff', // fallback, will be overridden by theme
-  },
-  settingsLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-});
 
 export default Home;

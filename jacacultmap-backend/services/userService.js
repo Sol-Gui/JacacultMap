@@ -42,3 +42,15 @@ export async function userExists(email) {
     return false;
   }
 }
+
+export async function getUserRoleByEmail(email) {
+  try {
+    return await User.findOne(
+      { email },
+      { role: 1, _id: 0 }
+    );
+  } catch (error) {
+    console.error("Erro ao buscar usuário:", error.message);
+    return null;
+  }
+}

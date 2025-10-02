@@ -1,6 +1,6 @@
 import { generateGoogleLoginUrl, getGoogleTokens } from '../services/socialAuthService.js';
 import { registerOrLoginWithGoogle } from '../services/socialAuthService.js';
-import crypto from 'crypto';
+//import crypto from 'crypto';
 
 // STATE DESATIVADO POR MOTIVOS DE DESENVOLVIMENTO!!!
 

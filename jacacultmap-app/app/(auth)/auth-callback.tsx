@@ -82,7 +82,7 @@ export default function AuthCallbackScreen() {
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: '(tabs)/protected' }],
+          routes: [{ name: '(tabs)/home' }],
         })
       );
 

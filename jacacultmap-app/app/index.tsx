@@ -8,8 +8,8 @@ export default function LoadingScreen() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace('/home'); // replace evita empilhar rotas
-    }, 0); // tempo mínimo para montar o layout raiz
+      router.replace('/home');
+    }, 0);
 
     return () => clearTimeout(timer);
   }, [router]);
