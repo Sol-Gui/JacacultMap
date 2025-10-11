@@ -15,8 +15,32 @@ const EventSchema = new mongoose.Schema({
     event_type: {
         type: String,
         required: true,
-        enum: ['social', 'turistico', 'intelectual'], // ADICIONAR MAIS TIPOS DEPOIS
+        enum: [
+            'social', 'turistico', 'intelectual', 'fisico',
+            'artistico', 'virtual', 'gastronomico'
+        ],
         default: 'social'
+    },
+    event_image_banner: { 
+        imageBase64: { 
+            type: String, 
+            required: false, 
+            default: 'NO-IMAGE' 
+          },
+    },
+    event_image_header: { 
+        imageBase64: { 
+            type: String, 
+            required: false, 
+            default: 'NO-IMAGE' 
+        },
+    },
+    event_images: {
+        imageBase64: { 
+            type: [String], 
+            required: false, 
+            default: [] 
+        },
     },
     id: {
         type: Number,

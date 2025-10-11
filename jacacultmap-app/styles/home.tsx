@@ -68,23 +68,23 @@ export const styles = StyleSheet.create({
   eventItem: { 
     borderRadius: 16,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 26,
     height: 180,
     justifyContent: 'space-between', // Changed to space-between
     flexDirection: 'column', // Added to ensure proper vertical layout
   },
   eventTitle: { 
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     marginBottom: 4,
     color: '#fff',
-    maxWidth: '70%',
+    maxWidth: '65%',
   },
   eventDescription: {
     fontSize: 14,
     color: '#242020ff',
     opacity: 0.85,
-    maxWidth: '70%',
+    maxWidth: '65%',
     maxHeight: 60,
     overflow: 'hidden',
 },
@@ -111,6 +111,16 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     justifyContent: 'flex-end',
     textAlign: 'center'
+  },
+  eventImage: {
+    position: "absolute",
+    right: '2%',
+    top: 5,
+    width: "32%",
+    height: 170,
+    borderRadius: 16,
+    overflow: "hidden",
+    opacity: 1,
   },
 
   // Modal/Sidebar
@@ -162,14 +172,6 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  sidebar: { width: 300, height: '100%', padding: 16, borderLeftWidth: 1 },
-  sidebarHeader: { alignItems: 'center', marginBottom: 24 },
-  sidebarName: { fontSize: 16, fontWeight: '700' },
-  sidebarEmail: { fontSize: 12 },
-  sidebarMenu: { marginBottom: 24 },
-  sidebarMenuItem: { paddingVertical: 12, paddingHorizontal: 8 },
-  sidebarMenuText: { fontSize: 14 },
-  sidebarFooter: { borderTopWidth: 1, paddingTop: 16 },
   logoutButton: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12 },
   logoutText: { fontSize: 14 },
   accentDot: { width: 26, height: 26, borderRadius: 13, marginRight: 10, borderColor: '#fff' },
@@ -227,5 +229,29 @@ export const styles = StyleSheet.create({
   pageText: {
     fontSize: 14,
     fontWeight: '500',
-  }
+  },
+
+  sidebar: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: 300,
+    zIndex: 100,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: -2,
+      height: 0
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  sidebarHeader: { alignItems: 'center', marginBottom: 24 },
+  sidebarName: { fontSize: 16, fontWeight: '700' },
+  sidebarEmail: { fontSize: 12 },
+  sidebarMenu: { marginBottom: 24 },
+  sidebarMenuItem: { paddingVertical: 12, paddingHorizontal: 8 },
+  sidebarMenuText: { fontSize: 14 },
+  sidebarFooter: { borderTopWidth: 1, paddingTop: 16 },
 });

@@ -10,6 +10,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { verticalScale } from "react-native-size-matters";
 import { useRouter } from "expo-router";
 import { setRegisterData } from "../../utils/registerBuffer";
+import { getUserData } from '../../services/user';
 import * as Linking from 'expo-linking';
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
@@ -27,7 +28,7 @@ export default function login() {
   REMOVER APENAS PARA TESTES!!!!!
 
   */
-  router.replace('/home')
+
   /*
 
   REMOVER APENAS PARA TESTES!!!!!
@@ -80,7 +81,6 @@ export default function login() {
       </Animated.View>
     );
   }
-
 
   return (
     <View style={styles.body}>
@@ -154,8 +154,12 @@ export default function login() {
           
            if (response.success && response.token) {
             saveData('userToken', response.token);
-            setError(null);
-            router.replace('/(tabs)/home');
+            const userData = await getUserData(response.token);
+            if (userData.userData.favoritedCategories != undefined && userData.userData.favoritedCategories.length == 0) {
+              router.replace('/(tabs)/interests');
+            } else {
+              router.replace('/(tabs)/home');
+            }
           }
         } catch (err: any) {
           showError(err.message);

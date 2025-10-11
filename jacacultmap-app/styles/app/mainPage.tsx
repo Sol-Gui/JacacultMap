@@ -37,6 +37,18 @@ export interface Event {
   id: number;
   title: string;
   description: string;
+  event_image_banner: {
+    imageBase64: string;
+    imageFormat: string;
+  }
+  event_image_header: {
+    imageBase64: string;
+    imageFormat: string;
+  }
+  event_images: {
+    imageBase64: string;
+    imageFormat: string;
+  }[]
   creator_email: string;
   location_type: string;
   location_coordinates: [number, number];
@@ -58,6 +70,14 @@ export const getCategoryStyles = (categoryId: string) => {
       return { bg: '#DBEAFE', fg: '#1E40AF' };
     case 'social':
       return { bg: '#F3E8FF', fg: '#6B21A8' };
+    case 'gastronomico':
+      return { bg: '#FFEDD5', fg: '#C2410C' };
+    case 'fisico':
+      return { bg: '#E0E7FF', fg: '#3730A3' };
+    case 'virtual':
+      return { bg: '#E0F2FE', fg: '#0369A1' };
+    case 'artistico':
+      return { bg: '#FCE7F3', fg: '#9D174D' };
     default:
       return { bg: '#F3F4F6', fg: '#374151' };
   }

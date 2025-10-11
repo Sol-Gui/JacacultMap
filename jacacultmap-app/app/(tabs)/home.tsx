@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Footer from '../../styles/app/footer';
 import Header from '../../styles/app/header';
+import EventModal from '../../styles/app/eventModal';
 import {
   View,
   Text,
@@ -8,14 +9,15 @@ import {
   ScrollView,
   TextInput,
   Modal,
+  Image,
 } from 'react-native';
 
-import Novidades from './novidades';
-import Configuracoes from './configuracoes';
-import { ACCENTS, baseDark, baseLight, getCategoryStyles, type Category, type Event, type User } from '../../styles/app/mainPage';
-import { saveData, getData } from '../../services/localStorage';
-import { getLimitedEvents, getEvent } from '../../services/events';
+import { getCategoryStyles, type Category, type Event, type User } from '../../styles/app/mainPage';
+import { getData } from '../../services/localStorage';
+import { getLimitedEvents } from '../../services/events';
 import { styles } from '../../styles/home';
+import { getUserData } from '@/services/user';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface AppState {
   showSidebar: boolean;
@@ -25,17 +27,16 @@ interface AppState {
   userData: User | null;
   categories: Category[] | null;
   events: Event[] | null;
-  currentRoute: string; // '/home' | '/novidades' | '/configuracoes'
   screenSize: {
     width: number;
     height: number;
   };
-  isDarkMode: boolean;
-  accentColor: string;
   currentPage: number;
   totalPages: number;
   itemsPerPage: number;
   isLoading: boolean;
+  selectedEvent: Event | null;
+  modalVisible: boolean;
 }
 
 // Sample news data
@@ -59,16 +60,53 @@ const fetchUserData = async (): Promise<User> => {
   });
 };
 
+const eventsCategories = [
+  { id: 'intelectual', name: 'Intelectual' },
+  { id: 'turistico', name: 'Turístico' },
+  { id: 'social', name: 'Social' },
+  { id: 'gastronomico', name: 'Gastronômico' },
+  { id: 'fisico', name: 'Físico' },
+  { id: 'virtual', name: 'Virtual' },
+  { id: 'artistico', name: 'Artístico' },
+];
+
+let userToken: string | null = null;
+let userData: any = null;
+
+getData('userToken').then(token => {
+  try {
+    if (token) {
+      userToken = token;
+      getUserData(token).then(data => {
+        userData = data;
+      });
+    }
+  } catch (err) {
+    console.log("Erro ao capturar token")
+  }
+})
+
 const fetchCategories = async (): Promise<Category[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        { id: 'intelectual', name: 'Intelectual' },
-        { id: 'turistico', name: 'Turístico' },
-        { id: 'social', name: 'Social' },
-      ]);
-    }, 300);
-  });
+  try {
+    if (!userToken) {
+      return eventsCategories;
+    }
+    const favoriteIds = userData.userData?.favoritedCategories;
+    
+    if (!favoriteIds || favoriteIds.length === 0) {
+      return eventsCategories;
+    }
+    
+    const favoritedCategories = eventsCategories.filter(category => 
+      favoriteIds.includes(category.id)
+    );
+    
+    return favoritedCategories;
+    
+  } catch (error) {
+    console.log('Failed to load categories:', error);
+    return eventsCategories;
+  }
 };
 
 const formatDateTime = (dateString: string): string => {
@@ -153,8 +191,17 @@ class NewsCard extends Component<{ news: typeof newsData[0]; theme: any }> {
   }
 }
 
-class EventItem extends Component<{ event: Event; categoryName: string; theme: any }> {
-  state = {
+interface EventItemState {
+  modalVisible: boolean;
+}
+
+class EventItem extends Component<{ 
+  event: Event; 
+  categoryName: string; 
+  theme: any;
+  onEventPress: (event: Event) => void;
+}, EventItemState> {
+  state: EventItemState = {
     modalVisible: false
   };
 
@@ -167,6 +214,10 @@ class EventItem extends Component<{ event: Event; categoryName: string; theme: a
     const { modalVisible } = this.state;
     const categoryStyle = getCategoryStyles(event.event_type);
 
+    if (event.event_image_banner && event.event_image_banner.imageBase64 == 'NO-IMAGE') {
+      event.event_image_banner.imageBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAwwAAAcECAYAAADmY4YFAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAADHkSURBVHgB7N1LiqbnnafhL21ZA0E1ITIgIAs8tacNrQWkFpC5AGkBWSvyBuwFyAuoGvWomx409KDGDQKDTZty09CVp8pXuFSSlXdmHL6I/3u4LvAGIs2TuvN5n188evz48dsTAADAe/zsBAAAEAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAAkAQDAACQBAMAAJAEAwAA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MAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAAAASTAAAABJMAAAAEkwAP/Wfh0IAAAAAAjyt55gg7IIAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYwgAAACxhAAAAljAAAABLGAAAgCUMAADAEgYAAGAJAwAAsIQBAABYARFGaMyJxOn/AAAAAElFTkSuQmCC";
+    }
+
     return (
       <>
         <TouchableOpacity 
@@ -174,11 +225,11 @@ class EventItem extends Component<{ event: Event; categoryName: string; theme: a
             styles.eventItem, 
             { backgroundColor: '#0f7661ff' }
           ]}
-          onPress={this.toggleModal}
-        >        
+          onPress={() => this.props.onEventPress(event)}
+        >
           <Text 
           style={[styles.eventTitle]}
-          numberOfLines={2}
+          numberOfLines={1}
           ellipsizeMode='tail'>{event.title}</Text>
           <Text 
           style={[styles.eventDescription]}
@@ -188,6 +239,15 @@ class EventItem extends Component<{ event: Event; categoryName: string; theme: a
           <View style={[styles.eventCategory, { backgroundColor: categoryStyle.bg }]}>          
             <Text style={[styles.categoryText, { color: categoryStyle.fg }]}>{categoryName}</Text>
           </View>
+            <Image
+              source={{ uri: event.event_image_banner?.imageBase64 }}
+              style={{
+                ...styles.eventImage,
+                borderColor: '#ffffff',
+                borderWidth: 1
+              }}
+              resizeMode="cover"
+            />
         </TouchableOpacity>
 
         <Modal
@@ -246,42 +306,24 @@ class Home extends Component<{}, AppState> {
     userData: null,
     categories: null,
     events: null,
-    currentRoute: '/home',
     screenSize: {
       width: typeof window !== 'undefined' ? window.innerWidth : 768,
       height: typeof window !== 'undefined' ? window.innerHeight : 1024,
     },
-    isDarkMode: false,
-    accentColor: ACCENTS.emerald,
     currentPage: 1,
     totalPages: 1,
     itemsPerPage: 10,
     isLoading: false,
+    selectedEvent: null,
+    modalVisible: false,
   };
 
   async componentDidMount() {
-    // Carrega o tema e os dados inicialmente
-    await this.loadTheme();
+    // Carrega apenas os dados, o tema é gerenciado pelo contexto
     this.loadData();
-
-    // Se você estiver usando navigation do React Navigation, adicione o listener aqui
-    // this.focusListener = this.props.navigation?.addListener('focus', this.handleScreenFocus);
-  }
-
-  componentWillUnmount() {
-    // Remove o listener se existir
-    if (this.focusListener) {
-      this.focusListener();
-    }
   }
 
   componentDidUpdate(prevProps: {}, prevState: AppState) {
-    // Carrega o tema sempre que a rota mudar para uma das rotas principais
-    if (prevState.currentRoute !== this.state.currentRoute && 
-        ['/home', '/novidades', '/configuracoes'].includes(this.state.currentRoute)) {
-      this.loadTheme();
-    }
-
     if (
       prevState.events !== this.state.events ||
       prevState.searchQuery !== this.state.searchQuery ||
@@ -291,34 +333,6 @@ class Home extends Component<{}, AppState> {
     }
   }
 
-  // Método chamado pelo Footer quando há mudança de rota
-  handleRouteChange = (route: string) => {
-    // Sempre recarrega o tema quando uma rota é acessada
-    if (['/home', '/novidades', '/configuracoes'].includes(route)) {
-      this.setState({ currentRoute: route }, () => {
-        this.loadTheme();
-      });
-    }
-  };
-
-  // Método para ser chamado quando a tela receber foco (se usando React Navigation)
-  handleScreenFocus = () => {
-    this.loadTheme();
-  };
-
-  loadTheme = async () => {
-    try {
-      const saved = await getData('isDarkMode');
-      if (saved !== null) {
-        const isDark = saved === 'true';
-        this.setState({ isDarkMode: isDark });
-      }
-    } catch (error) {
-      console.error('Erro ao carregar tema:', error);
-      // Define um valor padrão em caso de erro
-      this.setState({ isDarkMode: false });
-    }
-  };
 
   loadData = async () => {
     try {
@@ -402,28 +416,14 @@ class Home extends Component<{}, AppState> {
     });
   };
 
-  setDarkMode = (v: boolean) => this.setState({ isDarkMode: v });
-  
-  toggleDarkMode = async () => {
-    const newDarkMode = !this.state.isDarkMode;
-    this.setState({ isDarkMode: newDarkMode });
-    
-    try {
-      await saveData('isDarkMode', newDarkMode.toString());
-    } catch (error) {
-      console.error('Erro ao salvar tema:', error);
-    }
+  openEventModal = (event: Event) => {
+    this.setState({ selectedEvent: event, modalVisible: true });
   };
 
-  changeAccent = (hex: string) => this.setState({ accentColor: hex });
-
-  navigateTo = async (route: string) => {
-    // Atualiza a rota primeiro
-    this.setState({ currentRoute: route });
-    
-    // O loadTheme será chamado automaticamente pelo componentDidUpdate
-    // quando a rota for uma das rotas principais (/home, /novidades, /configuracoes)
+  closeEventModal = () => {
+    this.setState({ selectedEvent: null, modalVisible: false });
   };
+
 
   renderHomePage = (theme: any) => {
     const { categories, filteredEvents, currentPage, totalPages } = this.state;
@@ -473,7 +473,7 @@ class Home extends Component<{}, AppState> {
           <View style={styles.eventsContainer}>
             {filteredEvents.map((event) => {
               const categoryName = categories?.find((c) => c.id === event.event_type)?.name || event.event_type; // Mudando de category para event_type
-              return <EventItem key={event.id} event={event} categoryName={categoryName} theme={theme} />;
+              return <EventItem key={event.id} event={event} categoryName={categoryName} theme={theme} onEventPress={this.openEventModal} />;
             })}
 
             {/* Pagination Controls */}
@@ -516,58 +516,47 @@ class Home extends Component<{}, AppState> {
     );
   };
 
-  renderCurrentRoute = (theme: any) => {
-    const { currentRoute } = this.state;
-    
-    switch (currentRoute) {
-      case '/home':
-        return this.renderHomePage(theme);
-      
-      case '/novidades':
-        return (
-          <View style={styles.content}>
-            <Novidades/>
-          </View>
-        );
-      
-      case '/configuracoes':
-        return (
-          <View style={styles.content}>
-            <Configuracoes/>
-          </View>
-        );
-      
-      default:
-        return this.renderHomePage(theme);
-    }
-  };
 
   render() {
-    const { showSidebar, userData, currentRoute, isDarkMode, accentColor } = this.state;
-
-    // Criação do tema
-    const theme = isDarkMode ? { ...baseDark, primary: accentColor } : { ...baseLight, primary: accentColor };
-
-    return (
-      <View style={[styles.container, { backgroundColor: theme.background }]}>        
-        <Header 
-          onMenuPress={() => {}} 
-          theme={theme}
-          isDarkMode={isDarkMode}
-          onThemeToggle={this.toggleDarkMode}
-        />
-
-        <View style={styles.mainContent}>
-          {this.renderCurrentRoute(theme)}
-        </View>
-
-        <Footer 
-          theme={theme}
-          onRouteChange={this.handleRouteChange}
-        />
-      </View>
-    );
+    return <HomeWrapper homeComponent={this} />;
   }
+}
+
+// Wrapper funcional para usar o hook useTheme
+const HomeWrapper: React.FC<{ homeComponent: Home }> = ({ homeComponent }) => {
+  const { theme, isDarkMode, toggleDarkMode, isLoading } = useTheme();
+
+  if (isLoading) {
+    return null; // ou um loading spinner
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.background }]}>        
+      <Header 
+        onMenuPress={() => {}} 
+        theme={theme}
+        isDarkMode={isDarkMode}
+        onThemeToggle={toggleDarkMode}
+      />
+
+      <View style={styles.mainContent}>
+        {homeComponent.renderHomePage(theme)}
+      </View>
+
+      <Footer 
+        theme={theme}
+      />
+
+      <EventModal
+        visible={homeComponent.state.modalVisible}
+        onClose={homeComponent.closeEventModal}
+        event={homeComponent.state.selectedEvent}
+        theme={theme}
+        userData={userData}
+        userToken={userToken}
+      />
+    </View>
+  );
 }
 
 export default Home;

@@ -2,7 +2,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl
-//const API_URL = 'http://localhost:3000';
+//const API_URL = "http://localhost:3000";
 
 export async function getEvent(id: number) {
   try {
@@ -30,6 +30,10 @@ export async function sendEvent(eventData: {
   description: string;
   id: number;
   creator_email: string;
+  event_image: {
+    imageBase64: string;
+    imageFormat: string;
+  }
   date: Date;
   location_type: string;
   location_coordinates: [number, number];

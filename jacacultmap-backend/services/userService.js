@@ -1,6 +1,8 @@
 import User from '../models/user_model.js';
+import { connectToDatabase } from './database.js';
 
 export async function createUser(name, email, password, provider, options = {}) {
+    await connectToDatabase();
     const userData = {
         name,
         email, 
@@ -22,6 +24,7 @@ export async function createUser(name, email, password, provider, options = {}) 
 }
 
 export async function updateUserByEmail(email, updates) {
+    await connectToDatabase();
     const updated = await User.findOneAndUpdate(
       { email },
       { $set: updates },
@@ -32,6 +35,7 @@ export async function updateUserByEmail(email, updates) {
 }
 
 export async function userExists(email) {
+  await connectToDatabase();
   try {
     return await User.findOne(
       { email },
@@ -44,6 +48,7 @@ export async function userExists(email) {
 }
 
 export async function getUserRoleByEmail(email) {
+  await connectToDatabase();
   try {
     return await User.findOne(
       { email },
@@ -51,6 +56,20 @@ export async function getUserRoleByEmail(email) {
     );
   } catch (error) {
     console.error("Erro ao buscar usuário:", error.message);
+    return null;
+  }
+}
+
+export async function getUserDataByEmail(email) {
+  await connectToDatabase();
+  try {
+    return await User.findOne(
+      { email },
+      { _id: 0, __v: 0, password: 0 }
+    );
+  }
+  catch (error) {
+    console.error("Erro ao buscar dados do usuário:", error.message);
     return null;
   }
 }

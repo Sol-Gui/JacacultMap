@@ -1,35 +1,20 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 
 type FooterProps = {
   theme: any;
-  onRouteChange?: (route: string) => void; // Callback para notificar mudança de rota
 };
 
-const Footer: React.FC<FooterProps> = ({ theme, onRouteChange }) => {
+const Footer: React.FC<FooterProps> = ({ theme }) => {
   const router = useRouter();
   const pathname = usePathname();
-
-  // Monitora mudanças no pathname e chama o callback
-  useEffect(() => {
-    if (onRouteChange) {
-      // Normaliza o pathname para o formato usado internamente
-      const normalizedPath = pathname.replace('/(tabs)', '');
-      onRouteChange(normalizedPath);
-    }
-  }, [pathname, onRouteChange]);
 
   const isActive = (r: string) => pathname === r || pathname === `/(tabs)${r}`;
   
   const go = (r: string) => {
     const route = r.startsWith('/(tabs)') ? r : `/(tabs)${r}`;
     router.navigate(route as any);
-    
-    // Chama o callback imediatamente para garantir que o tema seja recarregado
-    if (onRouteChange) {
-      onRouteChange(r);
-    }
   };
 
   return (
@@ -37,11 +22,11 @@ const Footer: React.FC<FooterProps> = ({ theme, onRouteChange }) => {
       <TouchableOpacity style={styles.navButton} onPress={() => go('/home')}>
         <Text style={[styles.navText, { color: isActive('/home') ? theme.primary : theme.textSecondary }]}>Home</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.navButton} onPress={() => go('/novidades')}>
-        <Text style={[styles.navText, { color: isActive('/novidades') ? theme.primary : theme.textSecondary }]}>Novidades</Text>
+      <TouchableOpacity style={styles.navButton} onPress={() => go('/calendario')}>
+        <Text style={[styles.navText, { color: isActive('/calendario') ? theme.primary : theme.textSecondary }]}>Calendario</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.navButton} onPress={() => go('/configuracoes')}>
-        <Text style={[styles.navText, { color: isActive('/configuracoes') ? theme.primary : theme.textSecondary }]}>Configurações</Text>
+      <TouchableOpacity style={styles.navButton} onPress={() => go('/favoritos')}>
+        <Text style={[styles.navText, { color: isActive('/favoritos') ? theme.primary : theme.textSecondary }]}>Favoritos</Text>
       </TouchableOpacity>
     </View>
   );
@@ -66,7 +51,9 @@ const styles = StyleSheet.create({
   },
   navText: { 
     fontSize: 14, 
-    fontWeight: '700' 
+    fontWeight: '800', 
+    justifyContent: 'center',
+    width: '100%'
   },
 });
 

@@ -33,10 +33,6 @@ const User = mongoose.model("Users", new mongoose.Schema({
             required: true,
             default: 'NO-IMAGE'
         },
-        imageFormat: { 
-            type: String, 
-            default: 'webp' 
-        }
     },
     favoritedEventsById: {
         type: [Number],
@@ -69,4 +65,5 @@ const User = mongoose.model("Users", new mongoose.Schema({
         }
     }
 }));
+
 export default User;

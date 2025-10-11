@@ -4,7 +4,7 @@ import Event from '../models/event_model.js'
 import { verifyToken } from './authService.js';
 
 export async function createEvent({
-    title, description, event_type, id, creator_token, date,
+    title, description, event_type, event_image_banner, event_image_header, event_images, id, creator_token, date,
     location_type, location_coordinates
 }) {
     await connectToDatabase();
@@ -23,13 +23,13 @@ export async function createEvent({
             throw new Error('Apenas administradores e gerentes de eventos podem criar eventos.');
         }
 
-        console.log(creator_email)
-        console.log(event_type)
-
         const eventData = {
             title,
             description,
             event_type,
+            event_image_banner,
+            event_image_header,
+            event_images,
             id,
             creator_email,
             date,

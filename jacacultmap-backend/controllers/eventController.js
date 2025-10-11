@@ -1,15 +1,16 @@
-import { get } from 'mongoose';
 import { createEvent, getEvent, getLimitedEvents, getTotalEventsCount } from '../services/eventService.js';
 
 export async function createEventController(req, res) {
   const {
-    title, description, event_type, id, creator_token, date,
+    title, description, event_type, event_image, id, date,
     location_type, location_coordinates
   } = req.body;
 
+  const { creator_token } = req.headers.authorization?.split(' ')[1]
+
   await createEvent({
-    title, description, event_type, id, creator_token, date,
-    location_type, location_coordinates})
+    title, description, event_type, event_image, id, creator_token, 
+    date, location_type, location_coordinates})
     .then(event => {
       res.status(201).json({
         message: 'Evento criado com sucesso',
@@ -42,6 +43,9 @@ export async function getEventController(req, res) {
       title: event.title,
       description: event.description,
       event_type: event.event_type,
+      event_image_banner: event.event_image_banner,
+      event_image_header: event.event_image_header,
+      event_images: event.event_images,
       id: event.id,
       creator_email: event.creator_email,
       date: event.date,

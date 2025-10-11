@@ -8,6 +8,7 @@ import statusRoutes from "./routes/statusRoute.js";
 import imageRoutes from "./routes/imageRoute.js";
 import validateTokenRoutes from "./routes/validateTokenRoute.js";
 import eventRoutes from './routes/eventRoute.js'
+import userRoutes from './routes/userRoute.js'
 import session from "express-session";
 
 
@@ -64,6 +65,7 @@ app.use(statusRoutes);
 app.use(imageRoutes);
 app.use(validateTokenRoutes);
 app.use(eventRoutes);
+app.use(userRoutes);
 
 connectToDatabase();
 

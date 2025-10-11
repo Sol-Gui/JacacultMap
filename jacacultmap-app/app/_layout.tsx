@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { validateToken } from "../services/auth";
 import { usePathname } from "expo-router";
 import { Tabs } from 'expo-router';
+import { ThemeProvider } from "../contexts/ThemeContext";
 
 
 export default function RootLayout() {
@@ -13,12 +14,12 @@ export default function RootLayout() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const publicRouteList = ['/login', '/register', '/auth-callback', '/home', '/interests', '/novidades', '/configuracoes'];
+  const publicRouteList = ['/login', '/register', '/auth-callback', '/home', '/interests', '/calendario', '/favoritos'];
   const currentMatch = publicRouteList.find(
     (route) => route.toLowerCase() === pathname.toLowerCase()
   );
 
-  /*const { shouldRedirect, checking } = useServerCheck(pathname);
+  const { shouldRedirect, checking } = useServerCheck(pathname);
   console.log(checking, shouldRedirect);
 
   useEffect(() => {
@@ -48,16 +49,16 @@ export default function RootLayout() {
         <ActivityIndicator size="large" color="#007aff" />
       </View>
     );
-  }*/
+  }
 
   return (
-    <>
+    <ThemeProvider>
       <StatusBar hidden />
       <Stack
         screenOptions={{
           headerShown: false,
         }}
       />
-    </>
+    </ThemeProvider>
   );
 }
