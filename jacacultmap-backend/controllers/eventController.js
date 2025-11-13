@@ -1,28 +1,45 @@
 import { createEvent, getEvent, getLimitedEvents, getTotalEventsCount } from '../services/eventService.js';
 
 export async function createEventController(req, res) {
-  const {
-    title, description, event_type, event_image, id, date,
-    location_type, location_coordinates
-  } = req.body;
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: 'Token de autorização não fornecido' });
+    }
+    
+    const creator_token = authHeader.split(' ')[1];
+    if (!creator_token) {
+      return res.status(401).json({ message: 'Token de autorização inválido' });
+    }
 
-  const { creator_token } = req.headers.authorization?.split(' ')[1]
+    const {
+      title, description, event_type, event_image_banner, event_image_header,
+      event_images, id, date, location_name, location_coordinates
+    } = req.body;
 
-  await createEvent({
-    title, description, event_type, event_image, id, creator_token, 
-    date, location_type, location_coordinates})
-    .then(event => {
-      res.status(201).json({
-        message: 'Evento criado com sucesso',
-        event: event
-      });
-    })
-    .catch(error => {
-      console.error('Erro ao criar evento:', error.message);
-      res.status(500).json({
-        message: error.message || 'Erro ao criar evento, tente novamente mais tarde.'
-      });
+    if (!title || !description || !event_type || !id || !date || !location_coordinates) {
+      return res.status(400).json({ message: 'Campos obrigatórios não fornecidos' });
+    }
+
+    const newEvent = await createEvent({
+      title,
+      description,
+      event_type,
+      event_image_banner,
+      event_image_header,
+      event_images,
+      id,
+      creator_token,
+      date,
+      location_name,
+      location_coordinates
     });
+    
+    return res.status(201).json(newEvent);
+  } catch (error) {
+    console.error('Erro ao criar evento:', error);
+    return res.status(500).json({ message: 'Erro interno ao criar evento' });
+  }
 }
 
 export async function getEventController(req, res) {

@@ -5,16 +5,17 @@ import { verifyToken } from './authService.js';
 
 export async function createEvent({
     title, description, event_type, event_image_banner, event_image_header, event_images, id, creator_token, date,
-    location_type, location_coordinates
+    location_name, location_coordinates
 }) {
     await connectToDatabase();
-    const creator_email = await verifyToken(creator_token)
+    const creator_email = await verifyToken(creator_token);
+    console.log("token do criador:", creator_token);
     if (!creator_email) {
         throw new Error('Token inválido ou expirado. Por favor, faça login novamente.');
     }
     try {
 
-        if (!title || !description || !event_type || !id || !creator_email || !date || !location_type || !location_coordinates) {
+        if (!title || !description || !event_type || !id || !creator_email || !date || !location_name || !location_coordinates) {
             throw new Error("Todos os campos são obrigatórios para criar um evento.");
         }
 
@@ -34,7 +35,7 @@ export async function createEvent({
             creator_email,
             date,
             location: {
-                type: location_type,
+                name: location_name,
                 coordinates: location_coordinates
             }
         }

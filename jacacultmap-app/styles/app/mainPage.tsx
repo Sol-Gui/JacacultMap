@@ -50,8 +50,11 @@ export interface Event {
     imageFormat: string;
   }[]
   creator_email: string;
-  location_type: string;
-  location_coordinates: [number, number];
+  location: {
+    name: String,
+    type: String,
+    coordinates: [number, number]
+  }
   date: string;
   event_type: string;
 }

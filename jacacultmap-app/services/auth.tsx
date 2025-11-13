@@ -52,6 +52,7 @@ export async function signUpAuth(name: string, email: string, password: string):
 export async function validateToken(): Promise<AuthResponse> {
   try {
     const token = await getData('userToken');
+    console.log(token);
     if (!token) {
       return { success: false, message: 'Token não encontrado' };
     }

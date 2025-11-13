@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,13 @@ import {
   Image,
   StyleSheet,
   Alert,
+  Share,
+  Platform,
 } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { type Event } from './mainPage';
 import { updateUserData } from '../../services/user';
+import { Linking } from 'react-native';
 
 interface EventModalProps {
   visible: boolean;
@@ -66,9 +69,17 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, event, theme,
     headerImage = 'https://picsum.photos/400/250?random=event';
   }
 
+  const openGoogleMaps = (latitude: number, longitude: number) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=driving`;
+    Linking.openURL(url);
+  };
+  
+
   const handleRotas = () => {
     // Implementar navegação para o local do evento
-    console.log('Abrir rotas para:', event.location_type);
+    const [ lat, long ] = event.location.coordinates
+    console.log('Abrir rotas para:', lat, long);
+    openGoogleMaps(lat, long)
   };
 
   const handleFavoritar = async () => {
@@ -110,9 +121,53 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, event, theme,
     }
   };
 
-  const handleCompartilhar = () => {
-    // Implementar lógica de compartilhamento
-    console.log('Compartilhar evento:', event.title);
+  const handleCompartilhar = async () => {
+    try {
+      const eventDate = new Date(event.date).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const shareContent = {
+        title: `🎉 ${event.title}`,
+        message: `Confira este evento incrível!\n\n🎯 ${event.title}\n\n📝 ${event.description}\n\n📅 ${eventDate}\n\n📍 ${event.location?.name || 'Local não informado'}\n\n#JacaCultMap #Eventos #Cultura`,
+        url: `https://jacacultmap.com/evento/${event.id}`, // URL fictícia para o evento
+      };
+
+      if (Platform.OS === 'web') {
+        // Para web, usar Web Share API se disponível
+        if (navigator.share) {
+          await navigator.share(shareContent);
+        } else {
+          // Fallback para web - copiar para clipboard
+          const textToCopy = `${shareContent.title}\n\n${shareContent.message}`;
+          await navigator.clipboard.writeText(textToCopy);
+          Alert.alert('Sucesso!', 'Conteúdo copiado para a área de transferência!');
+        }
+      } else {
+        // Para mobile, usar React Native Share
+        const result = await Share.share(shareContent);
+        
+        if (result.action === Share.sharedAction) {
+          if (result.activityType) {
+            // Compartilhado com um tipo específico de atividade
+            console.log('Compartilhado com:', result.activityType);
+          } else {
+            // Compartilhado
+            console.log('Evento compartilhado com sucesso!');
+          }
+        } else if (result.action === Share.dismissedAction) {
+          // Compartilhamento cancelado
+          console.log('Compartilhamento cancelado');
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao compartilhar:', error);
+      Alert.alert('Erro', 'Não foi possível compartilhar o evento. Tente novamente.');
+    }
   };
 
   const renderMediaCard = (media: MediaItem) => (
@@ -162,19 +217,22 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, event, theme,
             <View style={styles.locationContainer}>
               <Ionicons name="location-outline" size={20} color={theme.primary} />
               <Text style={[styles.locationText, { color: theme.text }]}>
-                {event.location_type || 'Local não informado'}
+                {event.location.name || 'Local não informado'}
               </Text>
             </View>
 
             {/* Botões de ação */}
             <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                onPress={handleRotas}
-              >
-                <MaterialIcons name="directions" size={24} color="#fff" />
-                <Text style={styles.actionButtonText}>Rotas</Text>
-              </TouchableOpacity>
+              {/* Só mostrar botão de rotas se o evento não for virtual */}
+              {event.event_type !== 'virtual' && (
+                <TouchableOpacity
+                  style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                  onPress={handleRotas}
+                >
+                  <MaterialIcons name="directions" size={24} color="#fff" />
+                  <Text style={styles.actionButtonText}>Rotas</Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={[styles.actionButton, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}

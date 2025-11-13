@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import Counter from "./counter_model.js";
 
-const User = mongoose.model("Users", new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     name: String,
     email: {
         type: String,
@@ -63,7 +64,36 @@ const User = mongoose.model("Users", new mongoose.Schema({
             },
             message: 'Amigos não devem ser strings vazias'
         }
+    },
+    id: {
+        type: Number,
+        unique: true,
+        sparse: true,
+        validate: {
+            validator: function(value) {
+                return value === undefined || (Number.isInteger(value) && value > 0);
+            },
+            message: 'ID do usuário deve ser um número inteiro positivo'
+        }
     }
-}));
+});
+
+UserSchema.pre('save', async function(next) {
+    try {
+        if (this.id === undefined || this.id === null) {
+            const counter = await Counter.findOneAndUpdate(
+                { model: 'Users' },
+                { $inc: { seq: 1 } },
+                { new: true, upsert: true }
+            );
+            this.id = counter.seq;
+        }
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
+const User = mongoose.model("Users", UserSchema);
 
 export default User;

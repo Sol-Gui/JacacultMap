@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, useCallback } from 'react';
 import Footer from '../../styles/app/footer';
 import Header from '../../styles/app/header';
+import Sidebar from '../../styles/app/sidebar';
 import EventModal from '../../styles/app/eventModal';
 import {
   View,
@@ -18,6 +19,7 @@ import { getLimitedEvents } from '../../services/events';
 import { styles } from '../../styles/home';
 import { getUserData } from '@/services/user';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface AppState {
   showSidebar: boolean;
@@ -37,6 +39,7 @@ interface AppState {
   isLoading: boolean;
   selectedEvent: Event | null;
   modalVisible: boolean;
+  sidebarVisible: boolean;
 }
 
 // Sample news data
@@ -48,18 +51,6 @@ const newsData = [
   { id: 5, title: 'Teatro ao Ar Livre' },
 ];
 
-// Async Data Functions
-const fetchUserData = async (): Promise<User> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        name: 'Leonardo',
-        email: 'negociosleonardo240108@gmail.com',
-      });
-    }, 500);
-  });
-};
-
 const eventsCategories = [
   { id: 'intelectual', name: 'Intelectual' },
   { id: 'turistico', name: 'Turístico' },
@@ -70,23 +61,23 @@ const eventsCategories = [
   { id: 'artistico', name: 'Artístico' },
 ];
 
-let userToken: string | null = null;
+let userToken: string;
 let userData: any = null;
 
-getData('userToken').then(token => {
+const updateUserData = async () => {
+  const token = await getData('userToken');
   try {
     if (token) {
       userToken = token;
-      getUserData(token).then(data => {
-        userData = data;
-      });
+      userData = await getUserData(token);
     }
   } catch (err) {
     console.log("Erro ao capturar token")
-  }
-})
+  };
+}
 
 const fetchCategories = async (): Promise<Category[]> => {
+  await updateUserData();
   try {
     if (!userToken) {
       return eventsCategories;
@@ -117,8 +108,9 @@ const formatDateTime = (dateString: string): string => {
   const ano = date.getFullYear();
 
   const hora = String(date.getHours()).padStart(2, "0");
+  const minuto = String(date.getMinutes()).padStart(2, "0");
 
-  return `${dia}/${mes}/${ano} às ${hora}h`;
+  return `${dia}/${mes}/${ano} às ${hora}:${minuto}h`;
 }
 
 
@@ -316,10 +308,12 @@ class Home extends Component<{}, AppState> {
     isLoading: false,
     selectedEvent: null,
     modalVisible: false,
+    sidebarVisible: false,
   };
 
   async componentDidMount() {
     // Carrega apenas os dados, o tema é gerenciado pelo contexto
+    updateUserData();
     this.loadData();
   }
 
@@ -337,15 +331,13 @@ class Home extends Component<{}, AppState> {
   loadData = async () => {
     try {
       const { currentPage, itemsPerPage } = this.state;
-      const [userData, categories, eventsData] = await Promise.all([
-        fetchUserData(),
+      const [categories, eventsData] = await Promise.all([
         fetchCategories(),
         getLimitedEvents(itemsPerPage, currentPage) as Promise<EventsResponse>
       ]);
 
       if (eventsData?.events) {
         this.setState({
-          userData,
           categories,
           events: eventsData.events,
           filteredEvents: eventsData.events,
@@ -422,6 +414,14 @@ class Home extends Component<{}, AppState> {
 
   closeEventModal = () => {
     this.setState({ selectedEvent: null, modalVisible: false });
+  };
+
+  openSidebar = () => {
+    this.setState({ sidebarVisible: true });
+  };
+
+  closeSidebar = () => {
+    this.setState({ sidebarVisible: false });
   };
 
 
@@ -526,6 +526,12 @@ class Home extends Component<{}, AppState> {
 const HomeWrapper: React.FC<{ homeComponent: Home }> = ({ homeComponent }) => {
   const { theme, isDarkMode, toggleDarkMode, isLoading } = useTheme();
 
+  useFocusEffect(
+    useCallback(() => {
+      homeComponent.loadData();
+    }, [homeComponent])
+  );
+
   if (isLoading) {
     return null; // ou um loading spinner
   }
@@ -533,7 +539,7 @@ const HomeWrapper: React.FC<{ homeComponent: Home }> = ({ homeComponent }) => {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>        
       <Header 
-        onMenuPress={() => {}} 
+        onMenuPress={homeComponent.openSidebar} 
         theme={theme}
         isDarkMode={isDarkMode}
         onThemeToggle={toggleDarkMode}
@@ -554,6 +560,12 @@ const HomeWrapper: React.FC<{ homeComponent: Home }> = ({ homeComponent }) => {
         theme={theme}
         userData={userData}
         userToken={userToken}
+      />
+
+      <Sidebar
+        visible={homeComponent.state.sidebarVisible}
+        onClose={homeComponent.closeSidebar}
+        theme={theme}
       />
     </View>
   );

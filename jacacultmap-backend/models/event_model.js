@@ -79,10 +79,15 @@ const EventSchema = new mongoose.Schema({
         default: Date.now
     },
     location: {
+        name: {
+            type: String,
+            required: true
+        },
         type: {
             type: String,
             enum: ['Point'],
-            required: true
+            default: 'Point',
+            required: false
         },
         coordinates: {
             type: [Number],

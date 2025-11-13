@@ -5,8 +5,10 @@ import { useServerCheck } from "../services/api";
 import { StatusBar } from 'expo-status-bar';
 import { validateToken } from "../services/auth";
 import { usePathname } from "expo-router";
-import { Tabs } from 'expo-router';
 import { ThemeProvider } from "../contexts/ThemeContext";
+import { UserProvider } from "../contexts/UserContext";
+import { removeData } from "../services/localStorage";
+import { getUserData } from '../services/user';
 
 
 export default function RootLayout() {
@@ -14,7 +16,11 @@ export default function RootLayout() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const publicRouteList = ['/login', '/register', '/auth-callback', '/home', '/interests', '/calendario', '/favoritos'];
+  const publicRouteList = [
+    '/login', 
+    '/register', 
+    '/auth-callback',
+  ];
   const currentMatch = publicRouteList.find(
     (route) => route.toLowerCase() === pathname.toLowerCase()
   );
@@ -30,8 +36,16 @@ export default function RootLayout() {
       validateToken()
         .then((response) => {
           if (response.success && response.token) {
-            router.replace('/(tabs)/protected');
+            getUserData(response.token).then((userData) => {
+              if (userData.userData.favoritedCategories != undefined && userData.userData.favoritedCategories.length == 0) {
+                router.replace('/(tabs)/interests');
+              } else {
+                router.replace('/(tabs)/home');
+              }
+            });
           } else if (!currentMatch) {
+            console.log("data removida");
+            removeData('userToken');
             router.replace('/(auth)/login');
           }
         })
@@ -53,12 +67,14 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <StatusBar hidden />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      />
+      <UserProvider>
+        <StatusBar hidden />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
+      </UserProvider>
     </ThemeProvider>
   );
 }

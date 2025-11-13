@@ -17,13 +17,25 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen 
-        name="novidades"
+        name="favoritos"
         options={{
           animation: 'none',
         }}
       />
       <Tabs.Screen 
-        name="configuracoes"
+        name="calendario"
+        options={{
+          animation: 'none',
+        }}
+      />
+      <Tabs.Screen 
+        name="profile"
+        options={{
+          animation: 'none',
+        }}
+      />
+      <Tabs.Screen 
+        name="interests"
         options={{
           animation: 'none',
         }}

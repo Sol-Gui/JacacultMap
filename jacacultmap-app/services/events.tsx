@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { getData } from './localStorage';
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl
 //const API_URL = "http://localhost:3000";
@@ -29,18 +30,27 @@ export async function sendEvent(eventData: {
   title: string;
   description: string;
   id: number;
-  creator_email: string;
-  event_image: {
-    imageBase64: string;
-    imageFormat: string;
-  }
-  date: Date;
-  location_type: string;
-  location_coordinates: [number, number];
   event_type: string;
+  event_image_banner: {
+    imageBase64: string;
+  };
+  event_image_header: {
+    imageBase64: string;
+  };
+  event_images: {
+    imageBase64: string[];
+  };
+  date: Date;
+  location_name?: string;
+  location_coordinates: [number, number];
 }) {
   try {
-    const response = await axios.post(`${API_URL}/send-event`, eventData);
+    const token = await getData('userToken');
+    const config = token
+      ? { headers: { Authorization: `Bearer ${token}` } }
+      : undefined;
+
+    const response = await axios.post(`${API_URL}/send-event`, eventData, config);
     return response.data;
   } catch (error) {
     console.error('Error sending event:', error);

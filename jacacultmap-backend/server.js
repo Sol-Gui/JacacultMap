@@ -17,7 +17,9 @@ import session from "express-session";
 dotenv.config({ path: ".env" });
 
 const app = express();
-app.use(express.json());
+// Aumentando o limite para 50MB
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const allowedOrigins = [
   process.env.DEVELOPMENT_URL_FRONTEND,
