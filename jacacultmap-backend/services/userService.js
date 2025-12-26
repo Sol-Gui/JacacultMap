@@ -19,7 +19,6 @@ export async function createUser(name, email, password, provider, options = {}) 
 
     const user = new User(userData);
     await user.save();
-    console.log("Usuário criado:", user);
     return user;
 }
 
@@ -30,7 +29,6 @@ export async function updateUserByEmail(email, updates) {
       { $set: updates },
       { new: true }
     );
-    console.log('Usuário atualizado:', updated);
     return updated;
 }
 

@@ -12,8 +12,6 @@ const fetchUserImage = async () => {
   const token = await getData('userToken') as string;
   const userData = await getUserData(token) as any;
 
-  console.log(token)
-
   try {
     if (userData.userData.profilePicture.imageBase64 != "NO-IMAGE") {
       return `data:image/png;base64,${userData.userData.profilePicture.imageBase64}`;

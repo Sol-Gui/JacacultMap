@@ -33,7 +33,7 @@ const Calendario: React.FC = () => {
       setLoading(true);
       
       // Carregar eventos
-      const eventsData = await getLimitedEvents(100, 1);
+      const eventsData = await getLimitedEvents(100, 1) as any;
       if (eventsData?.events) {
         setEvents(eventsData.events);
       }
@@ -358,9 +358,9 @@ const Calendario: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+    container: {
+      flex: 1,
+    },
   mainContent: {
     flex: 1,
     padding: 16,

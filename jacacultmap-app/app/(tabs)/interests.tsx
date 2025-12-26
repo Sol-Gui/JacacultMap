@@ -348,10 +348,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   interestText: {
-    fontSize: height * 0.018, // Responsive font size
+    fontSize: height * 0.018,
     fontWeight: '600',
     color: '#2E7D32',
-    flex: 1, // Allow text to take available space
+    flex: 1,
     textAlign: 'center',
   },
   selectedText: {

@@ -9,7 +9,6 @@ export async function createEvent({
 }) {
     await connectToDatabase();
     const creator_email = await verifyToken(creator_token);
-    console.log("token do criador:", creator_token);
     if (!creator_email) {
         throw new Error('Token inválido ou expirado. Por favor, faça login novamente.');
     }
@@ -42,7 +41,6 @@ export async function createEvent({
         
         const event = new Event(eventData);
         await event.save();
-        console.log("evento criado: ", event);
         return event;
     } catch (error) {
         console.error("Erro ao criar evento:", error.message);

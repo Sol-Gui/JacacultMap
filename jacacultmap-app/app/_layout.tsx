@@ -26,10 +26,8 @@ export default function RootLayout() {
   );
 
   const { shouldRedirect, checking } = useServerCheck(pathname);
-  console.log(checking, shouldRedirect);
 
   useEffect(() => {
-    console.log("\n\nverificando...");
     if (!checking && shouldRedirect) {
       router.replace("/(tabs)/status");
     } else if (!checking && !shouldRedirect) {

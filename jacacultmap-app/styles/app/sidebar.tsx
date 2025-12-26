@@ -7,6 +7,7 @@ import {
   Image,
   ScrollView,
   Alert,
+  Platform,
 } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
@@ -60,28 +61,41 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose, theme }) => {
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Sair',
-      'Tem certeza que deseja sair da sua conta?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Sair',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await removeData('userToken');
-              router.replace('/(auth)/login');
-            } catch (error) {
-              console.error('Erro ao fazer logout:', error);
-            }
+    // No web, usa confirm nativo; no app, usa Alert
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Tem certeza que deseja sair da sua conta?');
+      if (confirmed) {
+        try {
+          await removeData('userToken');
+          router.replace('/(auth)/login');
+        } catch (error) {
+          console.error('Erro ao fazer logout:', error);
+        }
+      }
+    } else {
+      Alert.alert(
+        'Sair',
+        'Tem certeza que deseja sair da sua conta?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
           },
-        },
-      ]
-    );
+          {
+            text: 'Sair',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await removeData('userToken');
+                router.replace('/(auth)/login');
+              } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+              }
+            },
+          },
+        ]
+      );
+    }
   };
 
   const menuItems = [
@@ -141,7 +155,6 @@ const Sidebar: React.FC<SidebarProps> = ({ visible, onClose, theme }) => {
             return;
           }
 
-          console.log('Tentando navegar para criarEvento');
           router.push('/criarEvento');
         } catch (error) {
           console.error('Erro ao navegar:', error);
@@ -247,7 +260,7 @@ const styles = StyleSheet.create({
   sidebarHeader: {
     padding: 20,
     borderBottomWidth: 1,
-    paddingTop: 50, // Espaço para a status bar
+    paddingTop: 50,
   },
   closeButton: {
     position: 'absolute',

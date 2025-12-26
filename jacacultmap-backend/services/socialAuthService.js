@@ -69,7 +69,6 @@ export async function registerOrLoginWithGoogle(name, email) {
 
         const exists = await userExists(email);
         if (exists) {
-            console.log("Usuário já cadastrado:", exists);
             return {
                 success: true,
                 message: "Usuário já cadastrado!",

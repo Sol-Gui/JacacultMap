@@ -49,8 +49,8 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     marginRight: 8,
     marginBottom: 8,
-    flexGrow: 0, // Adicionado para não expandir além do necessário
-    flexShrink: 0, // Adicionado para não encolher o texto
+    flexGrow: 0,
+    flexShrink: 0,
   },
   categoryDot: { 
     width: 12, 
@@ -70,8 +70,8 @@ export const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 26,
     height: 180,
-    justifyContent: 'space-between', // Changed to space-between
-    flexDirection: 'column', // Added to ensure proper vertical layout
+    justifyContent: 'space-between',
+    flexDirection: 'column',
   },
   eventTitle: { 
     fontSize: 16,
@@ -95,7 +95,7 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     alignSelf: 'flex-start',
     paddingBottom: 8,
-    marginTop: 'auto' // Added to push date to bottom
+    marginTop: 'auto'
   },
   eventCategory: {
     alignSelf: 'flex-start',

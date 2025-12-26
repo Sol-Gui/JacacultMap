@@ -2,7 +2,7 @@ import { generateGoogleLoginUrl, getGoogleTokens } from '../services/socialAuthS
 import { registerOrLoginWithGoogle } from '../services/socialAuthService.js';
 //import crypto from 'crypto';
 
-// STATE DESATIVADO POR MOTIVOS DE DESENVOLVIMENTO!!!
+// STATE DESATIVADO POR MOTIVOS DE FACILIDADE DE DESENVOLVIMENTO
 
 
 export async function loginWithGoogle(req, res) {
@@ -46,8 +46,11 @@ export async function loginWithGoogleCallback(req, res) {
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         });
 
-        const frontendUrl = process.env.DEVELOPMENT_URL_FRONTEND; // URL do frontend para redirecionamento
-        console.log("Redirecionando para:", `${frontendUrl}/auth-callback?code=${code}`);
+        // Detectar se é web ou mobile baseado na query string ou headers
+        const isWeb = req.query.platform === 'web' || req.headers['user-agent']?.includes('Mozilla') && !req.headers['user-agent']?.includes('Mobile');
+        const frontendUrl = isWeb ? 'http://jacacultmap-app.vercel.app' : process.env.DEVELOPMENT_URL_FRONTEND;
+        
+        console.log("Platform:", isWeb ? "Web" : "Mobile", "Redirecting to:", frontendUrl);
         return res.redirect(`${frontendUrl}/auth-callback?code=${code}`);
     } catch (error) {
         res.status(400).json({ error: 'Falha no login' });
@@ -57,7 +60,6 @@ export async function loginWithGoogleCallback(req, res) {
 
 export async function useCode(req, res) {
     const { code } = req.body;
-    console.log("Código recebido:", code);
     try {
         const data = await getGoogleTokens(code);
         const result = await registerOrLoginWithGoogle(data.user.name, data.user.email);

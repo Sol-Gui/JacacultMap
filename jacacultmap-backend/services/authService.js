@@ -16,7 +16,6 @@ export async function verifyToken(token) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         return decoded.email;
     } catch (err) {
-        console.log("Token inválido ou expirado!");
         return null;
     }
 }

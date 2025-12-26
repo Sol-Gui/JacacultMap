@@ -52,15 +52,13 @@ export default function Profile() {
         );
         
         if (result === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("Permissão da câmera concedida");
           return true;
         } else {
-          console.log("Permissão da câmera negada");
           Alert.alert(
             "Permissão Necessária",
             "Você precisa permitir o acesso à câmera para alterar sua foto de perfil.",
             [
-              { text: "OK", onPress: () => console.log("Permissão negada") }
+              { text: "OK" }
             ]
           );
           return false;
@@ -94,15 +92,13 @@ export default function Profile() {
         );
 
         if (result === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("Permissão de armazenamento concedida");
           return true;
         } else {
-          console.log("Permissão de armazenamento negada");
           Alert.alert(
             "Permissão Necessária",
             "Você precisa permitir o acesso ao armazenamento para selecionar uma foto da galeria.",
             [
-              { text: "OK", onPress: () => console.log("Permissão negada") }
+              { text: "OK" }
             ]
           );
           return false;

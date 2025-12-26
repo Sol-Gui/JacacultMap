@@ -23,7 +23,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const allowedOrigins = [
   process.env.DEVELOPMENT_URL_FRONTEND,
-  "http://localhost:8081" // URL de desenvolvimento com ngrok
+  "https://jacacultmap-app.vercel.app"
 ]
 
 app.use(cors({
@@ -71,6 +71,4 @@ app.use(userRoutes);
 
 connectToDatabase();
 
-//export default app;
-
-app.listen(3000, '0.0.0.0');
+export default app;

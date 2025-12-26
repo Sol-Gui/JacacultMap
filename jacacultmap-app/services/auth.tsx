@@ -4,7 +4,6 @@ import { getData } from './localStorage';
 
 
 export const API_URL = Constants.expoConfig?.extra?.apiUrl;
-console.log("API_URL:", API_URL);
 
 interface AuthResponse {
   token?: string;
@@ -52,7 +51,6 @@ export async function signUpAuth(name: string, email: string, password: string):
 export async function validateToken(): Promise<AuthResponse> {
   try {
     const token = await getData('userToken');
-    console.log(token);
     if (!token) {
       return { success: false, message: 'Token não encontrado' };
     }
@@ -68,7 +66,6 @@ export async function validateToken(): Promise<AuthResponse> {
 
     return response.data;
   } catch (error: any) {
-    console.log('Erro na validação do token:', error?.response?.data || error?.message);
     return {
       success: false,
       message: error?.response?.data?.message || 'Erro ao validar token'

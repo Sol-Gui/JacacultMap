@@ -1,13 +1,23 @@
-import { Text, View, Animated } from "react-native";
+import { Text, View, Animated, ScrollView } from "react-native";
 import React, { useState, useRef } from "react";
-import { SocialLoginButton, SocialLoginContainer, styles } from "../../styles/login";
-import { Input, InputContainer } from "../../styles/login";
+import { 
+  SocialLoginButton, 
+  SocialLoginContainer, 
+  styles, 
+  PasswordInput, 
+  Input, 
+  InputContainer, 
+  Divider,
+  LoginContainer,
+  LoginTitle,
+  LoginSubtitle,
+  LoginButton,
+  ForgotPasswordLink
+} from "../../styles/login";
 import { GoogleIcon, FacebookIcon } from "../../styles/icons";
 import { FlatList, TouchableOpacity} from "react-native";
 import { saveData } from "../../services/localStorage";
 import { signInAuth, startGoogleAuth } from "../../services/auth";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { verticalScale } from "react-native-size-matters";
 import { useRouter } from "expo-router";
 import { setRegisterData } from "../../utils/registerBuffer";
 import { getUserData } from '../../services/user';
@@ -83,109 +93,106 @@ export default function login() {
   }
 
   return (
-    <View style={styles.body}>
-      <Text style={styles.title}>SEJA BEM VINDO</Text>
-      <Text style={styles.text}>Efetue seu login</Text>
-
-      <SocialLoginContainer>
-        <SocialLoginButton
-          onPress={async () => {
-            const response = await startGoogleAuth();
-            console.log('Google Auth URL:', response);
-            await Linking.openURL(response);
-          }}
-          icon={GoogleIcon}
-        />
-
-        <SocialLoginButton
-          onPress={() => {
-            console.log('Lógica de login com Facebook aqui...');
-          }}
-          icon={FacebookIcon}
-        />
-      </SocialLoginContainer>
-      
-      
-      <InputContainer>
-        {showSuggestions && (
-          <FlatList
-            data={emailDomains}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleSelect(item)} style={styles.suggestion}>
-                <Text style={styles.suggestionText}>{email + item}</Text>
-              </TouchableOpacity>
-            )}
-            style={styles.suggestionsList}
-            keyExtractor={(item) => item}
-          />
-        )}
-          <Input
-          placeholder="Email"
-          value={email}
-          onChangeText={handleChange}
-          secureTextEntry={false}
-          />
-          <Input
-          placeholder="Senha"
-          value={senha}
-          onChangeText={setSenha}
-          secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity 
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeIcon}
-            >
-          <MaterialCommunityIcons 
-            name={showPassword ? "eye-off" : "eye"} 
-            size={verticalScale(15)} 
-            color="grey"
-        />
-        </TouchableOpacity>
-      </InputContainer>
-
-
-      <TouchableOpacity onPress={() => console.log("Pressionou o botão!")}>
-        <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={async () => {
-        try {
-          const response = await signInAuth(email, senha)
-          
-           if (response.success && response.token) {
-            saveData('userToken', response.token);
-            const userData = await getUserData(response.token);
-            if (userData.userData.favoritedCategories != undefined && userData.userData.favoritedCategories.length == 0) {
-              router.replace('/(tabs)/interests');
-            } else {
-              router.replace('/(tabs)/home');
-            }
-          }
-        } catch (err: any) {
-          showError(err.message);
-        }
-      }} style={styles.loginButton}>
-        <Text style={styles.loginText}>Acessar</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={async () => {
-          try {
-            setRegisterData({email, senha});
-            router.push({
-              pathname: '/register',
-            });
-          } catch (err: any) {
-            showError(err.message);
-          }
-        }}
-        style={styles.registerButton}
+    <LoginContainer>
+      <ScrollView 
+        style={{ width: '100%' }}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
       >
-        <Text style={styles.registerText}>Cadastre-se</Text>
-      </TouchableOpacity>
+        <LoginTitle>SEJA BEM VINDO</LoginTitle>
+        <LoginSubtitle>Efetue seu login</LoginSubtitle>
 
-      <ErrorPopup error={error} fadeAnim={fadeAnim}/>
+        <SocialLoginContainer>
+          <SocialLoginButton
+            onPress={async () => {
+              const response = await startGoogleAuth();
+              await Linking.openURL(response);
+            }}
+            icon={GoogleIcon}
+          />
 
-    </View>
+          <SocialLoginButton
+            onPress={() => {
+              console.log('Lógica de login com Facebook aqui...');
+            }}
+            icon={FacebookIcon}
+          />
+        </SocialLoginContainer>
+
+        <Divider />
+        
+        <InputContainer>
+          {showSuggestions && (
+            <FlatList
+              data={emailDomains}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleSelect(item)} style={styles.suggestion}>
+                  <Text style={styles.suggestionText}>{email + item}</Text>
+                </TouchableOpacity>
+              )}
+              style={styles.suggestionsList}
+              keyExtractor={(item) => item}
+              scrollEnabled={false}
+            />
+          )}
+          <Input
+            placeholder="Email"
+            value={email}
+            onChangeText={handleChange}
+            secureTextEntry={false}
+          />
+          <PasswordInput
+            placeholder="Senha"
+            value={senha}
+            onChangeText={setSenha}
+            showPassword={showPassword}
+            onTogglePassword={() => setShowPassword(!showPassword)}
+          />
+        </InputContainer>
+
+        <ForgotPasswordLink onPress={() => console.log("Pressionou o botão!")} />
+
+        <LoginButton 
+          isPrimary={true}
+          onPress={async () => {
+            try {
+              const response = await signInAuth(email, senha)
+              
+               if (response.success && response.token) {
+                saveData('userToken', response.token);
+                const userData: any = await getUserData(response.token);
+                if (userData.userData.favoritedCategories != undefined && userData.userData.favoritedCategories.length == 0) {
+                  router.replace('/(tabs)/interests');
+                } else {
+                  router.replace('/(tabs)/home');
+                }
+              }
+            } catch (err: any) {
+              showError(err.message);
+            }
+          }}
+        >
+          Acessar
+        </LoginButton>
+
+        <LoginButton
+          isPrimary={false}
+          onPress={async () => {
+            try {
+              setRegisterData({email, senha});
+              router.push({
+                pathname: '/register',
+              });
+            } catch (err: any) {
+              showError(err.message);
+            }
+          }}
+        >
+          Cadastre-se
+        </LoginButton>
+
+        <ErrorPopup error={error} fadeAnim={fadeAnim}/>
+      </ScrollView>
+    </LoginContainer>
   );
 }

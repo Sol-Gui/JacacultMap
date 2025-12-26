@@ -26,7 +26,6 @@ export async function getUserDataController(req, res) {
 export async function updateUserDataController(req, res) {
   const token = req.headers.authorization?.split(' ')[1];
   const { update } = req.body;
-  console.log(update);
 
   if (!token) {
     return res.status(400).json({ message: "Token é obrigatório" });

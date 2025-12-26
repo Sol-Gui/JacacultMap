@@ -1,13 +1,12 @@
 import * as Linking from 'expo-linking';
-import { useState } from 'react';
-import { removeData, saveData } from "../../services/localStorage";
-import { useRouter } from "expo-router";
+import { useEffect, useRef } from 'react';
+import { removeData, saveData, getData } from "../../services/localStorage";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { validateToken, useGoogleCode } from '../../services/auth'
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { getUserData } from '../../services/user';
 
 async function processGoogleCode(code: string) {
   try {
-    console.log("Processando código:", code);
     const response = await useGoogleCode(String(code));
     
     if (response.success && response.token && response.token.length > 0) {
@@ -23,75 +22,95 @@ async function processGoogleCode(code: string) {
   }
 }
 
-async function checkToken() {
-  try {
-    const response = await validateToken();
-    
-    if (!response.success || !response.token) {
-      await removeData('userToken');
-      return false;
-    }
-    
-    console.log("Token válido");
-    return true;
-  } catch (error) {
-    console.error('Erro ao validar token:', error);
-    await removeData('userToken');
-    return false;
-  }
-}
-
 export default function AuthCallbackScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
-  const [loading, setLoading] = useState(true);
+  const params = useLocalSearchParams();
+  const processedRef = useRef(false);
 
-  (async () => {
-    try {
-      const url = Linking.getLinkingURL();
-      if (!url) {
-        router.replace('/(auth)/login');
-        return;
-      }
+  useEffect(() => {
+    if (processedRef.current) return;
+    processedRef.current = true;
 
-      const { queryParams } = Linking.parse(url);
-      const code = queryParams?.code;
-      
-      if (!code) {
-        console.error('Código não encontrado na URL');
+    const processAuth = async () => {
+      try {
+        // Tenta pegar o código dos query params (expo-router)
+        let code: string | string[] | undefined = params?.code;
+        
+        // Se não tiver nos params, tenta pegar da URL inicial
+        if (!code) {
+          const initialUrl = await Linking.getInitialURL();
+          if (initialUrl) {
+            const parsed = Linking.parse(initialUrl);
+            code = parsed.queryParams?.code;
+          }
+        }
+
+        // Se ainda não tiver, escuta eventos de deep linking
+        if (!code) {
+          const subscription = Linking.addEventListener('url', ({ url }) => {
+            const parsed = Linking.parse(url);
+            const urlCode = parsed.queryParams?.code;
+            if (urlCode) {
+              processCode(urlCode);
+            }
+          });
+
+          // Timeout de segurança
+          setTimeout(() => {
+            if (!code) {
+              router.replace('/(auth)/login');
+            }
+          }, 3000);
+
+          return () => {
+            subscription.remove();
+          };
+        }
+
+        // Processa o código encontrado
+        await processCode(code);
+      } catch (error) {
+        console.error('Erro no processo de autenticação:', error);
         router.replace('/(auth)/login');
-        return;
       }
+    };
+
+    const processCode = async (code: string | string[]) => {
+      const codeStr = Array.isArray(code) ? code[0] : code;
       
-      // Processa o código e espera finalizar
-      const tokenSaved = await processGoogleCode(Array.isArray(code) ? code[0] : code);
+      // Processa o código
+      const tokenSaved = await processGoogleCode(codeStr);
       if (!tokenSaved) {
         router.replace('/(auth)/login');
         return;
       }
 
-      // Valida o token e espera finalizar
-      const tokenValid = await checkToken();
-      if (!tokenValid) {
+      // Valida o token
+      const tokenResponse = await validateToken();
+      if (!tokenResponse.success || !tokenResponse.token) {
+        await removeData('userToken');
         router.replace('/(auth)/login');
         return;
       }
 
-      // Se chegou aqui, tudo deu certo
-      setLoading(false);
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: '(tabs)/home' }],
-        })
-      );
-
+      // Verifica se precisa ir para interests ou home
+      const token = await getData('userToken');
+      if (!token || typeof token !== 'string') {
+        router.replace('/(auth)/login');
+        return;
+      }
       
-    } catch (error) {
-      console.error('Erro no processo de autenticação:', error);
-      router.replace('/(auth)/login');
-    }
-  })();
+      const userData: any = await getUserData(token);
+      
+      if (userData?.userData?.favoritedCategories != undefined && userData.userData.favoritedCategories.length == 0) {
+        router.replace('/(tabs)/interests');
+      } else {
+        router.replace('/(tabs)/home');
+      }
+    };
+
+    processAuth();
+  }, [router, params]);
 
   return null;
 }
