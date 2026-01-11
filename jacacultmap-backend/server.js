@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { connectToDatabase } from "./services/database.js";
+import { clientDetectionMiddleware } from "./utils/clientDetection.js";
 import authRoutes from "./routes/authRoute.js";
 import defaultRoutes from "./routes/defaultRoute.js";
 import statusRoutes from "./routes/statusRoute.js";
@@ -60,6 +61,9 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
+
+// ✅ Middleware de detecção de cliente (web vs app)
+app.use(clientDetectionMiddleware);
 
 app.use(authRoutes);
 app.use(defaultRoutes);

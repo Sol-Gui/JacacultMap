@@ -1,5 +1,6 @@
 import { generateGoogleLoginUrl, getGoogleTokens } from '../services/socialAuthService.js';
 import { registerOrLoginWithGoogle } from '../services/socialAuthService.js';
+import { detectClientOrigin, getFrontendUrl, logClientOrigin } from '../utils/clientDetection.js';
 //import crypto from 'crypto';
 
 // STATE DESATIVADO POR MOTIVOS DE FACILIDADE DE DESENVOLVIMENTO
@@ -46,11 +47,17 @@ export async function loginWithGoogleCallback(req, res) {
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         });
 
-        // Detectar se é web ou mobile baseado na query string ou headers
-        const isWeb = req.query.platform === 'web' || req.headers['user-agent']?.includes('Mozilla') && !req.headers['user-agent']?.includes('Mobile');
-        const frontendUrl = isWeb ? 'http://jacacultmap-app.vercel.app' : process.env.DEVELOPMENT_URL_FRONTEND;
+        // Detectar origem da requisição (web vs app mobile)
+        const clientInfo = detectClientOrigin(req);
+        const frontendUrl = getFrontendUrl(clientInfo);
         
-        console.log("Platform:", isWeb ? "Web" : "Mobile", "Redirecting to:", frontendUrl);
+        logClientOrigin(clientInfo, req);
+        console.log({
+            origin: clientInfo.isApp ? 'APP' : 'WEB',
+            method: clientInfo.source,
+            redirectUrl: frontendUrl
+        });
+        
         return res.redirect(`${frontendUrl}/auth-callback?code=${code}`);
     } catch (error) {
         res.status(400).json({ error: 'Falha no login' });
