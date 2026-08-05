@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Alert, 
-  ScrollView, 
-  Image, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  ScrollView,
+  Image,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
@@ -19,8 +19,8 @@ import { getUserData } from '../../services/user';
 import { useTheme } from '../../contexts/ThemeContext';
 import * as ImagePicker from 'react-native-image-picker';
 import { sendEvent } from '../../services/events';
-import Header from '../../styles/app/header';
-import Footer from '../../styles/app/footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 interface UserData {
   userData: {
@@ -97,7 +97,7 @@ const CriarEvento = () => {
       maxWidth: type === 'header' ? 800 : 1280,
       maxHeight: type === 'header' ? 400 : 720,
     };
-    
+
     const result = await ImagePicker.launchImageLibrary(options);
     if (!result.didCancel && result.assets && result.assets[0]?.base64) {
       const imageData = {
@@ -123,11 +123,11 @@ const CriarEvento = () => {
   const processBase64 = (base64: string, format: string) => {
     // Remove cabeçalho da string base64 se existir
     const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
-    
+
     // Pega apenas os primeiros 200KB da imagem se for maior que isso
     const maxLength = 200 * 1024; // 200KB em bytes
     const processedData = base64Data.length > maxLength ? base64Data.substring(0, maxLength) : base64Data;
-    
+
     // Adiciona o prefixo correto baseado no formato
     const mimeType = format || 'image/jpeg';
     return `data:${mimeType};base64,${processedData}`;
@@ -146,12 +146,12 @@ const CriarEvento = () => {
         throw new Error('Token não encontrado');
       }
       const userData = await getUserData(token) as UserData;
-      
+
       // Organizando os dados conforme a nova interface
       // Processando as imagens antes de montar o objeto
       const processedBanner = processBase64(imageBanner.base64, imageBanner.type);
       const processedHeader = processBase64(imageHeader.base64, imageHeader.type);
-      const processedAdditional = eventImages.slice(0, 3).map(img => 
+      const processedAdditional = eventImages.slice(0, 3).map(img =>
         processBase64(img.base64, img.type)
       );
 
@@ -194,55 +194,59 @@ const CriarEvento = () => {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Header 
-        onMenuPress={() => {}} 
+    <View className="flex-1" style={{ backgroundColor: theme.background }}>
+      <Header
+        onMenuPress={() => {}}
         theme={theme}
         isDarkMode={false}
         onThemeToggle={() => {}}
       />
-      
-      <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
-        <Text style={[styles.title, { color: theme.text }]}>
+
+      <ScrollView className="mx-auto w-full max-w-4xl flex-1 px-4 pb-24" contentContainerStyle={{ paddingVertical: 20 }}>
+        <Text className="mb-6 text-2xl font-bold" style={{ color: theme.text }}>
           Criar Novo Evento
         </Text>
 
-        <Text style={[styles.label, { color: theme.text }]}>Título do Evento</Text>
+        <Text className="mb-2 mt-4 text-sm font-semibold" style={{ color: theme.text }}>Título do Evento</Text>
         <TextInput
           value={title}
           onChangeText={setTitle}
-          style={[styles.input, { backgroundColor: theme.card, color: theme.text }]}
+          className="min-h-12 rounded-xl border border-black/10 px-4 py-3"
+          style={{ backgroundColor: theme.card, color: theme.text }}
           placeholderTextColor={theme.textSecondary}
           placeholder="Digite o título do evento"
         />
 
-        <Text style={[styles.label, { color: theme.text }]}>Descrição</Text>
+        <Text className="mb-2 mt-4 text-sm font-semibold" style={{ color: theme.text }}>Descrição</Text>
         <TextInput
           value={description}
           onChangeText={setDescription}
           multiline
           numberOfLines={4}
-          style={[styles.input, styles.textArea, { backgroundColor: theme.card, color: theme.text }]}
+          className="min-h-28 rounded-xl border border-black/10 px-4 py-3"
+          style={{ backgroundColor: theme.card, color: theme.text }}
           placeholderTextColor={theme.textSecondary}
           placeholder="Digite a descrição do evento"
         />
 
-        <Text style={[styles.label, { color: theme.text }]}>Data e Hora</Text>
-        <View style={styles.dateTimeContainer}>
-          <TouchableOpacity 
-            style={[styles.dateTimeButton, { backgroundColor: theme.card }]}
+        <Text className="mb-2 mt-4 text-sm font-semibold" style={{ color: theme.text }}>Data e Hora</Text>
+        <View className="flex-row gap-3">
+          <TouchableOpacity
+            className="min-h-12 flex-1 items-center justify-center rounded-xl px-3"
+            style={{ backgroundColor: theme.card }}
             onPress={() => setShowDatePicker(true)}
           >
-            <Text style={[styles.dateTimeText, { color: theme.text }]}>
+            <Text className="text-sm font-medium" style={{ color: theme.text }}>
               {date.toLocaleDateString()}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.dateTimeButton, { backgroundColor: theme.card }]}
+          <TouchableOpacity
+            className="min-h-12 flex-1 items-center justify-center rounded-xl px-3"
+            style={{ backgroundColor: theme.card }}
             onPress={() => setShowTimePicker(true)}
           >
-            <Text style={[styles.dateTimeText, { color: theme.text }]}>
+            <Text className="text-sm font-medium" style={{ color: theme.text }}>
               {date.toLocaleTimeString()}
             </Text>
           </TouchableOpacity>
@@ -337,7 +341,7 @@ const CriarEvento = () => {
               key={type}
               style={[
                 styles.locationTypeButton,
-                { 
+                {
                   backgroundColor: locationType === type ? theme.primary : theme.card,
                 }
               ]}
@@ -361,7 +365,7 @@ const CriarEvento = () => {
               value={coordinates ? coordinates[0].toString() : ''}
               onChangeText={(text) => {
                 const lat = parseFloat(text);
-                setCoordinates(prev => 
+                setCoordinates(prev =>
                   !isNaN(lat) ? [lat, prev?.[1] ?? 0] : null
                 );
               }}
@@ -371,14 +375,14 @@ const CriarEvento = () => {
               keyboardType="numeric"
             />
           </View>
-          
+
           <View style={styles.coordinateInput}>
             <Text style={[styles.coordinateLabel, { color: theme.text }]}>Longitude</Text>
             <TextInput
               value={coordinates ? coordinates[1].toString() : ''}
               onChangeText={(text) => {
                 const lng = parseFloat(text);
-                setCoordinates(prev => 
+                setCoordinates(prev =>
                   !isNaN(lng) ? [prev?.[0] ?? 0, lng] : null
                 );
               }}
@@ -400,7 +404,7 @@ const CriarEvento = () => {
         />
 
         <Text style={[styles.label, { color: theme.text }]}>Tipo do Evento</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.card }]}
           onPress={() => setShowEventTypePicker(true)}
         >
@@ -412,12 +416,12 @@ const CriarEvento = () => {
         <Text style={[styles.helperText, { color: theme.textSecondary }]}>
           Selecione apenas um tipo para o evento
         </Text>
-        
+
         <View style={styles.selectedTypesContainer}>
           {eventType.map((type, index) => (
             <View key={index} style={[styles.typeTag, { backgroundColor: theme.primary }]}>
               <Text style={styles.typeTagText}>{type}</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setEventType(prev => prev.filter((_, i) => i !== index))}
               >
                 <Text style={styles.removeTagText}>×</Text>
@@ -427,7 +431,7 @@ const CriarEvento = () => {
         </View>
 
         <Text style={[styles.label, { color: theme.text }]}>Imagem de Banner</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.card }]}
           onPress={() => pickImage('banner')}
         >
@@ -445,7 +449,7 @@ const CriarEvento = () => {
         )}
 
         <Text style={[styles.label, { color: theme.text }]}>Imagem de Cabeçalho</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.card }]}
           onPress={() => pickImage('header')}
         >
@@ -463,7 +467,7 @@ const CriarEvento = () => {
         )}
 
         <Text style={[styles.label, { color: theme.text }]}>Imagens Adicionais</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.card }]}
           onPress={() => {
             if (eventImages.length >= 3) {
@@ -477,7 +481,7 @@ const CriarEvento = () => {
             Adicionar Imagem
           </Text>
         </TouchableOpacity>
-        
+
         <Text style={[styles.helperText, { color: theme.textSecondary }]}>
           Máximo de 3 imagens adicionais. Imagens muito grandes serão redimensionadas.
         </Text>
@@ -490,7 +494,7 @@ const CriarEvento = () => {
                 style={styles.additionalImagePreview}
                 resizeMode="cover"
               />
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.removeImageButton}
                 onPress={() => setEventImages(prev => prev.filter((_, i) => i !== index))}
               >
@@ -520,7 +524,7 @@ const CriarEvento = () => {
                       eventType.includes(type) && { backgroundColor: theme.primary }
                     ]}
                     onPress={() => {
-                      setEventType(prev => 
+                      setEventType(prev =>
                         prev.includes(type)
                           ? prev.filter(t => t !== type)
                           : [...prev, type]
@@ -546,10 +550,10 @@ const CriarEvento = () => {
           </TouchableOpacity>
         </Modal>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
             styles.submitButton,
-            { 
+            {
               backgroundColor: loading ? theme.card : theme.primary,
               opacity: loading ? 0.7 : 1
             }

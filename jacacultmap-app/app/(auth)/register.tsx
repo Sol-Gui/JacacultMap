@@ -1,170 +1,148 @@
-import { Text, View, Animated, ScrollView } from "react-native";
-import React, { useState, useRef, useEffect } from "react";
-import { 
-  SocialLoginButton, 
-  SocialLoginContainer, 
-  styles, 
-  PasswordInput, 
-  Input, 
-  InputContainer, 
-  Divider,
-  LoginContainer,
-  LoginTitle,
-  LoginSubtitle,
-  LoginButton
-} from "../../styles/login";
-import { GoogleIcon, FacebookIcon } from "../../styles/icons";
-import { FlatList, TouchableOpacity} from "react-native";
-import { saveData } from "../../services/localStorage";
-import { signUpAuth, startGoogleAuth } from "../../services/auth";
-import { useRouter } from "expo-router";
-import { getRegisterData } from "../../utils/registerBuffer";
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Linking from 'expo-linking';
-
+import { useRouter } from 'expo-router';
+import {
+  AuthLayout,
+  AuthLink,
+  AuthSubtitle,
+  AuthTitle,
+  Divider,
+  ErrorBanner,
+  Input,
+  PasswordInput,
+  PrimaryButton,
+  SocialLoginButton,
+} from '../../components/AuthUI';
+import { GoogleIcon } from '../../styles/icons';
+import { saveData } from '../../services/localStorage';
+import { signUpAuth, startGoogleAuth } from '../../services/auth';
+import { getRegisterData } from '../../utils/registerBuffer';
 
 const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
-const basicImageB64 = "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";
 
 export default function Register() {
-  const initialData = getRegisterData();
-
   const router = useRouter();
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const initialData = getRegisterData();
+  const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [nome, setNome] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [socialLoading, setSocialLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (initialData.email) setEmail(initialData.email);
-    if (initialData.senha) setSenha(initialData.senha);
-  }, []);
+    setEmail(initialData.email);
+    setSenha(initialData.senha);
+  }, [initialData.email, initialData.senha]);
 
-
-  const showError = (msg: string) => {
-    setError(msg);
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => setError(null));
-      }, 2500);
-    });
+  const showError = (message: string) => {
+    setError(message);
+    fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }).start();
   };
 
-  const handleChange = (text: string) => {
-    setEmail(text);
-    setShowSuggestions(text.endsWith('@'));
+  const handleRegister = async () => {
+    if (!nome.trim() || !email.trim() || !senha) {
+      showError('Preencha nome, e-mail e senha para criar sua conta.');
+      return;
+    }
+
+    if (senha.length < 6) {
+      showError('Sua senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setError(null);
+      const response = await signUpAuth(nome.trim(), email.trim(), senha);
+
+      if (!response.success || !response.token) {
+        showError('Não foi possível criar sua conta. Tente novamente.');
+        return;
+      }
+
+      await saveData('userToken', response.token);
+      router.replace('/(tabs)/interests');
+    } catch (err: any) {
+      showError(err?.message || 'Não foi possível criar sua conta agora.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleSelect = (domain: string) => {
-    setEmail(email + domain);
-    setShowSuggestions(false);
+  const handleGoogleRegister = async () => {
+    try {
+      setSocialLoading(true);
+      const url = await startGoogleAuth();
+      await Linking.openURL(url);
+    } catch (err: any) {
+      showError(err?.message || 'Não foi possível iniciar o cadastro com Google.');
+    } finally {
+      setSocialLoading(false);
+    }
   };
-
-  function ErrorPopup({ error, fadeAnim }: { error: string | null, fadeAnim: Animated.Value }) {
-    if (!error) return null;
-    return (
-      <Animated.View style={[styles.errorPopup, { opacity: fadeAnim }]}> 
-        <Text style={[styles.errorText, { fontFamily: 'monospace' }]}>{error}</Text>
-      </Animated.View>
-    );
-  }
-
 
   return (
-    <LoginContainer>
-      <ScrollView 
-        style={{ width: '100%' }}
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-      >
-        <LoginTitle>Novo Usuário</LoginTitle>
-        <LoginSubtitle>Crie sua conta</LoginSubtitle>
+    <AuthLayout>
+      <ScrollView className="w-full" contentContainerClassName="pb-1" keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <AuthTitle>Crie sua conta</AuthTitle>
+        <AuthSubtitle>Escolha seus interesses e acompanhe os eventos que importam.</AuthSubtitle>
 
-        <SocialLoginContainer>
-          <SocialLoginButton
-            onPress={async () => {
-              const response = await startGoogleAuth();
-              await Linking.openURL(response);
-            }}
-            icon={GoogleIcon}
-          />
-
-          <SocialLoginButton
-            onPress={() => {
-              console.log('Lógica de login com Facebook aqui...');
-            }}
-            icon={FacebookIcon}
-          />
-        </SocialLoginContainer>
+        <SocialLoginButton onPress={handleGoogleRegister} icon={GoogleIcon} loading={socialLoading}>
+          Cadastrar com Google
+        </SocialLoginButton>
 
         <Divider />
-        
-        <InputContainer>
+
+        <View className="relative">
+          <Input
+            label="Nome"
+            placeholder="Como podemos te chamar?"
+            value={nome}
+            onChangeText={setNome}
+            autoCapitalize="words"
+          />
+          <Input
+            label="E-mail"
+            placeholder="voce@exemplo.com"
+            value={email}
+            onChangeText={(value) => { setEmail(value); setShowSuggestions(value.endsWith('@')); }}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
           {showSuggestions && (
             <FlatList
               data={emailDomains}
+              keyExtractor={(item) => item}
+              className="absolute left-0 right-0 top-[158px] z-20 rounded-xl border border-[#CFE3D5] bg-white"
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => handleSelect(item)} style={styles.suggestion}>
-                  <Text style={styles.suggestionText}>{email + item}</Text>
+                <TouchableOpacity className="border-b border-[#E6F0E9] px-3.5 py-2.5 last:border-b-0" onPress={() => { setEmail(`${email}${item}`); setShowSuggestions(false); }}>
+                  <Text className="text-sm font-medium text-[#17613F]">{email}{item}</Text>
                 </TouchableOpacity>
               )}
-              style={styles.suggestionsList}
-              keyExtractor={(item) => item}
-              scrollEnabled={false}
             />
           )}
-          <Input
-            placeholder="Nome"
-            value={nome}
-            onChangeText={setNome}
-            secureTextEntry={false}
-          />
-          <Input
-            placeholder="Email"
-            value={email}
-            onChangeText={handleChange}
-            secureTextEntry={false}
-          />
           <PasswordInput
-            placeholder="Senha"
+            label="Senha"
+            placeholder="Mínimo de 6 caracteres"
             value={senha}
             onChangeText={setSenha}
             showPassword={showPassword}
-            onTogglePassword={() => setShowPassword(!showPassword)}
+            onTogglePassword={() => setShowPassword((current) => !current)}
           />
-        </InputContainer>
+        </View>
 
-        <LoginButton
-          isPrimary={true}
-          onPress={async () => {
-            try {
-              const response = await signUpAuth(nome, email, senha);
-              if (response.success && response.token) {
-                  saveData('userToken', response.token);
-                  saveData('userImageB64', basicImageB64);
-                  setError(null);
-                  router.replace('/(tabs)/interests');
-              }
-            } catch (err: any) {
-              showError(err.message);
-            }
-          }}
-        >
-          Cadastrar
-        </LoginButton>
+        <PrimaryButton onPress={handleRegister} loading={submitting}>Criar conta</PrimaryButton>
+        <AuthLink onPress={() => router.replace('/(auth)/login')}>Já tenho uma conta</AuthLink>
 
-        <ErrorPopup error={error} fadeAnim={fadeAnim} />
+        {error && <Animated.View style={{ opacity: fadeAnim }}><ErrorBanner message={error} /></Animated.View>}
       </ScrollView>
-    </LoginContainer>
+    </AuthLayout>
   );
 }
