@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  StyleSheet,
   Alert,
   Share,
   Platform,
 } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
-import { type Event } from '../styles/app/mainPage';
-import { updateUserData } from '../services/user';
+import { type Event } from './mainPage';
+import { updateUserData } from '../../services/user';
 import { Linking } from 'react-native';
 
 interface EventModalProps {
@@ -170,13 +171,13 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, event, theme,
   };
 
   const renderMediaCard = (media: MediaItem) => (
-    <View key={media.id} className="mr-2 h-20 w-[120px] overflow-hidden rounded-lg" style={{ backgroundColor: theme.card }}>
+    <View key={media.id} style={[styles.mediaCard, { backgroundColor: theme.card }]}>
       {media.type === 'image' ? (
-        <Image source={{ uri: media.url }} className="h-full w-full" resizeMode="cover" />
+        <Image source={{ uri: media.url }} style={styles.mediaImage} resizeMode="cover" />
       ) : (
-        <View className="relative h-full w-full">
-          <Image source={{ uri: media.thumbnail }} className="h-full w-full" resizeMode="cover" />
-          <View className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl bg-black/60 p-1">
+        <View style={styles.videoContainer}>
+          <Image source={{ uri: media.thumbnail }} style={styles.mediaImage} resizeMode="cover" />
+          <View style={styles.playButton}>
             <Ionicons name="play" size={24} color="#fff" />
           </View>
         </View>
@@ -192,51 +193,49 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, event, theme,
       visible={visible}
       onRequestClose={onClose}
     >
-      <View className="flex-1 justify-end bg-black/50">
-        <View className="h-[90%] rounded-t-3xl pt-5" style={{ backgroundColor: theme.background }}>
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
           {/* Header com botão de fechar */}
-          <View className="flex-row items-center justify-between border-b px-5 pb-4" style={{ borderBottomColor: 'rgba(0, 0, 0, 0.1)' }}>
-            <Text className="mr-3 flex-1 text-lg font-bold" style={{ color: theme.text }}>{event.title}</Text>
-            <TouchableOpacity className="p-1" onPress={onClose}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>{event.title}</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Ionicons name="close" size={24} color={theme.text} />
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
             {/* Foto do evento */}
-            <View className="mt-4 overflow-hidden rounded-xl">
+            <View style={styles.eventImageContainer}>
               <Image
                 source={{ uri: headerImage || 'https://picsum.photos/400/250?random=event' }}
-                className="h-52 w-full"
+                style={styles.eventImage}
                 resizeMode="cover"
               />
             </View>
 
             {/* Local do evento */}
-            <View className="mt-4 flex-row items-center py-2">
+            <View style={styles.locationContainer}>
               <Ionicons name="location-outline" size={20} color={theme.primary} />
-              <Text className="ml-2 flex-1 text-base" style={{ color: theme.text }}>
+              <Text style={[styles.locationText, { color: theme.text }]}>
                 {event.location.name || 'Local não informado'}
               </Text>
             </View>
 
             {/* Botões de ação */}
-            <View className="mb-7 mt-5 flex-row justify-between">
+            <View style={styles.actionButtonsContainer}>
               {/* Só mostrar botão de rotas se o evento não for virtual */}
               {event.event_type !== 'virtual' && (
                 <TouchableOpacity
-                  className="mx-1 flex-1 flex-row items-center justify-center rounded-lg px-2 py-3"
-                  style={{ backgroundColor: theme.primary }}
+                  style={[styles.actionButton, { backgroundColor: theme.primary }]}
                   onPress={handleRotas}
                 >
                   <MaterialIcons name="directions" size={24} color="#fff" />
-                  <Text className="ml-1 text-xs font-semibold text-white">Rotas</Text>
+                  <Text style={styles.actionButtonText}>Rotas</Text>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity
-                className="mx-1 flex-1 flex-row items-center justify-center rounded-lg border px-2 py-3"
-                style={{ backgroundColor: theme.card, borderColor: theme.border }}
+                style={[styles.actionButton, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}
                 onPress={handleFavoritar}
               >
                 <FontAwesome 
@@ -244,36 +243,35 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, event, theme,
                   size={24} 
                   color={isFavorited ? "#ff4757" : theme.primary} 
                 />
-                <Text className="ml-1 text-xs font-semibold" style={{ color: isFavorited ? '#ff4757' : theme.primary }}>
+                <Text style={[styles.actionButtonText, { color: isFavorited ? "#ff4757" : theme.primary }]}>
                   {isFavorited ? "Favoritado" : "Favoritar"}
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="mx-1 flex-1 flex-row items-center justify-center rounded-lg border px-2 py-3"
-                style={{ backgroundColor: theme.card, borderColor: theme.border }}
+                style={[styles.actionButton, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}
                 onPress={handleCompartilhar}
               >
                 <Ionicons name="share-outline" size={24} color={theme.primary} />
-                <Text className="ml-1 text-xs font-semibold" style={{ color: theme.primary }}>Compartilhar</Text>
+                <Text style={[styles.actionButtonText, { color: theme.primary }]}>Compartilhar</Text>
               </TouchableOpacity>
             </View>
 
             {/* Seção de Fotos e Vídeos */}
-            <View className="mb-7">
-              <Text className="mb-4 text-lg font-bold" style={{ color: theme.text }}>Fotos e Vídeos</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.mediaSection}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Fotos e Vídeos</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaScrollView}>
                 {sampleMedia.map(renderMediaCard)}
               </ScrollView>
             </View>
 
             {/* Informações adicionais do evento */}
-            <View className="mb-7">
-              <Text className="mb-1 mt-4 text-sm font-semibold" style={{ color: theme.textSecondary }}>Descrição:</Text>
-              <Text className="text-base leading-[22px]" style={{ color: theme.text }}>{event.description}</Text>
+            <View style={styles.eventDetails}>
+              <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>Descrição:</Text>
+              <Text style={[styles.detailText, { color: theme.text }]}>{event.description}</Text>
               
-              <Text className="mb-1 mt-4 text-sm font-semibold" style={{ color: theme.textSecondary }}>Data:</Text>
-              <Text className="text-base leading-[22px]" style={{ color: theme.text }}>
+              <Text style={[styles.detailLabel, { color: theme.textSecondary }]}>Data:</Text>
+              <Text style={[styles.detailText, { color: theme.text }]}>
                 {new Date(event.date).toLocaleDateString('pt-BR', {
                   day: '2-digit',
                   month: '2-digit',
@@ -289,5 +287,132 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, event, theme,
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    height: '90%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    flex: 1,
+    marginRight: 10,
+  },
+  closeButton: {
+    padding: 5,
+  },
+  modalContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  eventImageContainer: {
+    marginTop: 15,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  eventImage: {
+    width: '100%',
+    height: 200,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 15,
+    paddingVertical: 10,
+  },
+  locationText: {
+    marginLeft: 8,
+    fontSize: 16,
+    flex: 1,
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    marginHorizontal: 4,
+  },
+  actionButtonText: {
+    marginLeft: 6,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  mediaSection: {
+    marginBottom: 30,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  mediaScrollView: {
+    paddingLeft: 0,
+  },
+  mediaCard: {
+    width: 120,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 10,
+    overflow: 'hidden',
+  },
+  mediaImage: {
+    width: '100%',
+    height: '100%',
+  },
+  videoContainer: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  },
+  playButton: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -12 }, { translateY: -12 }],
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 12,
+    padding: 4,
+  },
+  eventDetails: {
+    marginBottom: 30,
+  },
+  detailLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 15,
+    marginBottom: 5,
+  },
+  detailText: {
+    fontSize: 16,
+    lineHeight: 22,
+  },
+});
 
 export default EventModal;

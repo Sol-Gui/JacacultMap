@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Image, Text, ScrollView, TouchableOpacity, Alert, PermissionsAndroid, Platform } from 'react-native';
+import { View, Image, StyleSheet, Text, ScrollView, TouchableOpacity, Alert, PermissionsAndroid, Platform } from 'react-native';
 import * as ImagePicker from 'react-native-image-picker';
 import { getData } from '../../services/localStorage';
 import { getUserData, updateUserData } from '../../services/user';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useUser } from '../../contexts/UserContext';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import Sidebar from '../../components/Sidebar';
+import Header from '../../styles/app/header';
+import Footer from '../../styles/app/footer';
+import Sidebar from '../../styles/app/sidebar';
 
 export default function Profile() {
   const { theme, isDarkMode, toggleDarkMode, isLoading } = useTheme();
@@ -50,7 +50,7 @@ export default function Profile() {
             buttonPositive: "Permitir"
           }
         );
-
+        
         if (result === PermissionsAndroid.RESULTS.GRANTED) {
           return true;
         } else {
@@ -226,8 +226,8 @@ export default function Profile() {
         saveToPhotos: true,
       };
 
-      const launchFunction = source === "camera"
-        ? ImagePicker.launchCamera
+      const launchFunction = source === "camera" 
+        ? ImagePicker.launchCamera 
         : ImagePicker.launchImageLibrary;
 
       launchFunction(options, async (response) => {
@@ -249,12 +249,12 @@ export default function Profile() {
           }
 
           try {
-            await updateUserData(token, {
-              update: {
-                profilePicture: {
-                  imageBase64: response.assets[0].base64
-                }
-              }
+            await updateUserData(token, { 
+              update: { 
+                profilePicture: { 
+                  imageBase64: response.assets[0].base64 
+                } 
+              } 
             });
             updateUserPhoto(`data:image/jpeg;base64,${response.assets[0].base64}`);
             Alert.alert('Sucesso', 'Foto do perfil atualizada.');
@@ -273,25 +273,25 @@ export default function Profile() {
   if (isLoading) return null;
 
   return (
-    <View className="flex-1" style={{ backgroundColor: theme.background }}>
-      <Header
-        onMenuPress={() => setSidebarVisible(true)}
+    <View style={[styles.container, { backgroundColor: theme.background }]}>        
+      <Header 
+        onMenuPress={() => setSidebarVisible(true)} 
         theme={theme}
         isDarkMode={isDarkMode}
         onThemeToggle={toggleDarkMode}
       />
 
-      <ScrollView className="flex-1 px-5" contentContainerStyle={{ alignItems: 'center', paddingVertical: 20 }}>
-        <View className="w-full max-w-[420px] items-center rounded-2xl border p-5" style={{ backgroundColor: theme.card, borderColor: theme.border }}>
+      <ScrollView style={styles.content} contentContainerStyle={{ padding: 20, alignItems: 'center' }}>
+        <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>          
           <TouchableOpacity onPress={pickImage} activeOpacity={0.8}>
             {userPhotoUri ? (
-              <Image source={{ uri: userPhotoUri }} className="mb-3 h-40 w-40 rounded-full border-2 border-white" />
+              <Image source={{ uri: userPhotoUri }} style={styles.avatar} />
             ) : (
-              <Image source={require('../../assets/images/icon.png')} className="mb-3 h-40 w-40 rounded-full border-2 border-white" />
+              <Image source={require('../../assets/images/icon.png')} style={styles.avatar} />
             )}
           </TouchableOpacity>
-          <Text className="text-xl font-bold" style={{ color: theme.text }}>{name}</Text>
-          {!!email && <Text className="mt-1 text-sm font-medium" style={{ color: theme.textSecondary }}>{email}</Text>}
+          <Text style={[styles.name, { color: theme.text }]}>{name}</Text>
+          {!!email && <Text style={[styles.email, { color: theme.textSecondary }]}>{email}</Text>}
         </View>
       </ScrollView>
 
@@ -305,4 +305,14 @@ export default function Profile() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  content: { flex: 1 },
+  card: { alignItems: 'center', borderWidth: 1, borderRadius: 16, padding: 20, width: '100%', maxWidth: 420 },
+  avatar: { width: 160, height: 160, borderRadius: 80, borderWidth: 2, borderColor: '#fff', marginBottom: 12 },
+  name: { fontSize: 20, fontWeight: '700' },
+  email: { fontSize: 14, marginTop: 4, fontWeight: '500' },
+});
+
 

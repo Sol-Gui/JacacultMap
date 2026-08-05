@@ -1,6 +1,5 @@
 import * as Linking from 'expo-linking';
 import { useEffect, useRef } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
 import { removeData, saveData, getData } from "../../services/localStorage";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { validateToken, useGoogleCode } from '../../services/auth'
@@ -113,13 +112,5 @@ export default function AuthCallbackScreen() {
     processAuth();
   }, [router, params]);
 
-  return (
-    <View className="flex-1 items-center justify-center bg-[#064E3B] px-6">
-      <View className="w-full max-w-[360px] rounded-2xl bg-white p-7">
-        <ActivityIndicator size="large" color="#16734E" />
-        <Text className="mt-5 text-center text-xl font-extrabold text-[#123C2C]">Conectando sua conta</Text>
-        <Text className="mt-2 text-center text-sm leading-5 text-[#5D7568]">Estamos concluindo seu acesso com segurança.</Text>
-      </View>
-    </View>
-  );
+  return null;
 }

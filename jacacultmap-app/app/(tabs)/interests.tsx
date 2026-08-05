@@ -6,16 +6,20 @@ import {
   View,
   Text,
   TouchableOpacity,
+  StyleSheet,
   SafeAreaView,
   StatusBar,
-  useWindowDimensions,
+  Dimensions,
   Animated,
+  Platform,
   ScrollView
 } from 'react-native';
 
+const { width, height } = Dimensions.get('window');
+
+const isSmallScreen = height < 700;
+
 const Interests = () => {
-  const { width, height } = useWindowDimensions();
-  const isSmallScreen = height < 700;
   const router = useRouter();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [fadeAnim] = useState(new Animated.Value(0));
@@ -116,52 +120,62 @@ const Interests = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#2E7D32]">
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#2E7D32" barStyle="light-content" />
       
-      <View className="absolute inset-0 overflow-hidden">
-        <View className="absolute -right-[50px] -top-[50px] h-[200px] w-[200px] rounded-full bg-white/10" />
-        <View className="absolute -bottom-[160px] -left-[30px] h-[150px] w-[150px] rounded-full bg-white/10" />
-        <View className="absolute h-[100px] w-[100px] rounded-full bg-white/10" style={{ top: height * 0.4, left: width * 0.8 }} />
+      <View style={styles.backgroundDecoration}>
+        <View style={[styles.circle, styles.circle1]} />
+        <View style={[styles.circle, styles.circle2]} />
+        <View style={[styles.circle, styles.circle3]} />
       </View>
       
       <ScrollView 
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={styles.scrollContent}
         bounces={false}
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-1 items-center px-5 pt-10">
-          <Animated.View className="mt-4 items-center" style={{ opacity: fadeAnim }}>
-            <Text className={`${isSmallScreen ? 'text-lg' : width > 768 ? 'text-[28px]' : 'text-[22px]'} mb-1 text-center font-semibold text-white`}>
+        <View style={styles.content}>
+          <Animated.View style={[styles.titleContainer, { opacity: fadeAnim }]}>
+            <Text style={styles.title}>
               Escolha os interesses
             </Text>
-            <Text className={`${isSmallScreen ? 'text-base' : width > 768 ? 'text-2xl' : 'text-lg'} mb-4 text-center text-white/90`}>
+            <Text style={styles.subtitle}>
               que mais te agradam
             </Text>
-            <View className="h-[3px] w-[60px] rounded-full bg-white/60" />
+            <View style={styles.titleUnderline} />
           </Animated.View>
 
-          <View className="w-full items-center py-5">
+          <View style={styles.interestsContainer}>
             {interests.map((interest, index) => (
               <Animated.View
                 key={interest.id}
-                className="mb-4 h-[58px] w-full max-w-[560px] items-center"
-                style={{ transform: [{ scale: scaleAnims[index] }] }}
+                style={[
+                  styles.buttonWrapper,
+                  {
+                    transform: [{ scale: scaleAnims[index] }],
+                  }
+                ]}
               >
                 <TouchableOpacity
-                  className={`h-full w-full items-center justify-center rounded-2xl border-2 px-4 shadow-lg ${selectedInterests.includes(interest.id) ? 'border-white/30 bg-[#81C784]' : 'border-transparent bg-[#e3e3e3]'}`}
+                  style={[
+                    styles.interestButton,
+                    selectedInterests.includes(interest.id) && styles.selectedButton
+                  ]}
                   onPress={() => !isAnimating && handleInterestPress(interest, index)}
                   activeOpacity={isAnimating ? 1 : 0.8}
                   disabled={isAnimating}
                 >
-                  <View className="w-full flex-row items-center px-4">
+                  <View style={styles.buttonContent}>
                     {selectedInterests.includes(interest.id) && (
-                      <View className="mr-2 h-5 w-5 items-center justify-center rounded-full bg-white/20">
-                        <Text className="text-xs font-bold text-white">✓</Text>
+                      <View style={styles.checkmark}>
+                        <Text style={styles.checkmarkText}>✓</Text>
                       </View>
                     )}
-                    <Text
-                      className={`flex-1 text-center font-semibold ${isSmallScreen ? 'text-sm' : 'text-base'} ${selectedInterests.includes(interest.id) ? 'text-white' : 'text-[#2E7D32]'}`}
+                    <Text 
+                      style={[
+                        styles.interestText,
+                        selectedInterests.includes(interest.id) && styles.selectedText
+                      ]}
                       numberOfLines={1}
                       adjustsFontSizeToFit
                     >
@@ -175,21 +189,26 @@ const Interests = () => {
         </View>
       </ScrollView>
 
-      <View className="w-full bg-[#2E7D32] p-5">
-        <TouchableOpacity
-          className={`w-full max-w-[300px] self-center rounded-2xl border-2 px-4 py-[18px] ${selectedInterests.length > 0 ? 'border-white/40 bg-white/25' : 'border-white/20 bg-white/15'}`}
-          style={selectedInterests.length > 0 ? undefined : { opacity: 0.75 }}
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity 
+          style={[
+            styles.continueButton,
+            selectedInterests.length > 0 && styles.continueButtonActive
+          ]}
           onPress={handleContinue}
           activeOpacity={0.8}
           disabled={selectedInterests.length === 0}
         >
-          <View className="flex-row items-center justify-center">
-            <Text className={`${isSmallScreen ? 'text-base' : 'text-lg'} font-semibold text-white/70`}>
+          <View style={styles.continueButtonContent}>
+            <Text style={[
+              styles.continueText,
+              selectedInterests.length > 0 && styles.continueTextActive
+            ]}>
               Continuar
             </Text>
             {selectedInterests.length > 0 && (
-              <View className="ml-3 h-7 w-7 items-center justify-center rounded-full bg-white/20">
-                <Text className="text-sm font-bold text-white">
+              <View style={styles.selectedCount}>
+                <Text style={styles.selectedCountText}>
                   {selectedInterests.length}
                 </Text>
               </View>
@@ -200,5 +219,193 @@ const Interests = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#2E7D32',
+  },
+  
+  backgroundDecoration: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+  },
+  circle: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 100,
+  },
+  circle1: {
+    width: 200,
+    height: 200,
+    top: -50,
+    right: -50,
+  },
+  circle2: {
+    width: 150,
+    height: 150,
+    bottom: 160,
+    left: -30,
+  },
+  circle3: {
+    width: 100,
+    height: 100,
+    top: height * 0.4,
+    left: width * 0.8,
+  },
+  
+  scrollContent: {
+    flexGrow: 1,
+  },
+  
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 20 : 40,
+    alignItems: 'center',
+  },
+  
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: height * 0.04,
+    marginTop: height * 0.02,
+  },
+  title: {
+    fontSize: isSmallScreen ? 18 : (width > 768 ? 28 : 22),
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 6,
+    letterSpacing: 0.5,
+  },
+  subtitle: {
+    fontSize: isSmallScreen ? 16 : (width > 768 ? 24 : 18),
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
+    marginBottom: isSmallScreen ? 8 : 16,
+    letterSpacing: 0.3,
+  },
+  titleUnderline: {
+    width: 60,
+    height: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    borderRadius: 2,
+  },
+  interestsContainer: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'flex-start', // Changed to align items from top
+    paddingVertical: 20,
+  },
+  buttonWrapper: {
+    width: '75%', // 75% of screen width
+    height: height * 0.05,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  interestButton: {
+    width: '100%', // Takes full width of wrapper
+    height: '100%', // Takes full height of wrapper
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#e3e3e3ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedButton: {
+    backgroundColor: '#81C784',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    elevation: 12,
+    shadowOpacity: 0.25,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start', // Align text to the left
+    width: '100%', // Take full width
+    paddingHorizontal: 16,
+  },
+  checkmark: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  checkmarkText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  interestText: {
+    fontSize: height * 0.018,
+    fontWeight: '600',
+    color: '#2E7D32',
+    flex: 1,
+    textAlign: 'center',
+  },
+  selectedText: {
+    color: '#FFFFFF',
+  },
+  bottomContainer: {
+    width: '100%',
+    padding: 20,
+    backgroundColor: '#2E7D32',
+  },
+  continueButton: {
+    width: '100%',
+    maxWidth: 300,
+    alignSelf: 'center',
+    paddingVertical: 18,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  continueButtonActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    elevation: 8,
+    shadowOpacity: 0.2,
+  },
+  continueButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  continueText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: isSmallScreen ? 16 : 18,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  continueTextActive: {
+    color: '#FFFFFF',
+  },
+  selectedCount: {
+    marginLeft: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectedCountText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+});
 
 export default Interests;

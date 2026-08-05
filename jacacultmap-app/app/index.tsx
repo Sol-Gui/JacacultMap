@@ -1,10 +1,20 @@
 // app/index.tsx
-import { View, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 export default function LoadingScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-black">
-      <ActivityIndicator size="large" color="#10B981" />
+    <View style={styles.container}>
+      <ActivityIndicator size="large" color="#007AFF" />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+});

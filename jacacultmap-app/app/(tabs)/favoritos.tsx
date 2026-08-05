@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import Sidebar from '../../components/Sidebar';
-import EventModal from '../../components/EventModal';
+import Header from '../../styles/app/header';
+import Footer from '../../styles/app/footer';
+import Sidebar from '../../styles/app/sidebar';
+import EventModal from '../../styles/app/eventModal';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getData } from '../../services/localStorage';
 import { getUserData, updateUserData } from '../../services/user';
@@ -47,7 +47,7 @@ const Favoritos: React.FC = () => {
       setUserData(user);
 
       const favoritedIds = user.userData?.favoritedEventsById || [];
-
+      
       if (favoritedIds.length === 0) {
         setFavoritedEvents([]);
         setLoading(false);
@@ -57,7 +57,7 @@ const Favoritos: React.FC = () => {
       // Buscar detalhes de cada evento favoritado
       const eventsPromises = favoritedIds.map((id: number) => getEvent(id));
       const events = await Promise.all(eventsPromises);
-
+      
       setFavoritedEvents(events.filter((event: any) => event !== null));
     } catch (error) {
       console.error('Erro ao carregar eventos favoritados:', error);
@@ -92,7 +92,7 @@ const Favoritos: React.FC = () => {
   const renderEventCard = (event: Event) => {
     const categoryStyle = getCategoryStyles(event.event_type);
     const categoryName = event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1);
-
+    
     let eventImage = 'https://picsum.photos/300/200?random=event';
     try {
       if (event.event_image_header?.imageBase64 && event.event_image_header.imageBase64 !== "NO-IMAGE") {
@@ -107,31 +107,30 @@ const Favoritos: React.FC = () => {
     return (
       <TouchableOpacity
         key={event.id}
-        className="overflow-hidden rounded-xl border shadow-md"
-        style={{ backgroundColor: theme.card, borderColor: theme.border }}
+        style={[styles.eventCard, { backgroundColor: theme.card, borderColor: theme.border }]}
         onPress={() => openEventModal(event)}
       >
         <Image
           source={{ uri: eventImage }}
-          className="h-40 w-full"
+          style={styles.eventImage}
           resizeMode="cover"
         />
-
-        <View className="p-4">
-          <Text className="mb-2 text-lg font-bold leading-6" style={{ color: theme.text }} numberOfLines={2}>
+        
+        <View style={styles.eventInfo}>
+          <Text style={[styles.eventTitle, { color: theme.text }]} numberOfLines={2}>
             {event.title}
           </Text>
-
-          <Text className="mb-3 text-sm leading-5" style={{ color: theme.textSecondary }} numberOfLines={3}>
+          
+          <Text style={[styles.eventDescription, { color: theme.textSecondary }]} numberOfLines={3}>
             {event.description}
           </Text>
-
-          <Text className="mb-3 text-xs" style={{ color: theme.textSecondary }}>
+          
+          <Text style={[styles.eventDate, { color: theme.textSecondary }]}>
             {formatDateTime(event.date)}
           </Text>
-
-          <View className="self-start rounded-full px-3 py-1.5" style={{ backgroundColor: categoryStyle.bg }}>
-            <Text className="text-xs font-semibold" style={{ color: categoryStyle.fg }}>
+          
+          <View style={[styles.eventCategory, { backgroundColor: categoryStyle.bg }]}>
+            <Text style={[styles.categoryText, { color: categoryStyle.fg }]}>
               {categoryName}
             </Text>
           </View>
@@ -145,44 +144,44 @@ const Favoritos: React.FC = () => {
   }
 
   return (
-    <View className="flex-1" style={{ backgroundColor: theme.background }}>
-      <Header
-        onMenuPress={() => setSidebarVisible(true)}
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Header 
+        onMenuPress={() => setSidebarVisible(true)} 
         theme={theme}
         isDarkMode={isDarkMode}
         onThemeToggle={toggleDarkMode}
       />
-
-      <ScrollView className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 md:px-8">
-        <View className="mb-6">
-          <Text className="mb-2 text-2xl font-bold" style={{ color: theme.text }}>Meus Favoritos</Text>
-          <Text className="text-base" style={{ color: theme.textSecondary }}>
+      
+      <ScrollView style={styles.mainContent}>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: theme.text }]}>Meus Favoritos</Text>
+          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
             {favoritedEvents.length} evento{favoritedEvents.length !== 1 ? 's' : ''} favoritado{favoritedEvents.length !== 1 ? 's' : ''}
           </Text>
         </View>
 
         {loading ? (
-          <View className="items-center justify-center py-10">
-            <Text className="text-base" style={{ color: theme.textSecondary }}>
+          <View style={styles.loadingContainer}>
+            <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
               Carregando seus eventos favoritos...
             </Text>
           </View>
         ) : favoritedEvents.length === 0 ? (
-          <View className="items-center justify-center px-5 py-16">
-            <Text className="mb-3 text-center text-xl font-bold" style={{ color: theme.text }}>
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyTitle, { color: theme.text }]}>
               Nenhum evento favoritado
             </Text>
-            <Text className="text-center text-base leading-6" style={{ color: theme.textSecondary }}>
+            <Text style={[styles.emptySubtitle, { color: theme.textSecondary }]}>
               Explore eventos na página inicial e adicione aos seus favoritos
             </Text>
           </View>
         ) : (
-          <View className="gap-4 pb-24">
+          <View style={styles.eventsGrid}>
             {favoritedEvents.map(renderEventCard)}
           </View>
         )}
       </ScrollView>
-
+      
       <Footer theme={theme} />
 
       <EventModal
@@ -202,5 +201,102 @@ const Favoritos: React.FC = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  mainContent: {
+    flex: 1,
+    padding: 16,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    fontSize: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  eventsGrid: {
+    gap: 16,
+    paddingBottom: 100,
+  },
+  eventCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  eventImage: {
+    width: '100%',
+    height: 160,
+  },
+  eventInfo: {
+    padding: 16,
+  },
+  eventTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    lineHeight: 24,
+  },
+  eventDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  eventDate: {
+    fontSize: 12,
+    marginBottom: 12,
+  },
+  eventCategory: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  categoryText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+});
 
 export default Favoritos;

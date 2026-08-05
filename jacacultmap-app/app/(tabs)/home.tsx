@@ -1,8 +1,8 @@
 import React, { Component, useCallback } from 'react';
-import Footer from '../../components/Footer';
-import Header from '../../components/Header';
-import Sidebar from '../../components/Sidebar';
-import EventModal from '../../components/EventModal';
+import Footer from '../../styles/app/footer';
+import Header from '../../styles/app/header';
+import Sidebar from '../../styles/app/sidebar';
+import EventModal from '../../styles/app/eventModal';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {
 import { getCategoryStyles, type Category, type Event, type User } from '../../styles/app/mainPage';
 import { getData } from '../../services/localStorage';
 import { getLimitedEvents } from '../../services/events';
+import { styles } from '../../styles/home';
 import { getUserData } from '@/services/user';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
@@ -28,7 +29,6 @@ interface AppState {
   userData: User | null;
   categories: Category[] | null;
   events: Event[] | null;
-  allEvents: Event[];
   screenSize: {
     width: number;
     height: number;
@@ -83,17 +83,17 @@ const fetchCategories = async (): Promise<Category[]> => {
       return eventsCategories;
     }
     const favoriteIds = userData.userData?.favoritedCategories;
-
+    
     if (!favoriteIds || favoriteIds.length === 0) {
       return eventsCategories;
     }
-
-    const favoritedCategories = eventsCategories.filter(category =>
+    
+    const favoritedCategories = eventsCategories.filter(category => 
       favoriteIds.includes(category.id)
     );
-
+    
     return favoritedCategories;
-
+    
   } catch (error) {
     console.log('Failed to load categories:', error);
     return eventsCategories;
@@ -123,15 +123,14 @@ class SearchBar extends Component<{
   render() {
     const { value, onChangeText, onSubmit, theme } = this.props;
     return (
-      <View className="px-4 pb-4">
-        <View className="flex-row items-center rounded-xl border p-3" style={{ backgroundColor: theme.card, borderColor: theme.border }}>
-          <View className="relative mr-2 h-5 w-5">
-            <View className="absolute h-3.5 w-3.5 rounded-full border-2" style={{ borderColor: theme.textSecondary }} />
-            <View className="absolute bottom-0 right-0 h-0.5 w-1.5 rotate-45 rounded-full" style={{ backgroundColor: theme.textSecondary }} />
+      <View style={styles.searchContainer}>
+        <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.border }]}>          
+          <View style={styles.searchIcon}>
+            <View style={[styles.searchIconCircle, { borderColor: theme.textSecondary }]} />
+            <View style={[styles.searchIconHandle, { backgroundColor: theme.textSecondary }]} />
           </View>
           <TextInput
-            className="flex-1 text-base"
-            style={{ color: theme.text }}
+            style={[styles.searchInput, { color: theme.text }]}
             placeholder="Pesquisar"
             placeholderTextColor={theme.textSecondary}
             value={value}
@@ -155,12 +154,17 @@ class CategoryChip extends Component<{
     const palette = getCategoryStyles(category.id);
     return (
       <TouchableOpacity
-        className="mr-2 mb-2 flex-row items-center rounded-full border px-3 py-1.5"
-        style={{ backgroundColor: isActive ? palette.bg : theme.card, borderColor: isActive ? palette.bg : theme.border }}
+        style={[
+          styles.categoryChip,
+          {
+            backgroundColor: isActive ? palette.bg : theme.card,
+            borderColor: isActive ? palette.bg : theme.border,
+          },
+        ]}
         onPress={onPress}
       >
-        <View className="mr-2 h-3 w-3 rounded-full" style={{ backgroundColor: palette.fg, opacity: isActive ? 1 : 0.6 }} />
-        <Text className="text-sm font-semibold" style={{ color: isActive ? palette.fg : theme.text }}>{category.name}</Text>
+        <View style={[styles.categoryDot, { backgroundColor: isActive ? palette.fg : palette.fg, opacity: isActive ? 1 : 0.6 }]} />
+        <Text style={[styles.categoryText, {color: isActive ? palette.fg : theme.text }]}>{category.name}</Text>
       </TouchableOpacity>
     );
   }
@@ -170,8 +174,8 @@ class NewsCard extends Component<{ news: typeof newsData[0]; theme: any }> {
   render() {
     const { news, theme } = this.props;
     return (
-      <View className="mr-4 h-[120px] w-[220px] justify-end rounded-2xl p-4" style={{ backgroundColor: theme.primary }}>
-        <Text numberOfLines={2} className="text-sm font-semibold leading-5 text-white">
+      <View style={[styles.newsCard, { backgroundColor: theme.primary }]}>        
+        <Text numberOfLines={2} style={[styles.newsTitle, { color: '#fff' }]}>
           {news.title}
         </Text>
       </View>
@@ -183,9 +187,9 @@ interface EventItemState {
   modalVisible: boolean;
 }
 
-class EventItem extends Component<{
-  event: Event;
-  categoryName: string;
+class EventItem extends Component<{ 
+  event: Event; 
+  categoryName: string; 
   theme: any;
   onEventPress: (event: Event) => void;
 }, EventItemState> {
@@ -208,26 +212,32 @@ class EventItem extends Component<{
 
     return (
       <>
-        <TouchableOpacity
-          className="mb-6 min-h-[180px] w-full max-w-[1200px] flex-1 justify-between rounded-2xl p-4 md:min-h-[220px]"
-          style={{ backgroundColor: '#0f7661ff' }}
+        <TouchableOpacity 
+          style={[
+            styles.eventItem, 
+            { backgroundColor: '#0f7661ff' }
+          ]}
           onPress={() => this.props.onEventPress(event)}
         >
-          <Text
-          className="max-w-[65%] text-base font-bold text-white"
+          <Text 
+          style={[styles.eventTitle]}
           numberOfLines={1}
           ellipsizeMode='tail'>{event.title}</Text>
-          <Text
-          className="max-h-[60px] max-w-[65%] text-sm text-[#242020] opacity-85"
+          <Text 
+          style={[styles.eventDescription]}
           numberOfLines={3}
           ellipsizeMode='tail'>{event.description}</Text>
-          <Text className="mt-auto self-start pb-2 text-sm font-medium text-white opacity-85">{formatDateTime(event.date)}</Text>
-          <View className="self-start rounded-lg px-3 py-0.5" style={{ backgroundColor: categoryStyle.bg }}>
-            <Text className="text-center text-sm font-semibold" style={{ color: categoryStyle.fg }}>{categoryName}</Text>
+          <Text style={[styles.eventDate]}>{formatDateTime(event.date)}</Text>
+          <View style={[styles.eventCategory, { backgroundColor: categoryStyle.bg }]}>          
+            <Text style={[styles.categoryText, { color: categoryStyle.fg }]}>{categoryName}</Text>
           </View>
             <Image
               source={{ uri: event.event_image_banner?.imageBase64 }}
-              className="absolute right-[2%] top-1 h-[170px] w-[32%] rounded-2xl border border-white"
+              style={{
+                ...styles.eventImage,
+                borderColor: '#ffffff',
+                borderWidth: 1
+              }}
               resizeMode="cover"
             />
         </TouchableOpacity>
@@ -238,24 +248,24 @@ class EventItem extends Component<{
           visible={modalVisible}
           onRequestClose={this.toggleModal}
         >
-          <View className="flex-1 items-center justify-center bg-black/50 p-5">
-            <View className="w-full max-w-[420px] rounded-2xl p-5 shadow-lg" style={{ backgroundColor: theme.card }}>
-              <View className="mb-5 flex-row items-center justify-between">
-                <Text className="text-xl font-bold" style={{ color: theme.text }}>{event.title}</Text>
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>{event.title}</Text>
                 <TouchableOpacity onPress={this.toggleModal}>
-                  <Text className="p-2 text-2xl" style={{ color: theme.text }}>✕</Text>
+                  <Text style={[styles.closeButton, { color: theme.text }]}>✕</Text>
                 </TouchableOpacity>
               </View>
-
-              <ScrollView className="max-h-[400px]">
-                <Text className="mb-1 mt-3 text-sm" style={{ color: theme.textSecondary }}>Descrição:</Text>
-                <Text className="mb-2 text-base" style={{ color: theme.text }}>{event.description}</Text>
+              
+              <ScrollView style={styles.modalBody}>
+                <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>Descrição:</Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>{event.description}</Text>
                 
-                <Text className="mb-1 mt-3 text-sm" style={{ color: theme.textSecondary }}>Categoria:</Text>
-                <Text className="mb-2 text-base" style={{ color: theme.text }}>{categoryName}</Text>
+                <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>Categoria:</Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>{categoryName}</Text>
                 
-                <Text className="mb-1 mt-3 text-sm" style={{ color: theme.textSecondary }}>Data:</Text>
-                <Text className="mb-2 text-base" style={{ color: theme.text }}>{formatDateTime(event.date)}</Text>
+                <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>Data:</Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>{formatDateTime(event.date)}</Text>
               </ScrollView>
             </View>
           </View>
@@ -288,7 +298,6 @@ class Home extends Component<{}, AppState> {
     userData: null,
     categories: null,
     events: null,
-    allEvents: [],
     screenSize: {
       width: typeof window !== 'undefined' ? window.innerWidth : 768,
       height: typeof window !== 'undefined' ? window.innerHeight : 1024,
@@ -308,25 +317,33 @@ class Home extends Component<{}, AppState> {
     this.loadData();
   }
 
+  componentDidUpdate(prevProps: {}, prevState: AppState) {
+    if (
+      prevState.events !== this.state.events ||
+      prevState.searchQuery !== this.state.searchQuery ||
+      prevState.activeCategories !== this.state.activeCategories
+    ) {
+      this.updateFilteredEvents();
+    }
+  }
+
+
   loadData = async () => {
     try {
-      const { itemsPerPage } = this.state;
-      const [categories, firstPage] = await Promise.all([
+      const { currentPage, itemsPerPage } = this.state;
+      const [categories, eventsData] = await Promise.all([
         fetchCategories(),
-        getLimitedEvents(itemsPerPage, 1) as Promise<EventsResponse>
+        getLimitedEvents(itemsPerPage, currentPage) as Promise<EventsResponse>
       ]);
 
-      if (firstPage?.events) {
-        const allEventsResponse = await getLimitedEvents(
-          Math.max(firstPage.pagination.total, itemsPerPage),
-          1
-        ) as EventsResponse;
-
+      if (eventsData?.events) {
         this.setState({
           categories,
-          allEvents: allEventsResponse.events,
-          events: allEventsResponse.events,
-        }, () => this.applyFilters(1));
+          events: eventsData.events,
+          filteredEvents: eventsData.events,
+          totalPages: eventsData.pagination.totalPages,
+          currentPage: eventsData.pagination.page
+        });
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
@@ -334,27 +351,50 @@ class Home extends Component<{}, AppState> {
   };
 
   handlePageChange = async (newPage: number) => {
-    this.applyFilters(newPage);
+    try {
+      this.setState({ isLoading: true });
+      const { itemsPerPage } = this.state;
+      
+      const eventsData = await getLimitedEvents(itemsPerPage, newPage) as EventsResponse;
+      
+      if (eventsData?.events) {
+        this.setState({
+          currentPage: eventsData.pagination.page,
+          events: eventsData.events,
+          filteredEvents: eventsData.events,
+          totalPages: eventsData.pagination.totalPages,
+          isLoading: false
+        });
+      }
+    } catch (error) {
+      console.error('Error changing page:', error);
+      this.setState({ isLoading: false });
+    }
   };
 
-  applyFilters = (requestedPage = 1) => {
-    const { allEvents, searchQuery, activeCategories, itemsPerPage } = this.state;
-    const normalizedQuery = searchQuery.trim().toLocaleLowerCase('pt-BR');
-    const matchingEvents = allEvents.filter((event) => {
-      const matchesSearch = !normalizedQuery || [event.title, event.description]
-        .some((field) => field.toLocaleLowerCase('pt-BR').includes(normalizedQuery));
-      const matchesCategory = activeCategories.length === 0 || activeCategories.includes(event.event_type);
-      return matchesSearch && matchesCategory;
-    });
-    const totalPages = Math.max(1, Math.ceil(matchingEvents.length / itemsPerPage));
-    const currentPage = Math.min(Math.max(1, requestedPage), totalPages);
-    const start = (currentPage - 1) * itemsPerPage;
-
-    this.setState({
-      filteredEvents: matchingEvents.slice(start, start + itemsPerPage),
-      totalPages,
-      currentPage,
-    });
+  updateFilteredEvents = async () => {
+    const { events, searchQuery, activeCategories } = this.state;
+    if (!events) return;
+    
+    try {
+      let filtered = [...events]; // Create a copy of the array
+      
+      if (searchQuery) {
+        filtered = filtered.filter((event) => 
+          event.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+      
+      if (activeCategories.length > 0) {
+        filtered = filtered.filter((event) => 
+          activeCategories.includes(event.event_type)
+        );
+      }
+      
+      this.setState({ filteredEvents: filtered });
+    } catch (error) {
+      console.error('Erro ao filtrar eventos:', error);
+    }
   };
 
   toggleCategory = (categoryId: string) => {
@@ -363,7 +403,9 @@ class Home extends Component<{}, AppState> {
         ? prevState.activeCategories.filter((id) => id !== categoryId)
         : [...prevState.activeCategories, categoryId],
       currentPage: 1 // Reset to first page when filtering
-    }), () => this.applyFilters(1));
+    }), () => {
+      this.updateFilteredEvents();
+    });
   };
 
   openEventModal = (event: Event) => {
@@ -387,20 +429,22 @@ class Home extends Component<{}, AppState> {
     const { categories, filteredEvents, currentPage, totalPages } = this.state;
 
     return (
-      <ScrollView className="flex-1 pb-24">
+      <ScrollView style={styles.content}>
         <SearchBar
           value={this.state.searchQuery}
           onChangeText={(searchQuery) => {
-            this.setState({ searchQuery }, () => this.applyFilters(1));
+            this.setState({ searchQuery, currentPage: 1 }, () => {
+              this.updateFilteredEvents();
+            });
           }}
-          onSubmit={() => this.applyFilters(1)}
+          onSubmit={() => this.updateFilteredEvents()}
           theme={theme}
         />
 
         {/* Novidades (cards horizontais) */}
-        <View className="mb-6">
-        <Text className="mb-4 px-4 text-xl font-bold" style={{ color: theme.text }}>Novidades</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4">
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Novidades</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 16 }}>
             {newsData.map((n) => (
               <NewsCard key={n.id} news={n} theme={theme} />
             ))}
@@ -408,9 +452,9 @@ class Home extends Component<{}, AppState> {
         </View>
 
         {/* Categorias */}
-        <View className="mb-6">
-          <Text className="mb-4 px-4 text-xl font-bold" style={{ color: theme.text }}>Categorias</Text>
-          <View className="flex-row flex-wrap gap-2 px-4">
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Categorias</Text>
+          <View style={styles.categoriesContainer}>
             {categories?.map((category) => (
               <CategoryChip
                 key={category.id}
@@ -424,36 +468,46 @@ class Home extends Component<{}, AppState> {
         </View>
 
         {/* Eventos */}
-        <View className="mb-6">
-          <Text className="mb-4 px-4 text-xl font-bold" style={{ color: theme.text }}>Eventos</Text>
-          <View className="flex-1 px-4 pb-24">
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Eventos</Text>
+          <View style={styles.eventsContainer}>
             {filteredEvents.map((event) => {
               const categoryName = categories?.find((c) => c.id === event.event_type)?.name || event.event_type; // Mudando de category para event_type
               return <EventItem key={event.id} event={event} categoryName={categoryName} theme={theme} onEventPress={this.openEventModal} />;
             })}
 
             {/* Pagination Controls */}
-            <View className="flex-row items-center justify-center gap-4 py-5">
+            <View style={styles.paginationContainer}>
               <TouchableOpacity
-                className="rounded-lg px-4 py-2"
-                style={{ backgroundColor: theme.card, opacity: currentPage <= 1 ? 0.5 : 1 }}
+                style={[
+                  styles.pageButton,
+                  { 
+                    backgroundColor: theme.card,
+                    opacity: currentPage <= 1 ? 0.5 : 1 
+                  }
+                ]}
                 onPress={() => currentPage > 1 && this.handlePageChange(currentPage - 1)}
                 disabled={currentPage <= 1}
               >
-                <Text className="text-sm font-semibold" style={{ color: theme.text }}>Anterior</Text>
+                <Text style={[styles.pageButtonText, { color: theme.text }]}>Anterior</Text>
               </TouchableOpacity>
 
-              <Text className="text-sm font-medium" style={{ color: theme.text }}>
+              <Text style={[styles.pageText, { color: theme.text }]}>
                 Página {currentPage} de {totalPages || 1}
               </Text>
 
               <TouchableOpacity
-                className="rounded-lg px-4 py-2"
-                style={{ backgroundColor: theme.card, opacity: currentPage >= totalPages ? 0.5 : 1 }}
+                style={[
+                  styles.pageButton,
+                  { 
+                    backgroundColor: theme.card,
+                    opacity: currentPage >= totalPages ? 0.5 : 1 
+                  }
+                ]}
                 onPress={() => currentPage < totalPages && this.handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages}
               >
-                <Text className="text-sm font-semibold" style={{ color: theme.text }}>Próxima</Text>
+                <Text style={[styles.pageButtonText, { color: theme.text }]}>Próxima</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -483,19 +537,19 @@ const HomeWrapper: React.FC<{ homeComponent: Home }> = ({ homeComponent }) => {
   }
 
   return (
-    <View className="flex-1" style={{ backgroundColor: theme.background }}>
-      <Header
-        onMenuPress={homeComponent.openSidebar}
+    <View style={[styles.container, { backgroundColor: theme.background }]}>        
+      <Header 
+        onMenuPress={homeComponent.openSidebar} 
         theme={theme}
         isDarkMode={isDarkMode}
         onThemeToggle={toggleDarkMode}
       />
 
-      <View className="flex-1">
+      <View style={styles.mainContent}>
         {homeComponent.renderHomePage(theme)}
       </View>
 
-      <Footer
+      <Footer 
         theme={theme}
       />
 
