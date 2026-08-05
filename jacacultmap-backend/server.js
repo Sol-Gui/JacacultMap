@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 import { connectToDatabase } from "./services/database.js";
 import { clientDetectionMiddleware } from "./utils/clientDetection.js";
 import authRoutes from "./routes/authRoute.js";
@@ -62,7 +63,7 @@ app.use(session({
   }
 }));
 
-// ✅ Middleware de detecção de cliente (web vs app)
+// Middleware de detecção de cliente (web vs app)
 app.use(clientDetectionMiddleware);
 
 app.use(authRoutes);
@@ -74,5 +75,13 @@ app.use(eventRoutes);
 app.use(userRoutes);
 
 connectToDatabase();
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const port = process.env.PORT || 3000;
+
+  app.listen(port, () => {
+    console.log(`JacacultMap backend listening on port ${port}`);
+  });
+}
 
 export default app;
