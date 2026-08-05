@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Alert, Modal, Image, Dimensions } from 'react-native';
-import Header from '../../styles/app/header';
-import Footer from '../../styles/app/footer';
-import Sidebar from '../../styles/app/sidebar';
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Alert, Modal, Image } from 'react-native';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import Sidebar from '../../components/Sidebar';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getData } from '../../services/localStorage';
 import { getUserData } from '../../services/user';
@@ -22,8 +22,6 @@ const Calendario: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
-  const screenWidth = Dimensions.get('window').width;
-
   useEffect(() => {
     loadData();
   }, []);
@@ -31,7 +29,7 @@ const Calendario: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Carregar eventos
       const eventsData = await getLimitedEvents(100, 1) as any;
       if (eventsData?.events) {
@@ -86,7 +84,7 @@ const Calendario: React.FC = () => {
 
   const renderEventCard = (event: Event) => {
     const isFavorited = favoritedEvents.includes(event.id);
-    
+
     let eventImage = 'https://picsum.photos/300/200?random=event';
     try {
       if (event.event_image_header?.imageBase64 && event.event_image_header.imageBase64 !== "NO-IMAGE") {
@@ -99,32 +97,32 @@ const Calendario: React.FC = () => {
     }
 
     return (
-      <View key={event.id} style={[styles.eventCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <View key={event.id} className="mb-4 overflow-hidden rounded-xl border" style={{ backgroundColor: theme.card, borderColor: theme.border }}>
         <Image
           source={{ uri: eventImage }}
-          style={styles.eventImage}
+          className="h-40 w-full"
           resizeMode="cover"
         />
-        
-        <View style={styles.eventInfo}>
-          <View style={styles.eventHeader}>
-            <Text style={[styles.eventTitle, { color: theme.text }]} numberOfLines={2}>
+
+        <View className="p-4">
+          <View className="mb-2 flex-row items-start justify-between">
+            <Text className="flex-1 text-lg font-bold" style={{ color: theme.text }} numberOfLines={2}>
               {event.title}
             </Text>
             {isFavorited && (
               <Ionicons name="heart" size={20} color="#ff4757" />
             )}
           </View>
-          
-          <Text style={[styles.eventDescription, { color: theme.textSecondary }]} numberOfLines={3}>
+
+          <Text className="mb-2 text-sm leading-5" style={{ color: theme.textSecondary }} numberOfLines={3}>
             {event.description}
           </Text>
-          
-          <Text style={[styles.eventTime, { color: theme.textSecondary }]}>
+
+          <Text className="mb-1 text-xs" style={{ color: theme.textSecondary }}>
             {formatDateTime(event.date)}
           </Text>
-          
-          <Text style={[styles.eventLocation, { color: theme.textSecondary }]}>
+
+          <Text className="text-xs" style={{ color: theme.textSecondary }}>
             📍 {event.location?.name || 'Local não informado'}
           </Text>
         </View>
@@ -146,23 +144,23 @@ const Calendario: React.FC = () => {
     const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
     return (
-      <View key={`${year}-${month}`} style={[styles.monthCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <View key={`${year}-${month}`} className="overflow-hidden rounded-2xl border p-3" style={{ backgroundColor: theme.card, borderColor: theme.border }}>
         {/* Cabeçalho dos dias da semana */}
-        <View style={styles.weekHeader}>
+        <View className="mb-2 flex-row">
           {dayNames.map(day => (
-            <Text key={day} style={[styles.dayHeader, { color: theme.textSecondary }]}>
+            <Text key={day} className="flex-1 text-center text-xs font-semibold" style={{ color: theme.textSecondary }}>
               {day}
             </Text>
           ))}
         </View>
 
         {/* Dias do mês */}
-        <View style={styles.daysContainer}>
+        <View className="flex-row flex-wrap">
           {/* Espaços vazios para os primeiros dias */}
           {Array.from({ length: startingDayOfWeek }, (_, i) => (
-            <View key={`empty-${i}`} style={[styles.dayCell, { opacity: 0 }]} />
+            <View key={`empty-${i}`} className="m-0.5 h-10 w-[13.28%] items-center justify-center opacity-0" />
           ))}
-          
+
           {/* Dias do mês */}
           {Array.from({ length: daysInMonth }, (_, i) => {
             const day = i + 1;
@@ -174,8 +172,8 @@ const Calendario: React.FC = () => {
             return (
               <TouchableOpacity
                 key={day}
+                className="m-0.5 h-10 w-[13.28%] items-center justify-center rounded-full"
                 style={[
-                  styles.dayCell,
                   isToday && { backgroundColor: theme.primary, borderRadius: 100 },
                   hasFavorited && { backgroundColor: '#ff4757', borderRadius: 100 },
                   eventsOnDate.length > 0 && !hasFavorited && !isToday && { backgroundColor: theme.primary + '40', borderRadius: 100 }
@@ -186,8 +184,7 @@ const Calendario: React.FC = () => {
                   }
                 }}
               >
-                <Text style={[
-                  styles.dayText,
+                <Text className="text-sm" style={[
                   { color: theme.text },
                   (isToday || hasFavorited) && { color: '#fff' },
                   eventsOnDate.length > 0 && !hasFavorited && !isToday && { color: theme.primary }
@@ -195,8 +192,7 @@ const Calendario: React.FC = () => {
                   {day}
                 </Text>
                 {eventsOnDate.length > 0 && (
-                  <View style={[
-                    styles.eventDot,
+                  <View className="absolute bottom-1 h-1 w-1 rounded-full" style={[
                     { backgroundColor: hasFavorited ? '#fff' : theme.primary }
                   ]} />
                 )}
@@ -206,19 +202,10 @@ const Calendario: React.FC = () => {
         </View>
 
         {/* Legenda */}
-        <View style={styles.legend}>
-          <View style={[styles.legendItem, styles.legendLeft]}>
-            <View style={[styles.legendColor, { backgroundColor: theme.primary }]} />
-            <Text style={[styles.legendText, { color: theme.textSecondary }]}>Hoje</Text>
-          </View>
-          <View style={[styles.legendItem, styles.legendCenter]}>
-            <View style={[styles.legendColor, { backgroundColor: '#ff4757' }]} />
-            <Text style={[styles.legendText, { color: theme.textSecondary }]}>Favoritos</Text>
-          </View>
-          <View style={[styles.legendItem, styles.legendRight]}>
-            <View style={[styles.legendColor, { backgroundColor: '#2d5016' }]} />
-            <Text style={[styles.legendText, { color: theme.textSecondary }]}>Disponíveis</Text>
-          </View>
+        <View className="mt-4 flex-row flex-wrap justify-between gap-2">
+          <View className="flex-row items-center gap-2"><View className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: theme.primary }} /><Text className="text-xs" style={{ color: theme.textSecondary }}>Hoje</Text></View>
+          <View className="flex-row items-center gap-2"><View className="h-2.5 w-2.5 rounded-full bg-[#ff4757]" /><Text className="text-xs" style={{ color: theme.textSecondary }}>Favoritos</Text></View>
+          <View className="flex-row items-center gap-2"><View className="h-2.5 w-2.5 rounded-full bg-[#2d5016]" /><Text className="text-xs" style={{ color: theme.textSecondary }}>Disponíveis</Text></View>
         </View>
       </View>
     );
@@ -254,17 +241,17 @@ const Calendario: React.FC = () => {
     return null; // ou um loading spinner
   }
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Header 
-        onMenuPress={() => setSidebarVisible(true)} 
+    <View className="flex-1" style={[styles.container, { backgroundColor: theme.background }]}>
+      <Header
+        onMenuPress={() => setSidebarVisible(true)}
         theme={theme}
         isDarkMode={isDarkMode}
         onThemeToggle={toggleDarkMode}
       />
-      <ScrollView style={styles.mainContent}>
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.text }]}>Calendário de Eventos</Text>
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+      <ScrollView className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 md:px-8" style={styles.mainContent}>
+        <View className="mb-6" style={styles.header}>
+          <Text className="mb-2 text-2xl font-bold" style={[styles.title, { color: theme.text }]}>Calendário de Eventos</Text>
+          <Text className="text-base" style={[styles.subtitle, { color: theme.textSecondary }]}>
             Visualize todos os eventos disponíveis
           </Text>
         </View>
@@ -285,11 +272,11 @@ const Calendario: React.FC = () => {
               >
                 <Ionicons name="chevron-back" size={24} color="#fff" />
               </TouchableOpacity>
-              
+
               <Text style={[styles.currentMonthTitle, { color: theme.text }]}>
                 {getMonthName(currentMonth)} {currentYear}
               </Text>
-              
+
               <TouchableOpacity
                 onPress={() => navigateMonth('next')}
                 style={[styles.navButton, { backgroundColor: theme.primary }]}

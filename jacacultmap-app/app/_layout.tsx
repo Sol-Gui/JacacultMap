@@ -9,6 +9,7 @@ import { ThemeProvider } from "../contexts/ThemeContext";
 import { UserProvider } from "../contexts/UserContext";
 import { removeData } from "../services/localStorage";
 import { getUserData } from '../services/user';
+import '../global.css';
 
 
 export default function RootLayout() {
@@ -34,7 +35,7 @@ export default function RootLayout() {
       validateToken()
         .then((response) => {
           if (response.success && response.token) {
-            getUserData(response.token).then((userData) => {
+            getUserData(response.token).then((userData: any) => {
               if (userData.userData.favoritedCategories != undefined && userData.userData.favoritedCategories.length == 0) {
                 router.replace('/(tabs)/interests');
               } else {
@@ -57,8 +58,8 @@ export default function RootLayout() {
 
   if (checking && !shouldRedirect) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#007aff" />
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#10B981" />
       </View>
     );
   }
