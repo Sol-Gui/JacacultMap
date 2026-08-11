@@ -1,5 +1,7 @@
 # JacacultMap
 
+# (Importante: Os eventos cadastrados são fictícios)
+
 JacacultMap é uma plataforma para explorar e divulgar pontos e eventos culturais de uma região. O projeto é composto por um **aplicativo mobile** (React Native) e uma **API back-end** (Node.js/Express) que trabalham juntos para facilitar o acesso a eventos, espaços e informações culturais diretamente pelo celular, promovendo a cultura local de forma prática e acessível.
 
 ## Funcionalidades
