@@ -41,7 +41,7 @@ export async function loginWithGoogleCallback(req, res) {
 
         // Detectar se é web ou mobile baseado na query string ou headers
         const isWeb = req.query.platform === 'web' || req.headers['user-agent']?.includes('Mozilla') && !req.headers['user-agent']?.includes('Mobile');
-        const frontendUrl = isWeb ? 'http://localhost:8081' : process.env.DEVELOPMENT_URL_FRONTEND;//'https://jacacultmap-app.vercel.app' : process.env.DEVELOPMENT_URL_FRONTEND;
+        const frontendUrl = isWeb ? process.env.PRODUCTION_URL_FRONTEND : process.env.DEVELOPMENT_URL_FRONTEND;
         
         return res.redirect(`${frontendUrl}/auth-callback?code=${code}`);
     } catch (error) {

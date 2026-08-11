@@ -12,6 +12,7 @@ import validateTokenRoutes from "./routes/validateTokenRoute.js";
 import eventRoutes from './routes/eventRoute.js'
 import userRoutes from './routes/userRoute.js'
 import session from "express-session";
+import MongoStore from "connect-mongo";
 
 
 // TO DO: Improve connection db <-> vercel (https://www.mongodb.com/pt-br/docs/atlas/reference/partner-integrations/vercel/)
@@ -54,6 +55,12 @@ app.use(session({
   secret: process.env.EXPRESS_SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.DATABASE_URL_CLUSTER_0,
+    dbName: process.env.DB_NAME,
+    collectionName: 'sessions',
+    ttl: 60 * 30 // 30 minutos
+  }),
   cookie: { 
     secure: false, 
     httpOnly: true,
