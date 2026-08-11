@@ -14,6 +14,9 @@ export async function loginWithGoogle(req, res) {
 }
 
 export async function loginWithGoogleCallback(req, res) {
+
+    if (process.env.DEBUG_OAUTH) console.log(req.session.oauthState);
+
     const { code, state } = req.query;
   
     try {
