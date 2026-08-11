@@ -1,40 +1,36 @@
 import { generateGoogleLoginUrl, getGoogleTokens } from '../services/socialAuthService.js';
 import { registerOrLoginWithGoogle } from '../services/socialAuthService.js';
-import { detectClientOrigin, getFrontendUrl, logClientOrigin } from '../utils/clientDetection.js';
-//import crypto from 'crypto';
-
-// STATE DESATIVADO POR MOTIVOS DE FACILIDADE DE DESENVOLVIMENTO
-
+import crypto from 'crypto';
 
 export async function loginWithGoogle(req, res) {
 
-    /**const state = crypto.randomBytes(32).toString('hex');
+    const state = crypto.randomBytes(32).toString('hex');
+
+    console.log("estado: ", state);
     
     req.session = req.session || {};
     req.session.oauthState = state;
 
-    console.log(req.session.oauthState);**/
+    console.log(req.session.oauthState);
 
-    const url = await generateGoogleLoginUrl(/**state**/);
+    const url = await generateGoogleLoginUrl(state);
     console.log("Google Login URL:", url);
     res.json({url});
 }
 
 export async function loginWithGoogleCallback(req, res) {
-    const { code } = req.query;
-    console.log("Código recebido:", code);
-    /**const { code, state } = req.query;
+    const { code, state } = req.query;
     console.log("\nstate:", state, "session", req.session.oauthState);
-    console.log("\ncode:", code);**/
+    console.log("\ncode:", code);
   
     try {
         // Verificar state para proteção CSRF
-        /**if (!state || !req.session?.oauthState || state !== req.session.oauthState) {
+        if (!state || !req.session?.oauthState || state !== req.session.oauthState) {
             return res.status(400).json({ error: 'Estado inválido - possível ataque CSRF' });
         }
         
         // Limpar state da sessão
-        delete req.session.oauthState;**/
+        delete req.session.oauthState;
         
         res.set({
             'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -47,17 +43,11 @@ export async function loginWithGoogleCallback(req, res) {
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         });
 
-        // Detectar origem da requisição (web vs app mobile)
-        const clientInfo = detectClientOrigin(req);
-        const frontendUrl = getFrontendUrl(clientInfo);
+        // Detectar se é web ou mobile baseado na query string ou headers
+        const isWeb = req.query.platform === 'web' || req.headers['user-agent']?.includes('Mozilla') && !req.headers['user-agent']?.includes('Mobile');
+        const frontendUrl = isWeb ? 'http://localhost:8081' : process.env.DEVELOPMENT_URL_FRONTEND;//'https://jacacultmap-app.vercel.app' : process.env.DEVELOPMENT_URL_FRONTEND;
         
-        logClientOrigin(clientInfo, req);
-        console.log({
-            origin: clientInfo.isApp ? 'APP' : 'WEB',
-            method: clientInfo.source,
-            redirectUrl: frontendUrl
-        });
-        
+        console.log("Platform:", isWeb ? "Web" : "Mobile", "Redirecting to:", frontendUrl);
         return res.redirect(`${frontendUrl}/auth-callback?code=${code}`);
     } catch (error) {
         res.status(400).json({ error: 'Falha no login' });

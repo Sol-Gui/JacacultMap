@@ -18,7 +18,7 @@ export async function generateGoogleLoginUrl(state) {
         access_type: 'offline',
         include_granted_scopes: true,
         scope: ['openid', 'email', 'profile'],
-        //state: state, // Adicionar state para proteção CSRF
+        state: state, // Adicionar state para proteção CSRF
     });
     return url
 }

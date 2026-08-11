@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useServerCheck } from '../../services/api';
 import { useRouter } from 'expo-router';
 import { ApiErrorIcon } from "../../styles/icons";
-import { useStatusStyles } from "../../styles/status";
 
 const INITIAL_INTERVAL = 3000;
 const MAX_INTERVAL = 10000;
@@ -12,7 +11,6 @@ export default function Status() {
   const router = useRouter();
   const [pollingCount, setPollingCount] = useState(0);
   const [interval, setInterval] = useState(INITIAL_INTERVAL);
-  const responsiveStyles = useStatusStyles();
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -32,16 +30,19 @@ export default function Status() {
   }, [shouldRedirect, checking, router]);
 
   return (
-    <View style={responsiveStyles.body}>
-      <Image source={ApiErrorIcon} style={responsiveStyles.icon}></Image>
-      <Text style={responsiveStyles.error_text}>ERRO INESPERADO</Text>
-      <Text style={responsiveStyles.checking_text}>
-        Encontramos um erro inesperado e não conseguimos
-        chamar a nossa API corretamente. 
+    <View className="flex-1 items-center justify-center bg-[#064E3B] px-5">
+      <View className="w-full max-w-[400px] items-center rounded-2xl bg-white p-7 shadow-xl">
+      <Image source={ApiErrorIcon} className="h-28 w-28" />
+      <Text className="mt-5 text-center text-xl font-extrabold text-[#123C2C]">
+        Conexão indisponível
       </Text>
-      <Text style={responsiveStyles.trying_again_text}>
+      <Text className="mt-2 text-center text-sm leading-5 text-[#5D7568]">
+        Não foi possível falar com a API neste momento.
+      </Text>
+      <Text className="mt-5 text-center text-sm font-bold text-[#16734E]">
         Tentando novamente em {Math.round(interval / 1000)} segundos.
       </Text>
+      </View>
     </View>
   );
 };
