@@ -4,7 +4,7 @@ import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import {
   AuthLayout,
-  AuthLink,
+  SecondaryButton,
   AuthSubtitle,
   AuthTitle,
   Divider,
@@ -19,7 +19,7 @@ import { saveData } from '../../services/localStorage';
 import { signUpAuth, startGoogleAuth } from '../../services/auth';
 import { getRegisterData } from '../../utils/registerBuffer';
 
-const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
+const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com'];
 
 export default function Register() {
   const router = useRouter();
@@ -139,7 +139,7 @@ export default function Register() {
         </View>
 
         <PrimaryButton onPress={handleRegister} loading={submitting}>Criar conta</PrimaryButton>
-        <AuthLink onPress={() => router.replace('/(auth)/login')}>Já tenho uma conta</AuthLink>
+        <SecondaryButton onPress={() => { router.push('/(auth)/login'); }}>Já tenho uma conta</SecondaryButton>
 
         {error && <Animated.View style={{ opacity: fadeAnim }}><ErrorBanner message={error} /></Animated.View>}
       </ScrollView>

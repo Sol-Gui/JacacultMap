@@ -21,7 +21,7 @@ import { signInAuth, startGoogleAuth } from '../../services/auth';
 import { getUserData } from '../../services/user';
 import { setRegisterData } from '../../utils/registerBuffer';
 
-const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
+const emailDomains = ['gmail.com', 'hotmail.com', 'outlook.com'];
 
 export default function Login() {
   const router = useRouter();

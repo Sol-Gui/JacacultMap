@@ -43,7 +43,6 @@ export default function RootLayout() {
               }
             });
           } else if (!currentMatch) {
-            console.log("data removida");
             removeData('userToken');
             router.replace('/(auth)/login');
           }

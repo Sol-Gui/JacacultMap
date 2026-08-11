@@ -9,9 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Pressable,
   Modal,
-  Platform
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getData } from '../../services/localStorage';
@@ -31,7 +29,6 @@ interface UserData {
 }
 
 const CriarEvento = () => {
-  console.log("Renderizando CriarEvento");
   const { theme } = useTheme();
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -154,10 +151,6 @@ const CriarEvento = () => {
       const processedAdditional = eventImages.slice(0, 3).map(img =>
         processBase64(img.base64, img.type)
       );
-
-      // Log para debug
-      console.log('Tamanho da imagem do banner:', processedBanner.length);
-      console.log('Tamanho da imagem do header:', processedHeader.length);
 
       const eventData = {
         title,

@@ -1,8 +1,8 @@
 import React, { Component, useCallback } from 'react';
-import Footer from '../../components/Footer';
-import Header from '../../components/Header';
-import Sidebar from '../../components/Sidebar';
-import EventModal from '../../components/EventModal';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import Sidebar from '@/components/Sidebar';
+import EventModal from '@/components/EventModal';
 import {
   View,
   Text,
@@ -18,7 +18,8 @@ import { getData } from '../../services/localStorage';
 import { getLimitedEvents } from '../../services/events';
 import { getUserData } from '@/services/user';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 interface AppState {
   showSidebar: boolean;
@@ -72,7 +73,7 @@ const updateUserData = async () => {
       userData = await getUserData(token);
     }
   } catch (err) {
-    console.log("Erro ao capturar token")
+    console.error("Erro ao capturar token")
   };
 }
 
@@ -95,7 +96,7 @@ const fetchCategories = async (): Promise<Category[]> => {
     return favoritedCategories;
 
   } catch (error) {
-    console.log('Failed to load categories:', error);
+    console.error('Failed to load categories:', error);
     return eventsCategories;
   }
 };
@@ -126,8 +127,7 @@ class SearchBar extends Component<{
       <View className="px-4 pb-4">
         <View className="flex-row items-center rounded-xl border p-3" style={{ backgroundColor: theme.card, borderColor: theme.border }}>
           <View className="relative mr-2 h-5 w-5">
-            <View className="absolute h-3.5 w-3.5 rounded-full border-2" style={{ borderColor: theme.textSecondary }} />
-            <View className="absolute bottom-0 right-0 h-0.5 w-1.5 rotate-45 rounded-full" style={{ backgroundColor: theme.textSecondary }} />
+            <MaterialCommunityIcons name="magnify" size={20} color={theme.textSecondary} />
           </View>
           <TextInput
             className="flex-1 text-base"

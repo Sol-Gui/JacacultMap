@@ -2,7 +2,7 @@
 
 # dependencies
 node_modules/
-.npm-cache/
+.npm-cache
 
 # Expo
 .expo/

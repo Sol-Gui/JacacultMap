@@ -57,8 +57,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuPress, theme, isDarkMode, onTheme
       {!showMenuButton && <View className="h-10 w-10" />}
 
       <View className="absolute left-1/2 -translate-x-1/2 items-center">
-        <Text className="text-base font-extrabold text-[#16734E]">JacaCult</Text>
-        <Text className="text-[10px] font-medium" style={{ color: theme.textSecondary }}>Mapa de eventos</Text>
+        <Text className="text-2xl font-extrabold text-[#16734E]">JacaCultMap</Text>
       </View>
 
       <View className="flex-row items-center gap-3">

@@ -4,33 +4,42 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
   type TextInputProps,
   View,
+  ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export const AuthLayout = ({ children }: { children: React.ReactNode }) => (
-  <SafeAreaView className="flex-1 bg-[#006032]">
+  <SafeAreaView className="flex-1 bg-[#006032] w-full" edges={['top', 'left', 'right', 'bottom']}>
     <KeyboardAvoidingView
       className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View className="flex-1 px-5 pt-8 sm:px-8 sm:pt-10">
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+      <View className="flex-1 px-5 pt-8 sm:px-8 sm:pt-10 bg-[#006032]">
         <View className="mx-auto w-full max-w-[460px]">
-          <Text className="text-3xl font-extrabold text-white">JacaCult</Text>
+          <Text className="text-3xl font-extrabold text-white">JacaCultMap</Text>
           <View className="mt-2 h-1 w-12 rounded-full bg-[#81B522]" />
           <Text className="mt-3 text-sm leading-5 text-[#D9ECD2]">Seu ponto de encontro com a cultura local.</Text>
         </View>
-        <View className="mt-8 flex-1 -mx-5 rounded-t-[30px] bg-[#F7FAF6] px-5 pt-7 sm:-mx-8 sm:px-8">
+        <View className="flex-1 flex justify-top items-center">
+        <View className="w-full h-auto px-5 py-10 rounded-[50px] bg-[#F7FAF6] sm:w-[70%] my-10">
           <View className="mx-auto w-full max-w-[460px]">
             {children}
           </View>
         </View>
       </View>
+      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   </SafeAreaView>
 );

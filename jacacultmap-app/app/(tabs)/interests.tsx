@@ -6,12 +6,12 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   useWindowDimensions,
   Animated,
   ScrollView
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Interests = () => {
   const { width, height } = useWindowDimensions();
@@ -102,7 +102,6 @@ const Interests = () => {
   };
 
   const handleContinue = () => {
-    console.log('Interesses selecionados:', selectedInterests);
     validateToken().then(async (response) => {
       if (response.success && response.token) {
         await updateUserData(response.token, { "update": { "favoritedCategories": selectedInterests } });
@@ -141,37 +140,37 @@ const Interests = () => {
             <View className="h-[3px] w-[60px] rounded-full bg-white/60" />
           </Animated.View>
 
-          <View className="w-full items-center py-5">
-            {interests.map((interest, index) => (
-              <Animated.View
-                key={interest.id}
-                className="mb-4 h-[58px] w-full max-w-[560px] items-center"
-                style={{ transform: [{ scale: scaleAnims[index] }] }}
+          <View className="w-full items-center py-5 gap-4">
+          {interests.map((interest, index) => (
+            <Animated.View
+              key={interest.id}
+              className="h-[72px] w-full max-w-[560px] items-center"
+              style={{ transform: [{ scale: scaleAnims[index] }] }}
+            >
+              <TouchableOpacity
+                className={`h-full w-full items-center justify-center rounded-2xl border-2 px-4 shadow-lg ${selectedInterests.includes(interest.id) ? 'border-white/30 bg-[#81C784]' : 'border-transparent bg-[#e3e3e3]'}`}
+                onPress={() => !isAnimating && handleInterestPress(interest, index)}
+                activeOpacity={isAnimating ? 1 : 0.8}
+                disabled={isAnimating}
               >
-                <TouchableOpacity
-                  className={`h-full w-full items-center justify-center rounded-2xl border-2 px-4 shadow-lg ${selectedInterests.includes(interest.id) ? 'border-white/30 bg-[#81C784]' : 'border-transparent bg-[#e3e3e3]'}`}
-                  onPress={() => !isAnimating && handleInterestPress(interest, index)}
-                  activeOpacity={isAnimating ? 1 : 0.8}
-                  disabled={isAnimating}
-                >
-                  <View className="w-full flex-row items-center px-4">
-                    {selectedInterests.includes(interest.id) && (
-                      <View className="mr-2 h-5 w-5 items-center justify-center rounded-full bg-white/20">
-                        <Text className="text-xs font-bold text-white">✓</Text>
-                      </View>
-                    )}
-                    <Text
-                      className={`flex-1 text-center font-semibold ${isSmallScreen ? 'text-sm' : 'text-base'} ${selectedInterests.includes(interest.id) ? 'text-white' : 'text-[#2E7D32]'}`}
-                      numberOfLines={1}
-                      adjustsFontSizeToFit
-                    >
-                      {interest.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </Animated.View>
-            ))}
-          </View>
+                <View className="w-full flex-row items-center px-4">
+                  {selectedInterests.includes(interest.id) && (
+                    <View className="mr-2 h-5 w-5 items-center justify-center rounded-full bg-white/20">
+                      <Text className="text-xs font-bold text-white">✓</Text>
+                    </View>
+                  )}
+                  <Text
+                    className={`flex-1 my-3 gap-3 text-center font-semibold ${isSmallScreen ? 'text-base' : 'text-lg'} ${selectedInterests.includes(interest.id) ? 'text-black/50' : 'text-[#2E7D32]'}`}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {interest.name}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
+        </View>
         </View>
       </ScrollView>
 
