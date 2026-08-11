@@ -10,7 +10,7 @@ export async function loginWithGoogle(req, res) {
     req.session.oauthState = state;
 
     const url = await generateGoogleLoginUrl(state);
-    res.json({url});
+    res.json({url, state});
 }
 
 export async function loginWithGoogleCallback(req, res) {
@@ -20,14 +20,17 @@ export async function loginWithGoogleCallback(req, res) {
     const { code, state } = req.query;
   
     try {
-        // Verificar state para proteção CSRF
-        if (!state || !req.session?.oauthState || state !== req.session.oauthState) {
-            return res.status(400).json({ error: 'Estado inválido - possível ataque CSRF' });
+        // Verificar state para proteção CSRF.
+        // A sessão pode estar indisponível em navegadores que bloqueiam cookies
+        // de terceiros entre sites diferentes (ex: frontend no Vercel -> backend no Render),
+        // então a validação real acontece no frontend comparando o state ecoado aqui.
+        if (req.session?.oauthState) {
+            if (!state || state !== req.session.oauthState) {
+                return res.status(400).json({ error: 'Estado inválido - possível ataque CSRF' });
+            }
+            delete req.session.oauthState;
         }
-        
-        // Limpar state da sessão
-        delete req.session.oauthState;
-        
+
         res.set({
             'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
             'Pragma': 'no-cache',
@@ -43,7 +46,7 @@ export async function loginWithGoogleCallback(req, res) {
         const isWeb = req.query.platform === 'web' || req.headers['user-agent']?.includes('Mozilla') && !req.headers['user-agent']?.includes('Mobile');
         const frontendUrl = isWeb ? process.env.PRODUCTION_URL_FRONTEND : process.env.DEVELOPMENT_URL_FRONTEND;
         
-        return res.redirect(`${frontendUrl}/auth-callback?code=${code}`);
+        return res.redirect(`${frontendUrl}/auth-callback?code=${code}&state=${state}`);
     } catch (error) {
         res.status(400).json({ error: 'Falha no login' });
         console.log(error)
