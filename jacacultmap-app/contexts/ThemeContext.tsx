@@ -2,12 +2,14 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { getData, saveData } from '../services/localStorage';
 import { baseLight, baseDark } from '../styles/app/mainPage';
 
+type Theme = typeof baseLight;
+
 interface ThemeContextType {
   isDarkMode: boolean;
   accentColor: string;
-  theme: any;
+  theme: Theme;
   toggleDarkMode: () => Promise<void>;
-  setAccentColor: (color: string) => void;
+  setAccentColor: (color: string) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -17,21 +19,29 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+const DEFAULT_ACCENT = '#10B981';
+
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [accentColor, setAccentColor] = useState('#10B981');
+  const [accentColor, setAccentColorState] = useState(DEFAULT_ACCENT);
   const [isLoading, setIsLoading] = useState(true);
 
-  const theme = isDarkMode 
-    ? { ...baseDark, primary: accentColor } 
+  const theme: Theme = isDarkMode
+    ? { ...baseDark, primary: accentColor }
     : { ...baseLight, primary: accentColor };
 
   const loadTheme = async () => {
     try {
       setIsLoading(true);
-      const storedDarkMode = await getData('isDarkMode');
+      const [storedDarkMode, storedAccentColor] = await Promise.all([
+        getData('isDarkMode'),
+        getData('accentColor'),
+      ]);
       if (storedDarkMode !== null) {
         setIsDarkMode(storedDarkMode === 'true');
+      }
+      if (storedAccentColor !== null) {
+        setAccentColorState(storedAccentColor);
       }
     } catch (err) {
       console.error('Erro ao carregar tema:', err);
@@ -47,6 +57,15 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       await saveData('isDarkMode', String(newMode));
     } catch (err) {
       console.error('Erro ao salvar tema:', err);
+    }
+  };
+
+  const setAccentColor = async (color: string) => {
+    try {
+      setAccentColorState(color);
+      await saveData('accentColor', color);
+    } catch (err) {
+      console.error('Erro ao salvar cor de destaque:', err);
     }
   };
 

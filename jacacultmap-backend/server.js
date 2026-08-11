@@ -24,8 +24,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const allowedOrigins = [
-  process.env.DEVELOPMENT_URL_FRONTEND,
-  "https://jacacultmap-app.vercel.app"
+  //process.env.DEVELOPMENT_URL_FRONTEND, // remova essa linha para colocar em prod.
+  process.env.PRODUCTION_URL_FRONTEND
 ]
 
 app.use(cors({
@@ -43,7 +43,6 @@ app.use(cors({
       return callback(null, true);
     }
 
-    console.log('Blocked origin:', origin); // Para debug
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,

@@ -5,23 +5,16 @@ import crypto from 'crypto';
 export async function loginWithGoogle(req, res) {
 
     const state = crypto.randomBytes(32).toString('hex');
-
-    console.log("estado: ", state);
     
     req.session = req.session || {};
     req.session.oauthState = state;
 
-    console.log(req.session.oauthState);
-
     const url = await generateGoogleLoginUrl(state);
-    console.log("Google Login URL:", url);
     res.json({url});
 }
 
 export async function loginWithGoogleCallback(req, res) {
     const { code, state } = req.query;
-    console.log("\nstate:", state, "session", req.session.oauthState);
-    console.log("\ncode:", code);
   
     try {
         // Verificar state para proteção CSRF
@@ -47,7 +40,6 @@ export async function loginWithGoogleCallback(req, res) {
         const isWeb = req.query.platform === 'web' || req.headers['user-agent']?.includes('Mozilla') && !req.headers['user-agent']?.includes('Mobile');
         const frontendUrl = isWeb ? 'http://localhost:8081' : process.env.DEVELOPMENT_URL_FRONTEND;//'https://jacacultmap-app.vercel.app' : process.env.DEVELOPMENT_URL_FRONTEND;
         
-        console.log("Platform:", isWeb ? "Web" : "Mobile", "Redirecting to:", frontendUrl);
         return res.redirect(`${frontendUrl}/auth-callback?code=${code}`);
     } catch (error) {
         res.status(400).json({ error: 'Falha no login' });
